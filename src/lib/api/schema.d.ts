@@ -21,10 +21,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/waitlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Join the waitlist */
+        post: operations["join_waitlist_v1_waitlist_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * ErrorResponse
+         * @description Body of every DomainError response. Clients branch on `code`, never on `detail`.
+         */
+        ErrorResponse: {
+            /** Code */
+            code: string;
+            /** Detail */
+            detail: string;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** HealthResponse */
         HealthResponse: {
             /**
@@ -37,6 +69,52 @@ export interface components {
              * @enum {string}
              */
             database: "ok" | "down";
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
+        };
+        /** WaitlistJoinRequest */
+        WaitlistJoinRequest: {
+            /**
+             * Enrollment Number
+             * @example 22EC1047
+             */
+            enrollment_number: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /**
+             * Confirmed Adult
+             * @description The person confirmed they are 18 or older
+             */
+            confirmed_adult: boolean;
+            /**
+             * Source
+             * @description Where the visitor came from (e.g. 'wa', 'ig'). Invalid values are dropped.
+             */
+            source?: string | null;
+        };
+        /** WaitlistJoinResponse */
+        WaitlistJoinResponse: {
+            /**
+             * Position
+             * @description 1-based place in line
+             */
+            position: number;
+            /** Already Joined */
+            already_joined: boolean;
         };
     };
     responses: never;
@@ -72,6 +150,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    join_waitlist_v1_waitlist_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WaitlistJoinRequest"];
+            };
+        };
+        responses: {
+            /** @description Already on the list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WaitlistJoinResponse"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WaitlistJoinResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Too many attempts */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

@@ -26,7 +26,9 @@ Vite 8 + React 19 + TypeScript 6 (strict), React Router 8, TanStack Query 5 for 
 ```
 src/
   app/          routes, providers, router, app shell with the 3 tabs
-  features/     now: tonight, chats, settings (settings shows the full api → hook → screen chain)
+                routes: `/` = public waitlist (pre-launch), `/app/*` = the app
+  features/     now: waitlist (copy its shape: api → hook → screen → form/view),
+                     tonight, chats, settings
                 planned: auth, verification, onboarding, profile, swaps, guess, safety
     <feature>/  api/  components/  hooks/  types/  (only what it needs)
   components/   shared UI (Button, Sheet, CardStrip, Toggle)
@@ -54,6 +56,8 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 - View components are pure: same props, same output. They're the easiest to test and reuse.
 - Logic that decides something (can I propose a swap now? is this chat fading?) goes in a hook or `utils/`, not inline in JSX.
 - `src/components/` is for UI with no product knowledge (Button, Sheet, Toggle, CardStrip). A component that knows what a "swap" is belongs to a feature.
+- **Errors:** API functions throw `ApiError` via `toApiError` (`src/lib/api/errors.ts`). Forms put `error.fieldErrors` on their inputs with `setError`; everything else maps `error.code` to words in the feature's `utils/errorMessage.ts`. Never show the backend's `detail` text to users.
+- **Validation:** client-side checks are only for instant feedback (required, email shape). The backend owns real rules like the enrollment-number format; show its field error instead of copying its regex.
 
 ## State: put each thing in the right place
 
@@ -74,13 +78,17 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 
 ## Design system
 
-- Two themes from the mockups, as CSS variables in `src/index.css`, mapped into Tailwind. Don't use raw hex in components.
-  - **Paper** (default): bg `#F4F2EC`, surface `#FFFFFF`, text `#1B1F3B`, muted `#5F6378`, accent `#C93D27`, open `#2F6B4F`, locked `#50546A`, warn `#8A4B00`.
-  - **Ink** (auto 21:00–08:00 IST, or user choice): bg `#13162A`, surface `#1D2138`, text `#F3F1EA`, muted `#B4B7C9`, accent `#FF7A5C`, open `#7FD3A8`, locked `#A9ADC3`, warn `#FFC46B`.
+- Look = **Golden hour** from the "Reveal UI Mockups" canvas, as CSS variables in `src/index.css`, mapped into Tailwind. Don't use raw hex in components.
+  - **Golden hour** (the only theme in use): chai cream bg `#F8F1E7`, milk surface `#FFFDF9`, plum ink text `#2A1E2E`, muted `#75636B`, Rani pink accent `#B8336A`, marigold locked `#9A5B00` on `#FFF0D6`, tulsi green open `#1D7558` (a shade darker than the mockup for contrast), warn `#A14A2A`.
+  - **After 9** (dark) is defined under `[data-theme='ink']` but not used: day theme only, no automatic night switch.
 - Accent is only for the one committing action on a screen (Swap, Send, Continue). Everything else is neutral.
-- Fonts: Bricolage Grotesque for headings and the users' written lines; Inter for everything else.
+- Fonts: Fraunces (serif) for headings and the users' written lines; DM Sans for everything else.
 - Mobile first at 390px wide. Touch targets ≥ 44px. Text contrast ≥ 4.5:1 in both themes.
 - Words in the UI: **Shown / Hidden / Swap / Not yet**. No jargon like "face-up", "unlock", "reveal request".
+- Show, don't label: illustrate with realistic content (a real-looking line, "CSE · 2nd year", a voice pill), never abstract codes like "LINE" or "01". If a visual needs explaining, add a one-line key.
+- Hidden things use the `hatch` utility + dashed `border-locked` (marigold); sealed things add `LockIcon`. Inputs use the `border-field` token (3:1 contrast). Errors are `text-accent-text` with `AlertIcon`, directly under the field.
+- Never imply something is live before it is (no "drops tonight" before launch). Copy is honest about what exists.
+- Motion: CSS only, ease-out, ≤ 600ms, one-time unless it's a tiny ambient hint; every animated class is listed in the `prefers-reduced-motion` block in `index.css`, and its base style is the final state.
 
 ## PWA and push
 

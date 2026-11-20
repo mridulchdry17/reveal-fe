@@ -10,8 +10,8 @@ import { server } from '@/testing/server'
 import { routes } from './routes'
 
 describe('AppShell', () => {
-  it('opens on Tonight and shows the three tabs', async () => {
-    renderRoutes(routes, '/')
+  it('opens /app on Tonight and shows the three tabs', async () => {
+    renderRoutes(routes, '/app')
 
     expect(await screen.findByRole('heading', { name: 'Tonight' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Main' })
@@ -26,7 +26,7 @@ describe('AppShell', () => {
         HttpResponse.json({ status: 'ok', database: 'ok' }),
       ),
     )
-    renderRoutes(routes, '/tonight')
+    renderRoutes(routes, '/app/tonight')
 
     await userEvent.click(screen.getByRole('link', { name: 'Chats' }))
     expect(await screen.findByRole('heading', { name: 'Chats' })).toBeInTheDocument()

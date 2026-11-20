@@ -1,47 +1,48 @@
 @import 'tailwindcss';
 
-/* Design tokens from the Reveal mockups. Components use the Tailwind names
-   (bg-bg, text-muted, bg-accent...), never raw hex. */
+/* Design tokens: "Golden hour" from the Reveal UI Mockups canvas. Components use the
+   Tailwind names (bg-bg, text-muted, bg-accent...), never raw hex. */
 :root,
 [data-theme='paper'] {
-  --bg: #f4f2ec;
-  --surface: #ffffff;
-  --surface-2: #ece9e1;
-  --border: #ddd9cf;
-  --border-strong: #b9b3a6;
-  --text: #1b1f3b;
-  --muted: #5f6378;
-  --accent: #c93d27;
+  --bg: #f8f1e7; /* chai cream */
+  --surface: #fffdf9; /* milk */
+  --surface-2: #f1e6d8;
+  --border: #e6d8c6;
+  --border-strong: #cdb9a3;
+  --text: #2a1e2e; /* plum ink */
+  --muted: #75636b;
+  --accent: #b8336a; /* rani pink: the one committing action */
   --on-accent: #ffffff;
-  --accent-bg: #fbe5df;
-  --accent-text: #a5321f;
-  --locked: #50546a;
-  --locked-bg: #e6e4dc;
-  --open: #2f6b4f;
-  --open-bg: #dcefe3;
-  --warn: #8a4b00;
-  --warn-bg: #fff0d9;
+  --accent-bg: #f9e1ea;
+  --accent-text: #9a2457;
+  --locked: #9a5b00; /* marigold: hidden */
+  --locked-bg: #fff0d6;
+  --open: #1d7558; /* tulsi green: shown (a shade darker than the mockup for 4.5:1 on open-bg) */
+  --open-bg: #ddf1e8;
+  --warn: #a14a2a;
+  --warn-bg: #fce6dc;
   color-scheme: light;
 }
 
+/* "After 9". Defined, not used: the app is day theme only for now. */
 [data-theme='ink'] {
-  --bg: #13162a;
-  --surface: #1d2138;
-  --surface-2: #272c48;
-  --border: #343a5a;
-  --border-strong: #4d5478;
-  --text: #f3f1ea;
-  --muted: #b4b7c9;
-  --accent: #ff7a5c;
-  --on-accent: #13162a;
-  --accent-bg: #4a2a26;
-  --accent-text: #ffb3a3;
-  --locked: #a9adc3;
-  --locked-bg: #262a42;
-  --open: #7fd3a8;
-  --open-bg: #1e3a30;
-  --warn: #ffc46b;
-  --warn-bg: #3b2e16;
+  --bg: #1c1320;
+  --surface: #2a1d30;
+  --surface-2: #352640;
+  --border: #47354f;
+  --border-strong: #6a5372;
+  --text: #f8eef2;
+  --muted: #bfaec2;
+  --accent: #ff6fa5;
+  --on-accent: #1c1320;
+  --accent-bg: #4a2236;
+  --accent-text: #ffb3cf;
+  --locked: #ffb547;
+  --locked-bg: #3a2a1a;
+  --open: #5fd3a8;
+  --open-bg: #173a31;
+  --warn: #ff9f80;
+  --warn-bg: #3d241c;
   color-scheme: dark;
 }
 
@@ -63,8 +64,8 @@
   --color-open-bg: var(--open-bg);
   --color-warn: var(--warn);
   --color-warn-bg: var(--warn-bg);
-  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
 }
 
 body {
@@ -73,4 +74,147 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Input boundary token (3:1 against surface, WCAG 1.4.11) ---------- */
+:root,
+[data-theme='paper'] {
+  --field: #8f7f76;
+}
+[data-theme='ink'] {
+  --field: #7a6582;
+}
+@theme inline {
+  --color-field: var(--field);
+}
+
+/* The brand's "hidden card" pattern. */
+@utility hatch {
+  background-color: var(--locked-bg);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--locked) 22%, transparent) 0 1px,
+    transparent 1px 6px
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ---------- Hero profile: a shown card in front of hidden ones. React sets --x --y --r --i. ---------- */
+.stack-card {
+  transform: translate(var(--x), var(--y)) rotate(var(--r));
+  animation: deal 600ms cubic-bezier(0.22, 1, 0.36, 1) calc(120ms + var(--i) * 90ms) both;
+}
+.peek {
+  animation: peek 5s cubic-bezier(0.45, 0, 0.55, 1) 2.6s infinite;
+}
+@keyframes deal {
+  from {
+    opacity: 0;
+    transform: translate(0, 40px) rotate(0deg) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1);
+  }
+}
+@keyframes peek {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  78% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+  86% {
+    transform: translateY(-8px) rotate(-1deg);
+  }
+}
+
+/* Hatched highlighter under a headline phrase. */
+.mark {
+  background: repeating-linear-gradient(
+      -45deg,
+      color-mix(in oklab, var(--locked) 35%, transparent) 0 1.5px,
+      transparent 1.5px 5px
+    )
+    0 88% / 100% 0.42em no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0 0.06em;
+  animation: mark 700ms cubic-bezier(0.22, 1, 0.36, 1) 1500ms both;
+}
+@keyframes mark {
+  from {
+    background-size: 0% 0.42em;
+  }
+  to {
+    background-size: 100% 0.42em;
+  }
+}
+
+/* Post-join "ticket" that flips to reveal your place. */
+.ticket {
+  perspective: 900px;
+}
+.ticket-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  animation: ticket 800ms cubic-bezier(0.65, 0, 0.35, 1) 150ms both;
+}
+.ticket-inner[data-static] {
+  animation: none;
+}
+@keyframes ticket {
+  0% {
+    transform: rotateY(180deg) scale(0.96);
+  }
+  60% {
+    transform: rotateY(-8deg) translateY(-6px) scale(1.02);
+  }
+  100% {
+    transform: rotateY(0) translateY(0) scale(1);
+  }
+}
+.rise {
+  animation: rise 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.pulse-dot {
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Every animation's base style is its final state, so switching them off shows the finished page. */
+@media (prefers-reduced-motion: reduce) {
+  .stack-card,
+  .peek,
+  .mark,
+  .ticket-inner,
+  .rise,
+  .pulse-dot {
+    animation: none !important;
+  }
 }
