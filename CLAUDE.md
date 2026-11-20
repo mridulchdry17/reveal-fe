@@ -85,6 +85,10 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 - Fonts: Bricolage Grotesque for headings and the users' written lines; Inter for everything else.
 - Mobile first at 390px wide. Touch targets ≥ 44px. Text contrast ≥ 4.5:1 in both themes.
 - Words in the UI: **Shown / Hidden / Swap / Not yet**. No jargon like "face-up", "unlock", "reveal request".
+- Show, don't label: illustrate with realistic content (a real-looking line, "CSE · 2nd year", a voice pill), never abstract codes like "LINE" or "01". If a visual needs explaining, add a one-line key.
+- Hidden things use the `hatch` utility + dashed `border-border-strong`; sealed things add `LockIcon`. Inputs use the `border-field` token (3:1 contrast). Errors are `text-accent-text` with `AlertIcon`, directly under the field.
+- Never imply something is live before it is (no "drops tonight" before launch). Copy is honest about what exists.
+- Motion: CSS only, ease-out, ≤ 600ms, one-time unless it's a tiny ambient hint; every animated class is listed in the `prefers-reduced-motion` block in `index.css`, and its base style is the final state.
 
 ## PWA and push
 
