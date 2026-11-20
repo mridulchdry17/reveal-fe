@@ -1,47 +1,48 @@
 @import 'tailwindcss';
 
-/* Design tokens from the Reveal mockups. Components use the Tailwind names
-   (bg-bg, text-muted, bg-accent...), never raw hex. */
+/* Design tokens: "Golden hour" from the Reveal UI Mockups canvas. Components use the
+   Tailwind names (bg-bg, text-muted, bg-accent...), never raw hex. */
 :root,
 [data-theme='paper'] {
-  --bg: #f4f2ec;
-  --surface: #ffffff;
-  --surface-2: #ece9e1;
-  --border: #ddd9cf;
-  --border-strong: #b9b3a6;
-  --text: #1b1f3b;
-  --muted: #5f6378;
-  --accent: #c93d27;
+  --bg: #f8f1e7; /* chai cream */
+  --surface: #fffdf9; /* milk */
+  --surface-2: #f1e6d8;
+  --border: #e6d8c6;
+  --border-strong: #cdb9a3;
+  --text: #2a1e2e; /* plum ink */
+  --muted: #75636b;
+  --accent: #b8336a; /* rani pink: the one committing action */
   --on-accent: #ffffff;
-  --accent-bg: #fbe5df;
-  --accent-text: #a5321f;
-  --locked: #50546a;
-  --locked-bg: #e6e4dc;
-  --open: #2f6b4f;
-  --open-bg: #dcefe3;
-  --warn: #8a4b00;
-  --warn-bg: #fff0d9;
+  --accent-bg: #f9e1ea;
+  --accent-text: #9a2457;
+  --locked: #9a5b00; /* marigold: hidden */
+  --locked-bg: #fff0d6;
+  --open: #1d7558; /* tulsi green: shown (a shade darker than the mockup for 4.5:1 on open-bg) */
+  --open-bg: #ddf1e8;
+  --warn: #a14a2a;
+  --warn-bg: #fce6dc;
   color-scheme: light;
 }
 
+/* "After 9". Defined, not used: the app is day theme only for now. */
 [data-theme='ink'] {
-  --bg: #13162a;
-  --surface: #1d2138;
-  --surface-2: #272c48;
-  --border: #343a5a;
-  --border-strong: #4d5478;
-  --text: #f3f1ea;
-  --muted: #b4b7c9;
-  --accent: #ff7a5c;
-  --on-accent: #13162a;
-  --accent-bg: #4a2a26;
-  --accent-text: #ffb3a3;
-  --locked: #a9adc3;
-  --locked-bg: #262a42;
-  --open: #7fd3a8;
-  --open-bg: #1e3a30;
-  --warn: #ffc46b;
-  --warn-bg: #3b2e16;
+  --bg: #1c1320;
+  --surface: #2a1d30;
+  --surface-2: #352640;
+  --border: #47354f;
+  --border-strong: #6a5372;
+  --text: #f8eef2;
+  --muted: #bfaec2;
+  --accent: #ff6fa5;
+  --on-accent: #1c1320;
+  --accent-bg: #4a2236;
+  --accent-text: #ffb3cf;
+  --locked: #ffb547;
+  --locked-bg: #3a2a1a;
+  --open: #5fd3a8;
+  --open-bg: #173a31;
+  --warn: #ff9f80;
+  --warn-bg: #3d241c;
   color-scheme: dark;
 }
 
@@ -63,8 +64,8 @@
   --color-open-bg: var(--open-bg);
   --color-warn: var(--warn);
   --color-warn-bg: var(--warn-bg);
-  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
 }
 
 body {
@@ -78,10 +79,10 @@ body {
 /* ---------- Input boundary token (3:1 against surface, WCAG 1.4.11) ---------- */
 :root,
 [data-theme='paper'] {
-  --field: #8c8f9e;
+  --field: #8f7f76;
 }
 [data-theme='ink'] {
-  --field: #6e76a0;
+  --field: #7a6582;
 }
 @theme inline {
   --color-field: var(--field);

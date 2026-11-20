@@ -39,7 +39,7 @@ const rules: { title: string; body: string; glyph: ReactNode }[] = [
     title: "Swap, don't stalk.",
     body: 'A card opens only when you both tap yes, together. Photo always comes last.',
     glyph: (
-      <span className={`${glyphBase} hatch overflow-hidden border-[1.5px] border-dashed border-border-strong`}>
+      <span className={`${glyphBase} hatch overflow-hidden border-[1.5px] border-dashed border-locked`}>
         <span className="absolute inset-0 bg-open [clip-path:polygon(0_0,100%_0,0_100%)]" />
       </span>
     ),
@@ -70,7 +70,7 @@ export function WaitlistScreen() {
           <span className="flex items-center gap-2">
             <span aria-hidden="true" className="relative size-5">
               <span className="absolute top-0.5 left-0 h-[15px] w-[11px] -rotate-[8deg] rounded-[3px] bg-open" />
-              <span className="absolute top-0.5 left-2 h-[15px] w-[11px] rotate-[6deg] rounded-[3px] hatch border border-dashed border-border-strong" />
+              <span className="absolute top-0.5 left-2 h-[15px] w-[11px] rotate-[6deg] rounded-[3px] hatch border border-dashed border-locked" />
             </span>
             <span className="font-display text-xl font-extrabold tracking-[-0.03em]">Reveal</span>
           </span>
@@ -101,7 +101,7 @@ export function WaitlistScreen() {
           <section
             id="join"
             aria-labelledby={join.data ? undefined : 'join-heading'}
-            className="scroll-mt-6 rounded-[28px] border border-border bg-surface p-5 pt-6 shadow-[0_1px_0_rgb(19_22_42/0.04),0_24px_48px_-32px_rgb(19_22_42/0.35)] md:sticky md:top-8"
+            className="scroll-mt-6 rounded-[28px] border border-border bg-surface p-5 pt-6 shadow-[0_1px_0_rgb(42_30_46/0.04),0_24px_48px_-32px_rgb(42_30_46/0.35)] md:sticky md:top-8"
           >
             {join.data ? (
               <JoinedCard

@@ -33,19 +33,19 @@ export function HeroProfile() {
           >
             <div className={`relative size-full ${card.peek ? 'peek' : ''}`}>
               <span
-                className={`absolute bottom-full ${card.tabPosition} inline-flex h-6 items-center gap-1 rounded-t-lg border-[1.5px] border-b-0 border-dashed border-border-strong bg-locked-bg px-2.5 text-[11px] font-bold text-locked`}
+                className={`absolute bottom-full ${card.tabPosition} inline-flex h-6 items-center gap-1 rounded-t-lg border-[1.5px] border-b-0 border-dashed border-locked bg-locked-bg px-2.5 text-[11px] font-bold text-locked`}
               >
                 {card.tab === 'Photo' && <LockIcon className="size-3" />}
                 {card.tab}
               </span>
-              <span className="block size-full rounded-[18px] hatch border-[1.5px] border-dashed border-border-strong" />
+              <span className="block size-full rounded-[18px] hatch border-[1.5px] border-dashed border-locked" />
             </div>
           </div>
         ))}
 
         <div
           aria-hidden="true"
-          className="stack-card absolute inset-x-0 bottom-0 flex h-[180px] flex-col gap-2 rounded-[18px] border border-border bg-surface p-4 text-left shadow-[0_1px_0_rgb(19_22_42/0.04),0_18px_36px_-20px_rgb(19_22_42/0.45)]"
+          className="stack-card absolute inset-x-0 bottom-0 flex h-[180px] flex-col gap-2 rounded-[18px] border border-border bg-surface p-4 text-left shadow-[0_1px_0_rgb(42_30_46/0.04),0_18px_36px_-20px_rgb(42_30_46/0.45)]"
           style={{ '--x': '0px', '--y': '0px', '--r': '0deg', '--i': hidden.length } as CSSProperties}
         >
           <span className="inline-flex h-6 items-center self-start rounded-full bg-open-bg px-2.5 text-[11px] font-bold text-open">
@@ -77,7 +77,7 @@ export function HeroProfile() {
           Shown
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden="true" className="h-3.5 w-2.5 rounded-[3px] hatch border border-dashed border-border-strong" />
+          <span aria-hidden="true" className="h-3.5 w-2.5 rounded-[3px] hatch border border-dashed border-locked" />
           Hidden until you both swap
         </span>
       </figcaption>

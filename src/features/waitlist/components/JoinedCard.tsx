@@ -58,11 +58,11 @@ export function JoinedCard({ position, alreadyJoined, college, origin }: Props) 
 
       <div className="ticket mt-5 h-[240px] w-[176px] -rotate-3" role="img" aria-label={placeLabel}>
         <div className="ticket-inner size-full" data-static={alreadyJoined ? '' : undefined}>
-          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-[18px] hatch border-[1.5px] border-dashed border-border-strong [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <div className="absolute inset-0 flex flex-col items-center justify-center rounded-[18px] hatch border-[1.5px] border-dashed border-locked [backface-visibility:hidden] [transform:rotateY(180deg)]">
             <LockIcon className="size-6 text-locked" />
             <span className="mt-2 text-[11px] font-bold tracking-[0.08em] text-locked uppercase">Your place</span>
           </div>
-          <div className="absolute inset-0 flex flex-col justify-between rounded-[18px] bg-text p-4 text-left text-bg shadow-[0_1px_0_rgb(19_22_42/0.06),0_18px_30px_-16px_rgb(19_22_42/0.55)] [backface-visibility:hidden]">
+          <div className="absolute inset-0 flex flex-col justify-between rounded-[18px] bg-text p-4 text-left text-bg shadow-[0_1px_0_rgb(42_30_46/0.06),0_18px_30px_-16px_rgb(42_30_46/0.55)] [backface-visibility:hidden]">
             <span className="font-display text-sm font-extrabold tracking-[-0.02em]">Reveal</span>
             {place.kind === 'founding' ? (
               <span className="flex flex-col">
