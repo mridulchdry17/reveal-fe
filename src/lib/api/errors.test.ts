@@ -4,11 +4,11 @@ import { toApiError } from './errors'
 
 describe('toApiError', () => {
   it('reads code and detail from a domain error', () => {
-    const error = toApiError(409, { code: 'already_registered', detail: 'Already on the list.' })
+    const error = toApiError(429, { code: 'rate_limited', detail: 'Too many tries.' })
 
-    expect(error.status).toBe(409)
-    expect(error.code).toBe('already_registered')
-    expect(error.message).toBe('Already on the list.')
+    expect(error.status).toBe(429)
+    expect(error.code).toBe('rate_limited')
+    expect(error.message).toBe('Too many tries.')
   })
 
   it('maps validation errors to their field names', () => {
