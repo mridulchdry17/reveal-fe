@@ -19,15 +19,15 @@ A change is done when `lint`, `typecheck` and `test` pass. Show the output, not 
 
 ## Stack (decided, don't swap without asking)
 
-Vite + React 18 + TypeScript (strict), React Router, TanStack Query for all server data, React Hook Form + zod for forms, vite-plugin-pwa in `injectManifest` mode (custom service worker for push), Tailwind with the design tokens below, Vitest + Testing Library, MSW for API mocks, pnpm. API types come from `openapi-typescript`; never hand-write a type the schema already defines.
+Vite 8 + React 19 + TypeScript 6 (strict), React Router 8, TanStack Query 5 for all server data, React Hook Form + zod 4 for forms, vite-plugin-pwa 2 in `injectManifest` mode (custom service worker `src/sw.ts` for push), Tailwind 4 with the design tokens below, Vitest + Testing Library, MSW 3 for API mocks, ESLint 10 + typescript-eslint + import-x, pnpm. API calls go through the typed `openapi-fetch` client in `src/lib/api/client.ts`; types come from `openapi-typescript`. Never hand-write a type the schema already defines. Import from `@/…` (maps to `src/`).
 
 ## Layout: by feature (bulletproof-react)
 
 ```
 src/
   app/          routes, providers, router, app shell with the 3 tabs
-  features/     auth, verification, onboarding, profile, tonight, chats,
-                swaps, guess, safety, settings
+  features/     now: tonight, chats, settings (settings shows the full api → hook → screen chain)
+                planned: auth, verification, onboarding, profile, swaps, guess, safety
     <feature>/  api/  components/  hooks/  types/  (only what it needs)
   components/   shared UI (Button, Sheet, CardStrip, Toggle)
   lib/          api client, query client, push, watermark-safe image
@@ -106,3 +106,12 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 - **KISS / YAGNI:** no generic component framework, no state library "for later", no abstraction for a second college. Build what the current screen needs.
 - For UI changes, run `pnpm dev`, check the screen at 390px in both themes, and say what you checked.
 - After the backend changes an endpoint, run `pnpm gen:api` and fix the type errors it shows instead of casting.
+
+## Gotchas
+
+- TypeScript is pinned to 6.x on purpose. TypeScript 7 (native compiler) has no JS API, which `openapi-typescript` and `typescript-eslint` need. Don't upgrade until both support it.
+- MSW 3 renamed the listen option: `onUnhandledFrame`, not `onUnhandledRequest`. Unmocked requests fail the test.
+- The API client looks up `fetch` per call so MSW can intercept it. Keep that line in `client.ts` or tests silently hit the real backend.
+- ESLint builds one import-boundary zone per folder in `src/features/`, read from disk. A new feature is covered automatically.
+- `pnpm gen:api` needs the backend running on :8000. Commit the regenerated `schema.d.ts`.
+- The app icon is SVG only. iOS needs a 180×180 PNG `apple-touch-icon` before real users install it.
