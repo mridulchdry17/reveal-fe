@@ -1,9 +1,15 @@
 /// <reference lib="webworker" />
+import { clientsClaim } from 'workbox-core'
 import { cleanupOutdatedCaches, precacheAndRoute, type PrecacheEntry } from 'workbox-precaching'
 
 declare const self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<PrecacheEntry | string>
 }
+
+// Take over open tabs as soon as a new version is deployed (registerType: 'autoUpdate').
+// Without this, returning visitors keep running the old build until every tab is closed.
+void self.skipWaiting()
+clientsClaim()
 
 cleanupOutdatedCaches()
 precacheAndRoute(self.__WB_MANIFEST)
