@@ -74,3 +74,204 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
+
+/* ---------- Input boundary token (3:1 against surface, WCAG 1.4.11) ---------- */
+:root,
+[data-theme='paper'] {
+  --field: #8c8f9e;
+}
+[data-theme='ink'] {
+  --field: #6e76a0;
+}
+@theme inline {
+  --color-field: var(--field);
+}
+
+/* The brand's "hidden card" pattern. */
+@utility hatch {
+  background-color: var(--locked-bg);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--locked) 22%, transparent) 0 1px,
+    transparent 1px 6px
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ---------- The hand: 7 cards in a fan. React sets --k (offset from centre) and --i. ---------- */
+.hand {
+  --w: 60px;
+  --h: 84px;
+  --step: 38px;
+  --dy: 2.5px;
+  position: relative;
+  height: 120px;
+}
+@media (min-width: 768px) {
+  .hand {
+    --w: 84px;
+    --h: 118px;
+    --step: 56px;
+    --dy: 3.5px;
+    height: 170px;
+  }
+}
+.hand-card {
+  --x: calc(var(--k) * var(--step));
+  --y: calc(var(--k) * var(--k) * var(--dy));
+  --r: calc(var(--k) * 6deg);
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: var(--w);
+  height: var(--h);
+  margin-left: calc(var(--w) / -2);
+  transform-origin: 50% 100%;
+  transform: translate(var(--x), var(--y)) rotate(var(--r));
+  perspective: 600px;
+  animation: deal 600ms cubic-bezier(0.22, 1, 0.36, 1) calc(120ms + var(--i) * 70ms) both;
+}
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+.card-inner[data-flip] {
+  animation: flip 560ms cubic-bezier(0.65, 0, 0.35, 1) calc(1000ms + var(--n) * 140ms) both;
+}
+.card-inner[data-peek] {
+  animation: peek 5s cubic-bezier(0.45, 0, 0.55, 1) 2.6s infinite;
+}
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow:
+    0 1px 0 rgb(19 22 42 / 0.06),
+    0 10px 20px -12px rgb(19 22 42 / 0.45);
+}
+.card-face.back {
+  transform: rotateY(180deg);
+}
+@keyframes deal {
+  from {
+    opacity: 0;
+    transform: translate(0, 48px) rotate(0deg) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1);
+  }
+}
+@keyframes flip {
+  from {
+    transform: rotateY(180deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}
+@keyframes peek {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  78% {
+    transform: translateY(-10px) rotate(-3deg);
+  }
+  86% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+/* Hatched highlighter under a headline phrase. */
+.mark {
+  background: repeating-linear-gradient(
+      -45deg,
+      color-mix(in oklab, var(--locked) 35%, transparent) 0 1.5px,
+      transparent 1.5px 5px
+    )
+    0 88% / 100% 0.42em no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0 0.06em;
+  animation: mark 700ms cubic-bezier(0.22, 1, 0.36, 1) 1500ms both;
+}
+@keyframes mark {
+  from {
+    background-size: 0% 0.42em;
+  }
+  to {
+    background-size: 100% 0.42em;
+  }
+}
+
+/* Post-join "ticket" that flips to reveal your place. */
+.ticket {
+  perspective: 900px;
+}
+.ticket-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  animation: ticket 800ms cubic-bezier(0.65, 0, 0.35, 1) 150ms both;
+}
+.ticket-inner[data-static] {
+  animation: none;
+}
+@keyframes ticket {
+  0% {
+    transform: rotateY(180deg) scale(0.96);
+  }
+  60% {
+    transform: rotateY(-8deg) translateY(-6px) scale(1.02);
+  }
+  100% {
+    transform: rotateY(0) translateY(0) scale(1);
+  }
+}
+.rise {
+  animation: rise 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.pulse-dot {
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Every animation's base style is its final state, so switching them off shows the finished page. */
+@media (prefers-reduced-motion: reduce) {
+  .hand-card,
+  .card-inner,
+  .mark,
+  .ticket-inner,
+  .rise,
+  .pulse-dot {
+    animation: none !important;
+  }
+}
