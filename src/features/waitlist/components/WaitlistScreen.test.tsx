@@ -1,60 +1,97 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
+import type { ReactElement } from 'react'
 import { describe, expect, it } from 'vitest'
 
 import { env } from '@/config/env'
-import { renderWithQuery } from '@/testing/render'
+import { renderRoutes } from '@/testing/render'
 import { server } from '@/testing/server'
 
 import { WaitlistScreen } from './WaitlistScreen'
 
 const joinUrl = `${env.VITE_API_URL}/v1/waitlist`
 
-async function fillAndSubmit(enrollment = '22EC1047', email = 'aanya@gmail.com') {
+function renderAt(url: string, ui: ReactElement = <WaitlistScreen />) {
+  return renderRoutes([{ path: '/', element: ui }], url)
+}
+
+async function fillAndSubmit({ enrollment = '22EC1047', email = 'aanya@gmail.com', adult = true } = {}) {
   const user = userEvent.setup()
   await user.type(screen.getByLabelText('Enrollment number'), enrollment)
   await user.type(screen.getByLabelText('Email'), email)
-  await user.click(screen.getByRole('button', { name: 'Join the waitlist' }))
+  if (adult) await user.click(screen.getByLabelText("I'm 18 or older"))
+  await user.click(screen.getByRole('button', { name: /save my spot/i }))
+}
+
+function respondWith(position: number, alreadyJoined = false) {
+  server.use(
+    http.post(joinUrl, () =>
+      HttpResponse.json({ position, already_joined: alreadyJoined }, { status: alreadyJoined ? 200 : 201 }),
+    ),
+  )
 }
 
 describe('WaitlistScreen', () => {
-  it('shows the place in line after joining', async () => {
+  it('sends the details, the 18+ confirmation and the link source', async () => {
     let sent: unknown
     server.use(
       http.post(joinUrl, async ({ request }) => {
         sent = await request.json()
-        return HttpResponse.json({ position: 142, already_joined: false }, { status: 201 })
+        return HttpResponse.json({ position: 3, already_joined: false }, { status: 201 })
       }),
     )
-    renderWithQuery(<WaitlistScreen />)
+    renderAt('/?src=wa')
 
     await fillAndSubmit()
 
-    expect(await screen.findByText('#142')).toBeInTheDocument()
-    expect(screen.getByText("You're on the list")).toBeInTheDocument()
-    expect(sent).toEqual({ enrollment_number: '22EC1047', email: 'aanya@gmail.com' })
+    expect(await screen.findByRole('heading', { name: "You're in." })).toBeInTheDocument()
+    expect(sent).toEqual({
+      enrollment_number: '22EC1047',
+      email: 'aanya@gmail.com',
+      confirmed_adult: true,
+      source: 'wa',
+    })
   })
 
-  it('tells returning students they were already on the list', async () => {
-    server.use(http.post(joinUrl, () => HttpResponse.json({ position: 7, already_joined: true })))
-    renderWithQuery(<WaitlistScreen />)
+  it('calls the first 50 founding members instead of showing a small number', async () => {
+    respondWith(3)
+    renderAt('/')
 
     await fillAndSubmit()
 
-    expect(await screen.findByText('Already on the list')).toBeInTheDocument()
-    expect(screen.getByText('#7')).toBeInTheDocument()
+    expect(await screen.findByRole('img', { name: /one of the first 50/i })).toBeInTheDocument()
+    expect(screen.queryByText('3')).not.toBeInTheDocument()
   })
 
-  it('checks empty and malformed fields before calling the server', async () => {
-    renderWithQuery(<WaitlistScreen />)
+  it('shows the real number after the first 50', async () => {
+    respondWith(142)
+    renderAt('/')
+
+    await fillAndSubmit()
+
+    expect(await screen.findByRole('img', { name: 'Your place in line is 142' })).toBeInTheDocument()
+  })
+
+  it('tells returning students they were already in', async () => {
+    respondWith(7, true)
+    renderAt('/')
+
+    await fillAndSubmit()
+
+    expect(await screen.findByRole('heading', { name: "You're already in." })).toBeInTheDocument()
+  })
+
+  it('checks empty fields, email shape and the 18+ box before calling the server', async () => {
+    renderAt('/')
     const user = userEvent.setup()
 
     await user.type(screen.getByLabelText('Email'), 'not-an-email')
-    await user.click(screen.getByRole('button', { name: 'Join the waitlist' }))
+    await user.click(screen.getByRole('button', { name: /save my spot/i }))
 
     expect(await screen.findByText('Enter your enrollment number')).toBeInTheDocument()
-    expect(screen.getByText('Enter a valid email')).toBeInTheDocument()
+    expect(screen.getByText("That email doesn't look right")).toBeInTheDocument()
+    expect(screen.getByText('Reveal is only for people 18 or older')).toBeInTheDocument()
   })
 
   it('shows the server field error under the enrollment number', async () => {
@@ -63,46 +100,38 @@ describe('WaitlistScreen', () => {
         HttpResponse.json(
           {
             detail: [
-              {
-                loc: ['body', 'enrollment_number'],
-                msg: 'Value error, Enter your enrollment number as it appears on your ID card',
-                type: 'value_error',
-              },
+              { loc: ['body', 'enrollment_number'], msg: 'Value error, Check it against your ID card', type: 'value_error' },
             ],
           },
           { status: 422 },
         ),
       ),
     )
-    renderWithQuery(<WaitlistScreen />)
+    renderAt('/')
 
-    await fillAndSubmit('abc')
+    await fillAndSubmit({ enrollment: 'abc' })
 
-    expect(
-      await screen.findByText('Enter your enrollment number as it appears on your ID card'),
-    ).toBeInTheDocument()
+    expect(await screen.findByText('Check it against your ID card')).toBeInTheDocument()
     expect(screen.getByLabelText('Enrollment number')).toHaveAttribute('aria-invalid', 'true')
   })
 
-  it('explains a conflict without naming whose details matched', async () => {
+  it('explains a rate limit in plain words', async () => {
     server.use(
-      http.post(joinUrl, () =>
-        HttpResponse.json({ code: 'already_registered', detail: 'x' }, { status: 409 }),
-      ),
+      http.post(joinUrl, () => HttpResponse.json({ code: 'rate_limited', detail: 'x' }, { status: 429 })),
     )
-    renderWithQuery(<WaitlistScreen />)
+    renderAt('/')
 
     await fillAndSubmit()
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('already on the list with different details')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Probably hostel Wi-Fi')
   })
 
   it('says when the network is down', async () => {
     server.use(http.post(joinUrl, () => HttpResponse.error()))
-    renderWithQuery(<WaitlistScreen />)
+    renderAt('/')
 
     await fillAndSubmit()
 
-    expect(await screen.findByRole('alert')).toHaveTextContent("Can't reach Reveal right now")
+    expect(await screen.findByRole('alert')).toHaveTextContent("Couldn't reach Reveal")
   })
 })
