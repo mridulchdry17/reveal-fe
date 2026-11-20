@@ -1,0 +1,108 @@
+# Reveal frontend
+
+Installable PWA for Reveal, a college-only dating app where profiles are 7 cards and hidden cards open only by mutual swap. No app stores: it ships as a website that students add to their home screen. The API lives in `../reveal-be`.
+
+## Commands
+
+```bash
+pnpm install
+pnpm dev                    # http://localhost:5173, expects API on :8000
+pnpm test                   # Vitest, all
+pnpm test src/features/swaps/components/SwapSheet.test.tsx   # one file
+pnpm lint                   # ESLint, includes import boundary rules
+pnpm typecheck              # tsc --noEmit
+pnpm gen:api                # regenerate src/lib/api/schema.d.ts from the backend OpenAPI
+pnpm build && pnpm preview  # production build; the service worker only runs here
+```
+
+A change is done when `lint`, `typecheck` and `test` pass. Show the output, not a summary.
+
+## Stack (decided, don't swap without asking)
+
+Vite + React 18 + TypeScript (strict), React Router, TanStack Query for all server data, React Hook Form + zod for forms, vite-plugin-pwa in `injectManifest` mode (custom service worker for push), Tailwind with the design tokens below, Vitest + Testing Library, MSW for API mocks, pnpm. API types come from `openapi-typescript`; never hand-write a type the schema already defines.
+
+## Layout: by feature (bulletproof-react)
+
+```
+src/
+  app/          routes, providers, router, app shell with the 3 tabs
+  features/     auth, verification, onboarding, profile, tonight, chats,
+                swaps, guess, safety, settings
+    <feature>/  api/  components/  hooks/  types/  (only what it needs)
+  components/   shared UI (Button, Sheet, CardStrip, Toggle)
+  lib/          api client, query client, push, watermark-safe image
+  hooks/  stores/  config/  utils/  testing/
+  sw.ts         service worker
+```
+
+- Imports flow one way: shared → features → app. A feature never imports another feature; compose them in `app/`. Shared code never imports features. ESLint `import/no-restricted-paths` enforces this; don't disable it.
+- No barrel `index.ts` files; import the file directly.
+- Keep this tree in sync when you add a feature. Delete it from this file once the code makes it obvious.
+
+## Layers inside a feature: each file has one job
+
+The frontend's version of MVCS. Calls go one way only: **component → hook → api → backend**.
+
+| Layer | Where | Does | Never does |
+|---|---|---|---|
+| API (service) | `features/<f>/api/*.ts` | One function per endpoint using the typed client; query keys in `api/keys.ts` | React, state, UI text, deciding what to show |
+| Hooks (controller) | `features/<f>/hooks/*.ts` | Wrap queries/mutations (`useTonightDrop`, `useAcceptSwap`), derive view data, handle optimistic updates and cache invalidation | JSX, direct `fetch`, styling |
+| Screen (container) | `features/<f>/components/*Screen.tsx` | Call hooks, handle loading / empty / error, pass plain props down | Fetch directly, hold API data in `useState` |
+| Component (view) | `features/<f>/components/*.tsx`, `src/components/` | Render props, raise events (`onSwap`, `onPass`) | Call hooks that fetch, know about the API or routes |
+| Route (app) | `src/app/routes/*` | Map URL to a screen, compose features | Business logic, styling |
+
+- View components are pure: same props, same output. They're the easiest to test and reuse.
+- Logic that decides something (can I propose a swap now? is this chat fading?) goes in a hook or `utils/`, not inline in JSX.
+- `src/components/` is for UI with no product knowledge (Button, Sheet, Toggle, CardStrip). A component that knows what a "swap" is belongs to a feature.
+
+## State: put each thing in the right place
+
+- **Server data** (profiles, drop, chats, swaps): TanStack Query only. Never copy query results into `useState` or a store, never fetch in `useEffect`. Query keys live in each feature's `api/keys.ts`.
+- **URL state** (current tab, open chat, sheet open): the router.
+- **Form state:** React Hook Form + zod schema.
+- **Local UI state:** `useState` in the component; lift only when a sibling needs it.
+- **Global client state:** only theme and push permission. Add a Zustand store only if a third thing truly needs it.
+
+## Product rules the UI must respect
+
+1. The UI shows what the API returns and nothing more. Never fetch a hidden card and hide it with CSS; the server decides visibility.
+2. Every reveal is a confirm step with both outcomes stated ("Both open at once. Can't be undone.") and two buttons: **Not yet** and **Swap**.
+3. Card states look different by more than colour: shown = solid + label, hidden = hatched + dashed border, pending = accent outline, sealed (photo, contact) = lock icon.
+4. Photos render only as pieces until the photo swap. No long-press save, no drag, no right-click save; the server watermarks per viewer.
+5. Notifications never contain names, message text or photos. Copy is generic ("Tonight's drop is in.", "Someone turned a card.").
+6. Report and block are reachable in one tap from every chat and profile.
+
+## Design system
+
+- Two themes from the mockups, as CSS variables in `src/index.css`, mapped into Tailwind. Don't use raw hex in components.
+  - **Paper** (default): bg `#F4F2EC`, surface `#FFFFFF`, text `#1B1F3B`, muted `#5F6378`, accent `#C93D27`, open `#2F6B4F`, locked `#50546A`, warn `#8A4B00`.
+  - **Ink** (auto 21:00–08:00 IST, or user choice): bg `#13162A`, surface `#1D2138`, text `#F3F1EA`, muted `#B4B7C9`, accent `#FF7A5C`, open `#7FD3A8`, locked `#A9ADC3`, warn `#FFC46B`.
+- Accent is only for the one committing action on a screen (Swap, Send, Continue). Everything else is neutral.
+- Fonts: Bricolage Grotesque for headings and the users' written lines; Inter for everything else.
+- Mobile first at 390px wide. Touch targets ≥ 44px. Text contrast ≥ 4.5:1 in both themes.
+- Words in the UI: **Shown / Hidden / Swap / Not yet**. No jargon like "face-up", "unlock", "reveal request".
+
+## PWA and push
+
+- Push only works on iOS 16.4+ after Add to Home Screen, so detect standalone mode and show the install guide first; ask for notification permission only after install, from a user tap.
+- Detect in-app browsers (Instagram, WhatsApp) and show "Open in browser" before anything else.
+- Feature-detect (`'PushManager' in window`), never sniff user agents for push.
+- The service worker is only active in `pnpm build && pnpm preview`; test push and offline there.
+
+## Conventions
+
+- Components are small and do one thing. A component that fetches does not also lay out a page; split container and view when it grows.
+- Accessible by default: real `<button>`, `<a>`, `<label>`; `aria-label` on icon-only buttons; no `onClick` on `div`.
+- Every query screen handles loading, empty and error states; empty states tell the user what to do next.
+- No `any`. No non-null `!` to silence the compiler; handle the case.
+- Env only via `src/config/env.ts` (validated with zod). No secrets in the frontend.
+
+## How to work here
+
+- Before changing more than one file, state the plan: files, what changes, how it will be tested. Wait if it touches a product rule above.
+- Test behaviour the user sees (Testing Library queries by role and text), not implementation details. Mock the API with MSW, not by mocking hooks.
+- Small diffs. Keep a refactor and a behaviour change in separate commits.
+- **DRY means one place per piece of knowledge.** Card-state styling, theme tokens and query keys each live in one place. Similar-looking JSX across two screens is fine; extract on the third repeat.
+- **KISS / YAGNI:** no generic component framework, no state library "for later", no abstraction for a second college. Build what the current screen needs.
+- For UI changes, run `pnpm dev`, check the screen at 390px in both themes, and say what you checked.
+- After the backend changes an endpoint, run `pnpm gen:api` and fix the type errors it shows instead of casting.
