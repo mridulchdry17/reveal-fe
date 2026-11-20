@@ -1,4 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
+import { Analytics } from '@vercel/analytics/react'
 import { useState } from 'react'
 import { RouterProvider } from 'react-router'
 
@@ -12,6 +13,8 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      {/* Vercel Web Analytics: cookieless page views; inactive outside Vercel deployments. */}
+      <Analytics />
     </QueryClientProvider>
   )
 }
