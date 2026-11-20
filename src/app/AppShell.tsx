@@ -1,10 +1,10 @@
 import { NavLink, Outlet } from 'react-router'
 
 const tabs = [
-  { to: '/tonight', label: 'Tonight', icon: <path d="M12 3c3 4 6 6 6 11a6 6 0 0 1-12 0c0-5 3-7 6-11z" /> },
-  { to: '/chats', label: 'Chats', icon: <path d="M4 5h16v11H8l-4 4z" /> },
+  { to: '/app/tonight', label: 'Tonight', icon: <path d="M12 3c3 4 6 6 6 11a6 6 0 0 1-12 0c0-5 3-7 6-11z" /> },
+  { to: '/app/chats', label: 'Chats', icon: <path d="M4 5h16v11H8l-4 4z" /> },
   {
-    to: '/you',
+    to: '/app/you',
     label: 'You',
     icon: (
       <>

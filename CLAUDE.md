@@ -26,7 +26,9 @@ Vite 8 + React 19 + TypeScript 6 (strict), React Router 8, TanStack Query 5 for 
 ```
 src/
   app/          routes, providers, router, app shell with the 3 tabs
-  features/     now: tonight, chats, settings (settings shows the full api → hook → screen chain)
+                routes: `/` = public waitlist (pre-launch), `/app/*` = the app
+  features/     now: waitlist (copy its shape: api → hook → screen → form/view),
+                     tonight, chats, settings
                 planned: auth, verification, onboarding, profile, swaps, guess, safety
     <feature>/  api/  components/  hooks/  types/  (only what it needs)
   components/   shared UI (Button, Sheet, CardStrip, Toggle)
@@ -54,6 +56,8 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 - View components are pure: same props, same output. They're the easiest to test and reuse.
 - Logic that decides something (can I propose a swap now? is this chat fading?) goes in a hook or `utils/`, not inline in JSX.
 - `src/components/` is for UI with no product knowledge (Button, Sheet, Toggle, CardStrip). A component that knows what a "swap" is belongs to a feature.
+- **Errors:** API functions throw `ApiError` via `toApiError` (`src/lib/api/errors.ts`). Forms put `error.fieldErrors` on their inputs with `setError`; everything else maps `error.code` to words in the feature's `utils/errorMessage.ts`. Never show the backend's `detail` text to users.
+- **Validation:** client-side checks are only for instant feedback (required, email shape). The backend owns real rules like the enrollment-number format; show its field error instead of copying its regex.
 
 ## State: put each thing in the right place
 
