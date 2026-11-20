@@ -80,7 +80,7 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 
 - Two themes from the mockups, as CSS variables in `src/index.css`, mapped into Tailwind. Don't use raw hex in components.
   - **Paper** (default): bg `#F4F2EC`, surface `#FFFFFF`, text `#1B1F3B`, muted `#5F6378`, accent `#C93D27`, open `#2F6B4F`, locked `#50546A`, warn `#8A4B00`.
-  - **Ink** (auto 21:00–08:00 IST, or user choice): bg `#13162A`, surface `#1D2138`, text `#F3F1EA`, muted `#B4B7C9`, accent `#FF7A5C`, open `#7FD3A8`, locked `#A9ADC3`, warn `#FFC46B`.
+  - **Ink** (defined but not used: the app is Paper only for now, no automatic night switch): bg `#13162A`, surface `#1D2138`, text `#F3F1EA`, muted `#B4B7C9`, accent `#FF7A5C`, open `#7FD3A8`, locked `#A9ADC3`, warn `#FFC46B`.
 - Accent is only for the one committing action on a screen (Swap, Send, Continue). Everything else is neutral.
 - Fonts: Bricolage Grotesque for headings and the users' written lines; Inter for everything else.
 - Mobile first at 390px wide. Touch targets ≥ 44px. Text contrast ≥ 4.5:1 in both themes.
