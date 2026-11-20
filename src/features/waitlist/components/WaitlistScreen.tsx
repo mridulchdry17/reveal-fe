@@ -48,7 +48,6 @@ const rules: { title: string; body: string; glyph: ReactNode }[] = [
 
 const safety = [
   `Only verified students from ${college}. No outsiders.`,
-  'First-years only see first-years.',
   'Hide anyone you know: seniors, your ex, your roommate.',
   'Women write first, by default.',
   "Every screenshot carries the viewer's watermark.",
