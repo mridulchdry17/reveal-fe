@@ -100,7 +100,7 @@ export function JoinedCard({ position, alreadyJoined, college, origin }: Props) 
           : "Reveal opens when enough of campus is in. A 9pm drop is only as good as who's in it."}
       </p>
 
-      <p className="mt-6 mb-0 text-sm font-bold">Bring your hostel in.</p>
+      <p className="mt-6 mb-0 text-sm font-bold">Bring your friends in.</p>
       <div className="mt-3 flex w-full flex-col gap-2.5">
         <a
           href={`https://wa.me/?text=${encodeURIComponent(whatsappMessage(college, shareUrl(origin, 'wa')))}`}
