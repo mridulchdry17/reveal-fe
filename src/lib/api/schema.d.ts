@@ -95,6 +95,16 @@ export interface components {
              * Format: email
              */
             email: string;
+            /**
+             * Confirmed Adult
+             * @description The person confirmed they are 18 or older
+             */
+            confirmed_adult: boolean;
+            /**
+             * Source
+             * @description Where the visitor came from (e.g. 'wa', 'ig'). Invalid values are dropped.
+             */
+            source?: string | null;
         };
         /** WaitlistJoinResponse */
         WaitlistJoinResponse: {
@@ -173,15 +183,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WaitlistJoinResponse"];
-                };
-            };
-            /** @description Details belong to another entry */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Validation Error */
