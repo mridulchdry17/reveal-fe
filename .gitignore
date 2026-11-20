@@ -29,3 +29,4 @@ dist-ssr
 !.env.example
 CLAUDE.local.md
 .claude/settings.local.json
+!.env.production
