@@ -1,0 +1,76 @@
+@import 'tailwindcss';
+
+/* Design tokens from the Reveal mockups. Components use the Tailwind names
+   (bg-bg, text-muted, bg-accent...), never raw hex. */
+:root,
+[data-theme='paper'] {
+  --bg: #f4f2ec;
+  --surface: #ffffff;
+  --surface-2: #ece9e1;
+  --border: #ddd9cf;
+  --border-strong: #b9b3a6;
+  --text: #1b1f3b;
+  --muted: #5f6378;
+  --accent: #c93d27;
+  --on-accent: #ffffff;
+  --accent-bg: #fbe5df;
+  --accent-text: #a5321f;
+  --locked: #50546a;
+  --locked-bg: #e6e4dc;
+  --open: #2f6b4f;
+  --open-bg: #dcefe3;
+  --warn: #8a4b00;
+  --warn-bg: #fff0d9;
+  color-scheme: light;
+}
+
+[data-theme='ink'] {
+  --bg: #13162a;
+  --surface: #1d2138;
+  --surface-2: #272c48;
+  --border: #343a5a;
+  --border-strong: #4d5478;
+  --text: #f3f1ea;
+  --muted: #b4b7c9;
+  --accent: #ff7a5c;
+  --on-accent: #13162a;
+  --accent-bg: #4a2a26;
+  --accent-text: #ffb3a3;
+  --locked: #a9adc3;
+  --locked-bg: #262a42;
+  --open: #7fd3a8;
+  --open-bg: #1e3a30;
+  --warn: #ffc46b;
+  --warn-bg: #3b2e16;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-bg: var(--accent-bg);
+  --color-accent-text: var(--accent-text);
+  --color-locked: var(--locked);
+  --color-locked-bg: var(--locked-bg);
+  --color-open: var(--open);
+  --color-open-bg: var(--open-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
