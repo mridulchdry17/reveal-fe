@@ -72,6 +72,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/college-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify as a student with a college Google account */
+        post: operations["verify_college_email_v1_auth_college_email_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/waitlist": {
         parameters: {
             query?: never;
@@ -93,6 +110,17 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * CollegeEmailRequest
+         * @description A credential for the user's college Google account (not the one they signed in with).
+         */
+        CollegeEmailRequest: {
+            /**
+             * Credential
+             * @description ID token from Google Identity Services
+             */
+            credential: string;
+        };
         /**
          * ErrorResponse
          * @description Body of every DomainError response. Clients branch on `code`, never on `detail`.
@@ -142,6 +170,12 @@ export interface components {
             name: string;
             /** Is Admin */
             is_admin: boolean;
+            /**
+             * Verified
+             * @description Proved they're a student at the college
+             */
+            verified: boolean;
+            verified_via: components["schemas"]["VerificationMethod"] | null;
         };
         /** SignInResponse */
         SignInResponse: {
@@ -165,6 +199,12 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /**
+         * VerificationMethod
+         * @description How someone proved they're a student.
+         * @enum {string}
+         */
+        VerificationMethod: "college_email" | "id_card" | "admin";
         /** WaitlistJoinRequest */
         WaitlistJoinRequest: {
             /**
@@ -334,6 +374,75 @@ export interface operations {
             };
             /** @description Not signed in */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    verify_college_email_v1_auth_college_email_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollegeEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Me"];
+                };
+            };
+            /** @description Not signed in, or invalid credential */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a college Google account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description College email verified another account */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Too many attempts */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

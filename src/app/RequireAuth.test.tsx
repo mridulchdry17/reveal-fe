@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 import { env } from '@/config/env'
 import { getToken, setToken } from '@/lib/auth/token'
-import { signInAs, stubGoogleButton } from '@/testing/auth'
+import { signInAs, stubGoogleButton, unverifiedUser } from '@/testing/auth'
 import { renderRoutes } from '@/testing/render'
 import { server } from '@/testing/server'
 
@@ -35,6 +35,16 @@ describe('signed-in app', () => {
     expect(getToken()).toBeNull()
   })
 
+  it('sends signed-in but unverified students to verify first', async () => {
+    stubGoogleButton()
+    signInAs(unverifiedUser)
+    renderRoutes(routes, '/app/chats')
+
+    expect(
+      await screen.findByRole('heading', { name: "Prove you're from campus" }),
+    ).toBeInTheDocument()
+  })
+
   it('shows the account on the You tab and signs out', async () => {
     stubGoogleButton()
     signInAs()
@@ -62,6 +72,8 @@ describe('signed-in app', () => {
       email: 'mridul@gmail.com',
       name: 'Mridul',
       is_admin: true,
+      verified: true,
+      verified_via: 'college_email',
     })
     server.use(http.get(`${api}/health`, () => HttpResponse.json({ status: 'ok', database: 'ok' })))
     renderRoutes(routes, '/app/you')

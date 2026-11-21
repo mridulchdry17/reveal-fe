@@ -13,7 +13,12 @@ export const testUser: Me = {
   email: 'aanya@gmail.com',
   name: 'Aanya Sharma',
   is_admin: false,
+  verified: true,
+  verified_via: 'college_email',
 }
+
+/** Signed in with personal Gmail, not yet a verified student. */
+export const unverifiedUser: Me = { ...testUser, verified: false, verified_via: null }
 
 /** Start the test signed in: a stored token and a backend that recognises it. */
 export function signInAs(user: Me = testUser) {

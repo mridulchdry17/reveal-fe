@@ -4,6 +4,9 @@ const schema = z.object({
   // Production builds must set it (.env.production); only dev falls back to the local API.
   VITE_API_URL: import.meta.env.PROD ? z.url() : z.url().default('http://localhost:8000'),
   VITE_COLLEGE_NAME: z.string().min(1).default('your college'),
+  // The college's Google Workspace domain. Only a hint for Google's account picker:
+  // the server decides who counts as a student.
+  VITE_COLLEGE_DOMAIN: z.string().min(1).default('adgips.ac.in'),
   // Where students write to reclaim an enrollment number or delete their data.
   // Contact lines are hidden until this is set.
   VITE_CONTACT_EMAIL: z.union([z.email(), z.literal('')]).default(''),
