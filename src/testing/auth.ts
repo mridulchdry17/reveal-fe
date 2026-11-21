@@ -7,6 +7,7 @@ import { setToken } from '@/lib/auth/token'
 import { server } from './server'
 
 type Me = components['schemas']['Me']
+type VerificationStatus = components['schemas']['VerificationStatus']
 
 export const testUser: Me = {
   id: '00000000-0000-4000-8000-000000000001',
@@ -21,9 +22,15 @@ export const testUser: Me = {
 export const unverifiedUser: Me = { ...testUser, verified: false, verified_via: null }
 
 /** Start the test signed in: a stored token and a backend that recognises it. */
-export function signInAs(user: Me = testUser) {
+export function signInAs(
+  user: Me = testUser,
+  verification: VerificationStatus = { status: 'none', submitted_at: null, reject_reason: null },
+) {
   setToken('test-session-token')
-  server.use(http.get(`${env.VITE_API_URL}/v1/auth/me`, () => HttpResponse.json(user)))
+  server.use(
+    http.get(`${env.VITE_API_URL}/v1/auth/me`, () => HttpResponse.json(user)),
+    http.get(`${env.VITE_API_URL}/v1/verification/me`, () => HttpResponse.json(verification)),
+  )
 }
 
 type Callback = (response: { credential: string }) => void
