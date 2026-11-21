@@ -24,3 +24,16 @@ export function verifyErrorMessage(error: unknown): string {
   const message = error instanceof ApiError ? verifyMessages[error.code] : undefined
   return message ?? signInErrorMessage(error)
 }
+
+const uploadMessages: Record<string, string> = {
+  photo_too_large: 'That photo is too large. Try taking it again.',
+  not_a_photo: 'That file isn\'t a photo. Take a picture with your camera instead.',
+  already_submitted: 'Your photos are already waiting for review.',
+  already_verified: "You're already verified.",
+  rate_limited: 'Too many tries from this network. Give it a few minutes.',
+}
+
+export function uploadErrorMessage(error: unknown): string {
+  const message = error instanceof ApiError ? uploadMessages[error.code] : undefined
+  return message ?? signInErrorMessage(error)
+}
