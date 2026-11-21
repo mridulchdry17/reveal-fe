@@ -1,14 +1,16 @@
 import { useCallback, useState } from 'react'
-import { Navigate } from 'react-router'
+import { Link, Navigate, useLocation } from 'react-router'
 
 import { AlertIcon, LockIcon } from '@/components/icons'
 import { env } from '@/config/env'
 
 import { useMe } from '../hooks/useMe'
 import { useSignOut } from '../hooks/useSignOut'
+import { useVerificationStatus } from '../hooks/useVerificationStatus'
 import { useVerifyCollegeEmail } from '../hooks/useVerifyCollegeEmail'
 import { verifyErrorMessage } from '../utils/errorMessage'
 import { GoogleSignInButton } from './GoogleSignInButton'
+import { StepHeader } from './StepHeader'
 
 type Method = 'college_email' | 'id_card' | 'admin'
 
@@ -39,28 +41,30 @@ export function VerifyScreen() {
   const { mutate } = verify
   const onCredential = useCallback((credential: string) => mutate(credential), [mutate])
   const [method, setMethod] = useState<Method>('college_email')
+  const status = useVerificationStatus()
+  // The waiting screen links back here to switch to college email; don't bounce them.
+  const choosing = (useLocation().state as { choose?: boolean } | null)?.choose === true
+  const idStatus = status.data?.status
 
   if (me.data?.verified) return <Navigate to="/app" replace />
+  if (idStatus === 'pending' && !choosing) return <Navigate to="/verify/pending" replace />
 
   return (
     <div className="min-h-dvh bg-bg text-text">
       <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-5 px-5 pt-3 pb-8">
-        <header className="flex h-11 items-center justify-between">
-          <button
-            type="button"
-            onClick={() => signOut.mutate()}
-            disabled={signOut.isPending}
-            className="-ml-2 h-11 rounded-full bg-transparent px-2 text-sm font-semibold text-muted"
-          >
-            Sign out
-          </button>
-          <span className="text-[13px] text-muted">Step 1 of 3</span>
-        </header>
-        <div aria-hidden="true" className="flex gap-1.5">
-          <span className="h-1 flex-1 rounded-full bg-accent" />
-          <span className="h-1 flex-1 rounded-full bg-border" />
-          <span className="h-1 flex-1 rounded-full bg-border" />
-        </div>
+        <StepHeader
+          step={1}
+          left={
+            <button
+              type="button"
+              onClick={() => signOut.mutate()}
+              disabled={signOut.isPending}
+              className="-ml-2 h-11 rounded-full bg-transparent px-2 text-sm font-semibold text-muted"
+            >
+              Sign out
+            </button>
+          }
+        />
 
         <div>
           <h1 className="m-0 font-display text-[32px] leading-[1.05] font-extrabold tracking-[-0.03em]">
@@ -70,6 +74,18 @@ export function VerifyScreen() {
             Pick whichever is easier. Everyone on Reveal is a verified student.
           </p>
         </div>
+
+        {(idStatus === 'rejected' || idStatus === 'expired') && (
+          <p role="alert" className="m-0 flex gap-2.5 rounded-2xl bg-warn-bg p-3.5 text-sm leading-5">
+            <AlertIcon className="mt-0.5 size-4 shrink-0 text-warn" />
+            <span>
+              {idStatus === 'rejected'
+                ? `Your ID check didn't go through${status.data?.reject_reason ? `: ${status.data.reject_reason}` : '.'}`
+                : "Your photos weren't checked in time, so we deleted them."}{' '}
+              Send new photos, or use your college email.
+            </span>
+          </p>
+        )}
 
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
           <legend className="sr-only">How do you want to verify?</legend>
@@ -130,11 +146,28 @@ export function VerifyScreen() {
           </section>
         )}
 
-        {method === 'id_card' && (
-          <p className="m-0 rounded-2xl bg-surface-2 p-4 text-sm leading-6">
-            ID card upload is coming soon. Got a college email? Use that for now, it's instant.
-          </p>
-        )}
+        {method === 'id_card' &&
+          (idStatus === 'pending' ? (
+            <p className="m-0 rounded-2xl bg-surface-2 p-4 text-sm leading-6">
+              Your ID is already being checked.{' '}
+              <Link to="/verify/pending" className="font-bold text-text">
+                See where it is
+              </Link>
+            </p>
+          ) : (
+            <section aria-label="Verify with ID card" className="mt-auto flex flex-col gap-3">
+              <p className="m-0 text-[13px] leading-5 text-muted">
+                You'll take a photo of your ID, then a selfie. A person checks they match. Both
+                photos are deleted after review.
+              </p>
+              <Link
+                to="/verify/id-card"
+                className="flex h-[54px] items-center justify-center rounded-2xl bg-accent text-base font-bold text-on-accent no-underline"
+              >
+                Continue with ID card
+              </Link>
+            </section>
+          ))}
 
         {method === 'admin' && (
           <p className="m-0 rounded-2xl bg-surface-2 p-4 text-sm leading-6">

@@ -2,6 +2,8 @@ import { Navigate, type RouteObject } from 'react-router'
 
 import { AccountSection } from '@/features/auth/components/AccountSection'
 import { SignInScreen } from '@/features/auth/components/SignInScreen'
+import { IdCardScreen } from '@/features/auth/components/IdCardScreen'
+import { PendingScreen } from '@/features/auth/components/PendingScreen'
 import { VerifyScreen } from '@/features/auth/components/VerifyScreen'
 import { ChatsScreen } from '@/features/chats/components/ChatsScreen'
 import { YouScreen } from '@/features/settings/components/YouScreen'
@@ -20,7 +22,11 @@ export const routes: RouteObject[] = [
   {
     path: '/verify',
     element: <RequireAuth />,
-    children: [{ index: true, element: <VerifyScreen /> }],
+    children: [
+      { index: true, element: <VerifyScreen /> },
+      { path: 'id-card', element: <IdCardScreen /> },
+      { path: 'pending', element: <PendingScreen /> },
+    ],
   },
   {
     path: '/app',

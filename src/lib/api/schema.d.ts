@@ -89,6 +89,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/verification/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Where my ID card check is */
+        get: operations["my_status_v1_verification_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/verification/id-card": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send an ID card photo and a selfie for review */
+        post: operations["submit_id_card_v1_verification_id_card_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/waitlist": {
         parameters: {
             query?: never;
@@ -110,6 +144,19 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Body_submit_id_card_v1_verification_id_card_post */
+        Body_submit_id_card_v1_verification_id_card_post: {
+            /**
+             * Selfie
+             * @description Selfie, JPEG/PNG/WebP
+             */
+            selfie: string;
+            /**
+             * Id Card
+             * @description Front of the college ID card
+             */
+            id_card: string;
+        };
         /**
          * CollegeEmailRequest
          * @description A credential for the user's college Google account (not the one they signed in with).
@@ -177,6 +224,12 @@ export interface components {
             verified: boolean;
             verified_via: components["schemas"]["VerificationMethod"] | null;
         };
+        /**
+         * RequestStatus
+         * @description Where an ID card check is. NONE means the user never sent one.
+         * @enum {string}
+         */
+        RequestStatus: "none" | "pending" | "approved" | "rejected" | "expired";
         /** SignInResponse */
         SignInResponse: {
             /**
@@ -205,6 +258,14 @@ export interface components {
          * @enum {string}
          */
         VerificationMethod: "college_email" | "id_card" | "admin";
+        /** VerificationStatus */
+        VerificationStatus: {
+            status: components["schemas"]["RequestStatus"];
+            /** Submitted At */
+            submitted_at?: string | null;
+            /** Reject Reason */
+            reject_reason?: string | null;
+        };
         /** WaitlistJoinRequest */
         WaitlistJoinRequest: {
             /**
@@ -439,6 +500,104 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Too many attempts */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    my_status_v1_verification_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationStatus"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    submit_id_card_v1_verification_id_card_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_submit_id_card_v1_verification_id_card_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationStatus"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Already verified or already waiting */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Photo too large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a JPEG, PNG or WebP photo */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Too many attempts */
