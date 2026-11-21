@@ -27,9 +27,9 @@ Vite 8 + React 19 + TypeScript 6 (strict), React Router 8, TanStack Query 5 for 
 src/
   app/          routes, providers, router, app shell with the 3 tabs
                 routes: `/` = public waitlist (pre-launch), `/app/*` = the app
-  features/     now: waitlist (copy its shape: api → hook → screen → form/view),
+  features/     now: waitlist (copy its shape: api → hook → screen → form/view), auth,
                      tonight, chats, settings
-                planned: auth, verification, onboarding, profile, swaps, guess, safety
+                planned: verification, onboarding, profile, swaps, guess, safety
     <feature>/  api/  components/  hooks/  types/  (only what it needs)
   components/   shared UI (Button, Sheet, CardStrip, Toggle)
   lib/          api client, query client, push, watermark-safe image
@@ -104,6 +104,7 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 - Every query screen handles loading, empty and error states; empty states tell the user what to do next.
 - No `any`. No non-null `!` to silence the compiler; handle the case.
 - Env only via `src/config/env.ts` (validated with zod). No secrets in the frontend.
+- **Auth:** Google's button (`GoogleSignInButton`) hands an ID token to `POST /v1/auth/google`; the returned session token lives in localStorage (`src/lib/auth/token.ts`) and the API client adds `Authorization: Bearer` itself. Bearer, not cookies: the API is cross-site and iOS Safari blocks those cookies. The signed-in account is the `useMe` query (null = signed out); `/app/*` sits behind `RequireAuth`. In tests use `signInAs()` and `stubGoogleButton()` from `src/testing/auth.ts`.
 
 ## How to work here
 
