@@ -107,6 +107,7 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 
 ## How to work here
 
+- **Branches:** `pre-release` is the default branch. Feature branches open PRs into `pre-release`, never `main`: every merge to `main` goes live on tryreveal.vercel.app. Check changes on the pre-release preview (https://reveal-fe-git-pre-release-mriduls-projects-87388405.vercel.app), which talks to the staging API (`…/staging`, database `reveal_staging`) via a Preview-only `VITE_API_URL` set in Vercel. Release = a PR from `pre-release` into `main`. Merge PRs with merge commits, never squash.
 - Before changing more than one file, state the plan: files, what changes, how it will be tested. Wait if it touches a product rule above.
 - Test behaviour the user sees (Testing Library queries by role and text), not implementation details. Mock the API with MSW, not by mocking hooks.
 - Small diffs. Keep a refactor and a behaviour change in separate commits.
