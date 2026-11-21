@@ -34,6 +34,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/testing/setup.ts'],
+    env: { VITE_GOOGLE_CLIENT_ID: 'test-client-id.apps.googleusercontent.com' },
     css: false,
   },
 })

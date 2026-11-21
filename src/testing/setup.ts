@@ -9,5 +9,7 @@ beforeAll(() => server.listen({ onUnhandledFrame: 'error' }))
 afterEach(() => {
   server.resetHandlers()
   cleanup()
+  localStorage.clear()
+  delete window.google
 })
 afterAll(() => server.close())
