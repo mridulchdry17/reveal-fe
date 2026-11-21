@@ -104,7 +104,7 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 - Every query screen handles loading, empty and error states; empty states tell the user what to do next.
 - No `any`. No non-null `!` to silence the compiler; handle the case.
 - Env only via `src/config/env.ts` (validated with zod). No secrets in the frontend.
-- **Auth:** Google's button (`GoogleSignInButton`) hands an ID token to `POST /v1/auth/google`; the returned session token lives in localStorage (`src/lib/auth/token.ts`) and the API client adds `Authorization: Bearer` itself. Bearer, not cookies: the API is cross-site and iOS Safari blocks those cookies. The signed-in account is the `useMe` query (null = signed out); `/app/*` sits behind `RequireAuth`. In tests use `signInAs()` and `stubGoogleButton()` from `src/testing/auth.ts`.
+- **Auth:** Google's button (`GoogleSignInButton`) hands an ID token to `POST /v1/auth/google`; the returned session token lives in localStorage (`src/lib/auth/token.ts`) and the API client adds `Authorization: Bearer` itself. Bearer, not cookies: the API is cross-site and iOS Safari blocks those cookies. The signed-in account is the `useMe` query (null = signed out); `/app/*` sits behind `RequireAuth` and then `RequireVerified`, which sends students who haven't verified yet to `/verify` (college Google account via `POST /v1/auth/college-email`; ID card and admin options come next). In tests use `signInAs()` and `stubGoogleButton()` from `src/testing/auth.ts`.
 
 ## How to work here
 
