@@ -7,6 +7,8 @@ const schema = z.object({
   // Where students write to reclaim an enrollment number or delete their data.
   // Contact lines are hidden until this is set.
   VITE_CONTACT_EMAIL: z.union([z.email(), z.literal('')]).default(''),
+  // OAuth client ID from Google Cloud Console (public). Sign-in shows "not set up" while empty.
+  VITE_GOOGLE_CLIENT_ID: z.string().default(''),
 })
 
 export const env = schema.parse(import.meta.env)
