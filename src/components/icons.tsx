@@ -52,3 +52,32 @@ export function ChatIcon(props: IconProps) {
     </Icon>
   )
 }
+
+export function CameraIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="2" y="4.5" width="12" height="9" rx="1.5" />
+      <circle cx="8" cy="9" r="2.3" />
+      <path d="M6 4.5 7 2.5h2l1 2" />
+    </Icon>
+  )
+}
+
+export function IdCardIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="2" y="3.5" width="12" height="9" rx="1.5" />
+      <circle cx="6" cy="7.3" r="1.3" />
+      <path d="M4 10.6c.4-1 1.1-1.3 2-1.3s1.6.3 2 1.3M9.5 6.8h2.5M9.5 8.8h2" />
+    </Icon>
+  )
+}
+
+export function ShieldCheckIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M8 2 12.7 4v4c0 2.7-2 4.7-4.7 6-2.7-1.3-4.7-3.3-4.7-6V4z" />
+      <path d="m6 8 1.4 1.4L10.2 6.6" />
+    </Icon>
+  )
+}
