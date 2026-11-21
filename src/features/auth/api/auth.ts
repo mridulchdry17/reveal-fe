@@ -12,6 +12,15 @@ export async function signInWithGoogle(credential: string): Promise<SignInResult
   throw toApiError(response.status, error)
 }
 
+/** Verify the signed-in user with a credential for their college Google account. Throws ApiError. */
+export async function verifyCollegeEmail(credential: string): Promise<Me> {
+  const { data, error, response } = await api.POST('/v1/auth/college-email', {
+    body: { credential },
+  })
+  if (data) return data
+  throw toApiError(response.status, error)
+}
+
 /** The signed-in account. Throws ApiError (401 when the session is gone). */
 export async function getMe(): Promise<Me> {
   const { data, error, response } = await api.GET('/v1/auth/me')
