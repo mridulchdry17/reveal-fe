@@ -38,7 +38,7 @@ export function GoogleSignInButton({ onCredential, hostedDomain }: Props) {
         })
         google.renderButton(parent, {
           type: 'standard',
-          theme: 'outline',
+          theme: 'filled_black',
           size: 'large',
           text: 'continue_with',
           shape: 'pill',

@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { env } from '@/config/env'
 import { getToken } from '@/lib/auth/token'
@@ -57,5 +57,14 @@ describe('SignInScreen', () => {
     renderRoutes(routes, '/sign-in')
 
     expect(await screen.findByRole('heading', { name: 'App home' })).toBeInTheDocument()
+  })
+
+  it('warns inside Instagram, where Google sign-in fails', async () => {
+    stubGoogleButton()
+    vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Mozilla/5.0 (iPhone) Instagram 312.0')
+    renderRoutes(routes, '/sign-in')
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('open Reveal in Chrome or Safari')
+    vi.restoreAllMocks()
   })
 })
