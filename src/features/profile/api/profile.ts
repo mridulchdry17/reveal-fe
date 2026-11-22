@@ -15,6 +15,7 @@ export type InterestedIn = components['schemas']['InterestedIn']
 export type MatchOn = components['schemas']['MatchOn']
 export type Contact = components['schemas']['Contact']
 export type ContactKind = components['schemas']['ContactKind']
+type PhotoBody = components['schemas']['Body_update_photo_v1_profile_me_photo_put']
 
 export async function getProfileOptions(): Promise<ProfileOptions> {
   const { data, error, response } = await api.GET('/v1/profile/options')
@@ -60,6 +61,32 @@ export async function saveContact(body: Contact): Promise<MyProfile> {
 
 export async function removeContact(): Promise<MyProfile> {
   const { data, error, response } = await api.DELETE('/v1/profile/me/contact')
+  if (data) return data
+  throw toApiError(response.status, error)
+}
+
+/** Upload my photo (card 6). The server re-encodes it and keeps it private. */
+export async function uploadPhoto(photo: Blob): Promise<MyProfile> {
+  const form = new FormData()
+  form.append('photo', photo, 'photo.jpg')
+  const { data, error, response } = await api.PUT('/v1/profile/me/photo', {
+    // The schema types file fields as strings; what's actually sent is this FormData.
+    body: form as unknown as PhotoBody,
+    bodySerializer: (body) => body as unknown as FormData,
+  })
+  if (data) return data
+  throw toApiError(response.status, error)
+}
+
+/** My own photo. Fetched with the session token, so it can't be a plain <img src>. */
+export async function getMyPhoto(): Promise<Blob> {
+  const { data, error, response } = await api.GET('/v1/profile/me/photo', { parseAs: 'blob' })
+  if (data) return data
+  throw toApiError(response.status, error)
+}
+
+export async function removePhoto(): Promise<MyProfile> {
+  const { data, error, response } = await api.DELETE('/v1/profile/me/photo')
   if (data) return data
   throw toApiError(response.status, error)
 }
