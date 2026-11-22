@@ -34,7 +34,6 @@ export const completeProfile: MyProfile = {
   year: 2,
   hometown: 'Jaipur',
   looking_for: 'serious',
-  shown_cards: ['hometown', 'looking_for'],
   gender: 'woman',
   interested_in: 'men',
   match_on: [],

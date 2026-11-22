@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
-import { AlertIcon, LockIcon } from '@/components/icons'
+import { LockIcon } from '@/components/icons'
 
 import type { Card, CardsUpdate, LookingFor, MyProfile, ProfileOptions } from '../api/profile'
 import { profileErrorMessage } from '../utils/errorMessage'
 import { branchSuggestions, yearLabels } from '../utils/labels'
 import { stepPath } from '../utils/steps'
 import { StepLayout } from './StepLayout'
+
+type CardState = 'shown' | 'hidden' | 'soon' | 'sealed'
 
 type Props = {
   profile: MyProfile
@@ -22,41 +24,32 @@ type Values = {
   year: string
   hometown: string
   looking_for: LookingFor | ''
-  shown_cards: Card[]
 }
 
 const inputClass =
   'h-12 w-full rounded-xl border-[1.5px] border-field bg-surface px-3 text-[15px] text-text focus:border-text focus:outline-none'
 
 export function CardsForm({ profile, options, onSave, saving, error }: Props) {
-  const { register, handleSubmit, setValue, control } = useForm<Values>({
+  const { register, handleSubmit, control } = useForm<Values>({
     defaultValues: {
       branch: profile.branch ?? '',
       year: profile.year ? String(profile.year) : '',
       hometown: profile.hometown ?? '',
       looking_for: profile.looking_for ?? '',
-      shown_cards: profile.shown_cards,
     },
   })
   const [hint, setHint] = useState<string | null>(null)
   const v = useWatch({ control })
-  const shownCards = v.shown_cards ?? []
   const lookingForLabel = options.looking_for.find((o) => o.value === v.looking_for)?.label
 
-  const toggle = (card: Card) =>
-    setValue(
-      'shown_cards',
-      shownCards.includes(card) ? shownCards.filter((c) => c !== card) : [...shownCards, card],
-    )
-
-  const cards: { card: Card; title: string; detail: string; showable: boolean }[] = [
-    { card: 'first_name', title: 'First name', detail: profile.first_name || 'From your Google account', showable: true },
-    { card: 'branch', title: 'Branch', detail: [v.branch, v.year && yearLabels[Number(v.year) - 1]].filter(Boolean).join(' · ') || 'Fill in above', showable: true },
-    { card: 'hometown', title: 'Hometown', detail: v.hometown || 'Fill in above', showable: true },
-    { card: 'looking_for', title: 'Looking for', detail: lookingForLabel ?? 'Fill in above', showable: true },
-    { card: 'voice', title: 'Voice note', detail: 'Record a short clip, later', showable: false },
-    { card: 'photo', title: 'Photo', detail: 'Adding photos comes soon · always swap only', showable: false },
-    { card: 'contact', title: 'Instagram or phone', detail: 'Comes soon · always the last swap', showable: false },
+  const cards: { card: Card; title: string; detail: string; state: CardState }[] = [
+    { card: 'first_name', title: 'First name', detail: profile.first_name || 'From your Google account', state: 'hidden' },
+    { card: 'branch', title: 'Branch', detail: [v.branch, v.year && yearLabels[Number(v.year) - 1]].filter(Boolean).join(' · ') || 'Fill in above', state: 'hidden' },
+    { card: 'hometown', title: 'Hometown', detail: v.hometown || 'Fill in above', state: 'hidden' },
+    { card: 'looking_for', title: 'Looking for', detail: lookingForLabel ?? 'Fill in above', state: 'shown' },
+    { card: 'voice', title: 'Voice note', detail: 'Optional · record a short clip, later', state: 'soon' },
+    { card: 'photo', title: 'Photo', detail: 'Adding photos comes soon', state: 'sealed' },
+    { card: 'contact', title: 'Instagram or phone', detail: 'Comes soon · always the last swap', state: 'sealed' },
   ]  // prettier-ignore
 
   const submit = handleSubmit((values) => {
@@ -70,7 +63,6 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
       year: Number(values.year),
       hometown: values.hometown.trim(),
       looking_for: values.looking_for,
-      shown_cards: values.shown_cards,
     })
   })
 
@@ -80,7 +72,7 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
         step={3}
         backTo={stepPath('prompts')}
         title="Your 7 cards"
-        subtitle="Choose which cards everyone sees. Hidden cards open only when you both agree to swap."
+        subtitle="Everyone sees what you're looking for. The rest stay hidden until you both agree to swap."
         submitLabel="Next"
         submitting={saving}
         error={hint ?? (error ? profileErrorMessage(error) : null)}
@@ -123,57 +115,46 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
           </label>
         </div>
 
-        <ol className="m-0 flex list-none flex-col gap-2 p-0">
-          {cards.map(({ card, title, detail, showable }, i) => {
-            const shown = shownCards.includes(card)
-            return (
-              <li
-                key={card}
-                className={`flex items-center gap-3 rounded-[14px] border border-border px-3.5 py-3 ${showable ? 'bg-surface' : 'bg-surface-2'}`}
-              >
-                <span aria-hidden="true" className="w-6 text-[13px] text-muted">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-[15px] font-bold">{title}</span>
-                  <span className="truncate text-[13px] text-muted">{detail}</span>
-                </span>
-                {showable ? (
-                  <button
-                    type="button"
-                    aria-pressed={shown}
-                    aria-label={`${title}: ${shown ? 'shown to everyone' : 'hidden until a swap'}`}
-                    onClick={() => toggle(card)}
-                    className={
-                      shown
-                        ? 'min-h-11 min-w-[78px] rounded-full border-0 bg-open-bg px-3 text-[13px] font-bold text-open'
-                        : 'hatch min-h-11 min-w-[78px] rounded-full border border-dashed border-locked bg-transparent px-3 text-[13px] font-medium text-locked'
-                    }
-                  >
-                    {shown ? 'Shown' : 'Hidden'}
-                  </button>
-                ) : card === 'voice' ? (
-                  <span className="rounded-full bg-surface px-2.5 py-1.5 text-[13px] font-medium text-muted">
-                    Coming soon
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1 rounded-full bg-locked-bg px-2.5 py-1.5 text-[13px] font-medium text-locked">
-                    <LockIcon className="size-3.5" />
-                    Swap only
-                  </span>
-                )}
-              </li>
-            )
-          })}
+        <ol aria-label="Your cards" className="m-0 flex list-none flex-col gap-2 p-0">
+          {cards.map(({ card, title, detail, state }, i) => (
+            <li
+              key={card}
+              className={`flex items-center gap-3 rounded-[14px] border border-border px-3.5 py-3 ${state === 'shown' || state === 'hidden' ? 'bg-surface' : 'bg-surface-2'}`}
+            >
+              <span aria-hidden="true" className="w-6 text-[13px] text-muted">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="text-[15px] font-bold">{title}</span>
+                <span className="truncate text-[13px] text-muted">{detail}</span>
+              </span>
+              <CardBadge state={state} />
+            </li>
+          ))}
         </ol>
-
-        {shownCards.includes('first_name') && shownCards.includes('branch') && (
-          <p className="m-0 flex gap-2.5 rounded-[14px] bg-warn-bg p-3.5 text-[13px] leading-5">
-            <AlertIcon className="mt-0.5 size-4 shrink-0 text-warn" />
-            Showing both your name and branch makes you easy to identify on campus.
-          </p>
-        )}
       </StepLayout>
     </form>
   )
+}
+
+function CardBadge({ state }: { state: CardState }) {
+  switch (state) {
+    case 'shown':
+      return <span className="rounded-full bg-open-bg px-3 py-1.5 text-[13px] font-bold text-open">Shown</span>
+    case 'hidden':
+      return (
+        <span className="hatch rounded-full border border-dashed border-locked px-3 py-1.5 text-[13px] font-medium text-locked">
+          Hidden
+        </span>
+      )
+    case 'soon':
+      return <span className="rounded-full bg-surface px-2.5 py-1.5 text-[13px] font-medium text-muted">Coming soon</span>
+    case 'sealed':
+      return (
+        <span className="flex items-center gap-1 rounded-full bg-locked-bg px-2.5 py-1.5 text-[13px] font-medium text-locked">
+          <LockIcon className="size-3.5" />
+          Swap only
+        </span>
+      )
+  }
 }
