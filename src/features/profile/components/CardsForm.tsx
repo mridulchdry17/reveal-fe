@@ -49,7 +49,7 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
     { card: 'looking_for', title: 'Looking for', detail: lookingForLabel ?? 'Fill in above', state: 'shown' },
     { card: 'voice', title: 'Voice note', detail: 'Optional · record a short clip, later', state: 'soon' },
     { card: 'photo', title: 'Photo', detail: 'Adding photos comes soon', state: 'sealed' },
-    { card: 'contact', title: 'Instagram or phone', detail: 'Comes soon · always the last swap', state: 'sealed' },
+    { card: 'contact', title: 'Instagram or phone', detail: profile.contact ? 'Added · the last swap' : 'Optional · add it from the You tab', state: 'sealed' },
   ]  // prettier-ignore
 
   const submit = handleSubmit((values) => {

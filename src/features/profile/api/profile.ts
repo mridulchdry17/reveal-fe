@@ -13,6 +13,8 @@ export type LookingFor = components['schemas']['LookingFor']
 export type Gender = components['schemas']['Gender']
 export type InterestedIn = components['schemas']['InterestedIn']
 export type MatchOn = components['schemas']['MatchOn']
+export type Contact = components['schemas']['Contact']
+export type ContactKind = components['schemas']['ContactKind']
 
 export async function getProfileOptions(): Promise<ProfileOptions> {
   const { data, error, response } = await api.GET('/v1/profile/options')
@@ -46,6 +48,18 @@ export async function saveCards(body: CardsUpdate): Promise<MyProfile> {
 
 export async function savePreferences(body: PreferencesUpdate): Promise<MyProfile> {
   const { data, error, response } = await api.PUT('/v1/profile/me/preferences', { body })
+  if (data) return data
+  throw toApiError(response.status, error)
+}
+
+export async function saveContact(body: Contact): Promise<MyProfile> {
+  const { data, error, response } = await api.PUT('/v1/profile/me/contact', { body })
+  if (data) return data
+  throw toApiError(response.status, error)
+}
+
+export async function removeContact(): Promise<MyProfile> {
+  const { data, error, response } = await api.DELETE('/v1/profile/me/contact')
   if (data) return data
   throw toApiError(response.status, error)
 }
