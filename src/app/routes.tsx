@@ -1,5 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router'
 
+import { AdminScreen } from '@/features/admin/components/AdminScreen'
 import { AccountSection } from '@/features/auth/components/AccountSection'
 import { SignInScreen } from '@/features/auth/components/SignInScreen'
 import { IdCardScreen } from '@/features/auth/components/IdCardScreen'
@@ -11,6 +12,7 @@ import { TonightScreen } from '@/features/tonight/components/TonightScreen'
 import { WaitlistScreen } from '@/features/waitlist/components/WaitlistScreen'
 
 import { AppShell } from './AppShell'
+import { RequireAdmin } from './RequireAdmin'
 import { RequireAuth } from './RequireAuth'
 import { RequireVerified } from './RequireVerified'
 
@@ -27,6 +29,11 @@ export const routes: RouteObject[] = [
       { path: 'id-card', element: <IdCardScreen /> },
       { path: 'pending', element: <PendingScreen /> },
     ],
+  },
+  {
+    path: '/admin',
+    element: <RequireAuth />,
+    children: [{ element: <RequireAdmin />, children: [{ index: true, element: <AdminScreen /> }] }],
   },
   {
     path: '/app',
