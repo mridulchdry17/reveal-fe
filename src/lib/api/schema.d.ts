@@ -533,6 +533,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/profile/me/voice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My own voice note (never cached) */
+        get: operations["my_voice_v1_profile_me_voice_get"];
+        /** Card 5: my voice note (optional), private until the voice swap */
+        put: operations["update_voice_v1_profile_me_voice_put"];
+        post?: never;
+        /** Remove my voice note */
+        delete: operations["remove_voice_v1_profile_me_voice_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/profile/me/contact": {
         parameters: {
             query?: never;
@@ -703,6 +722,19 @@ export interface components {
              * @description JPEG, PNG or WebP
              */
             photo: string;
+        };
+        /** Body_update_voice_v1_profile_me_voice_put */
+        Body_update_voice_v1_profile_me_voice_put: {
+            /**
+             * Voice
+             * @description WebM/Opus, MP4/AAC or Ogg recording
+             */
+            voice: string;
+            /**
+             * Seconds
+             * @description Length
+             */
+            seconds: number;
         };
         /**
          * Card
@@ -969,6 +1001,11 @@ export interface components {
             /** Hometown */
             hometown: string | null;
             looking_for: components["schemas"]["LookingFor"] | null;
+            /**
+             * Voice Seconds
+             * @description Card 5, optional; fetch it with GET /v1/profile/me/voice
+             */
+            voice_seconds: number | null;
             /**
              * Has Photo
              * @description Card 6; fetch it with GET /v1/profile/me/photo
@@ -2901,6 +2938,161 @@ export interface operations {
         };
     };
     remove_photo_v1_profile_me_photo_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyProfile"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    my_voice_v1_profile_me_voice_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The recording */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "audio/webm": unknown;
+                    "audio/mp4": unknown;
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No voice note yet */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    update_voice_v1_profile_me_voice_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_update_voice_v1_profile_me_voice_put"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyProfile"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Voice note too large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a WebM, MP4 or Ogg recording */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many uploads */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    remove_voice_v1_profile_me_voice_delete: {
         parameters: {
             query?: never;
             header?: never;

@@ -7,6 +7,7 @@ import { IdCardScreen } from '@/features/auth/components/IdCardScreen'
 import { PendingScreen } from '@/features/auth/components/PendingScreen'
 import { VerifyScreen } from '@/features/auth/components/VerifyScreen'
 import { ContactSection } from '@/features/profile/components/ContactSection'
+import { VoiceSection } from '@/features/profile/components/VoiceSection'
 import { PhotoSection } from '@/features/profile/components/PhotoSection'
 import { ProfileSetupScreen } from '@/features/profile/components/ProfileSetupScreen'
 import { ProfileSummary } from '@/features/profile/components/ProfileSummary'
@@ -84,6 +85,7 @@ export const routes: RouteObject[] = [
                           <div className="flex flex-col gap-3">
                             <ProfileSummary />
                             <PhotoSection />
+                            <VoiceSection />
                             <ContactSection />
                           </div>
                         }

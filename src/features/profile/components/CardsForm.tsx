@@ -9,7 +9,7 @@ import { branchSuggestions, yearLabels } from '../utils/labels'
 import { stepPath } from '../utils/steps'
 import { StepLayout } from './StepLayout'
 
-type CardState = 'shown' | 'hidden' | 'soon' | 'sealed'
+type CardState = 'shown' | 'hidden' | 'optional' | 'sealed'
 
 type Props = {
   profile: MyProfile
@@ -47,7 +47,7 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
     { card: 'branch', title: 'Branch', detail: [v.branch, v.year && yearLabels[Number(v.year) - 1]].filter(Boolean).join(' · ') || 'Fill in above', state: 'hidden' },
     { card: 'hometown', title: 'Hometown', detail: v.hometown || 'Fill in above', state: 'hidden' },
     { card: 'looking_for', title: 'Looking for', detail: lookingForLabel ?? 'Fill in above', state: 'shown' },
-    { card: 'voice', title: 'Voice note', detail: 'Optional · record a short clip, later', state: 'soon' },
+    { card: 'voice', title: 'Voice note', detail: profile.voice_seconds ? `Added · ${profile.voice_seconds}s · opens by swap` : 'Optional · record it from the You tab', state: profile.voice_seconds ? 'hidden' : 'optional' },
     { card: 'photo', title: 'Photo', detail: profile.has_photo ? 'Added · opens by swap' : 'Optional · add it from the You tab', state: 'sealed' },
     { card: 'contact', title: 'Instagram or phone', detail: profile.contact ? 'Added · the last swap' : 'Optional · add it from the You tab', state: 'sealed' },
   ]  // prettier-ignore
@@ -147,8 +147,8 @@ function CardBadge({ state }: { state: CardState }) {
           Hidden
         </span>
       )
-    case 'soon':
-      return <span className="rounded-full bg-surface px-2.5 py-1.5 text-[13px] font-medium text-muted">Coming soon</span>
+    case 'optional':
+      return <span className="rounded-full bg-surface px-2.5 py-1.5 text-[13px] font-medium text-muted">Optional</span>
     case 'sealed':
       return (
         <span className="flex items-center gap-1 rounded-full bg-locked-bg px-2.5 py-1.5 text-[13px] font-medium text-locked">
