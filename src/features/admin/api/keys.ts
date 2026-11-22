@@ -3,4 +3,5 @@ export const adminKeys = {
   photo: (reviewId: string, kind: 'selfie' | 'id_card') =>
     ['admin', 'reviews', reviewId, kind] as const,
   actions: ['admin', 'actions'] as const,
+  reports: ['admin', 'reports'] as const,
 }

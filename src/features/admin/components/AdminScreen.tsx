@@ -1,15 +1,18 @@
 import { Link, useSearchParams } from 'react-router'
 
 import { useAdminActions } from '../hooks/useAdminActions'
+import { useReports } from '../hooks/useReports'
 import { useReviews } from '../hooks/useReviews'
 import { adminErrorMessage } from '../utils/errorMessage'
 import { ActionLog } from './ActionLog'
 import { LetInForm } from './LetInForm'
+import { ReportList } from './ReportList'
 import { ReviewItem } from './ReviewItem'
 
 const tabs = [
   { id: 'reviews', label: 'ID checks' },
   { id: 'let-in', label: 'Let in' },
+  { id: 'reports', label: 'Reports' },
   { id: 'log', label: 'Log' },
 ] as const
 type Tab = (typeof tabs)[number]['id']
@@ -53,6 +56,19 @@ function Log() {
   return <ActionLog actions={actions.data} />
 }
 
+function Reports() {
+  const reports = useReports()
+  if (reports.isPending) return <p className="m-0 text-sm text-muted">Loading…</p>
+  if (reports.isError) {
+    return (
+      <p role="alert" className="m-0 text-sm text-accent-text">
+        {adminErrorMessage(reports.error)}
+      </p>
+    )
+  }
+  return <ReportList reports={reports.data} />
+}
+
 export function AdminScreen() {
   const [params, setParams] = useSearchParams()
   const current: Tab = tabs.find((t) => t.id === params.get('tab'))?.id ?? 'reviews'
@@ -89,6 +105,7 @@ export function AdminScreen() {
 
         {current === 'reviews' && <Reviews />}
         {current === 'let-in' && <LetInForm />}
+        {current === 'reports' && <Reports />}
         {current === 'log' && <Log />}
       </div>
     </div>
