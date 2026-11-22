@@ -23,14 +23,14 @@ describe('TonightScreen', () => {
     expect(screen.getByText('Next drop in 20h 14m')).toBeInTheDocument()
     expect(screen.getByRole('img', { name: '0 of 2 seen' })).toBeInTheDocument()
     const cards = within(card).getByRole('list', { name: 'Cards' })
-    expect(cards).toHaveTextContent('Lucknow')
+    expect(cards).not.toHaveTextContent('Lucknow')
     expect(cards).toHaveTextContent('Something serious')
-    expect(cards).toHaveTextContent('4 hidden')
+    expect(cards).toHaveTextContent('5 hidden')
     expect(within(card).getByText('Photo opens through swaps')).toBeInTheDocument()
     expect(within(card).getByText('Mess food is underrated')).toBeInTheDocument()
   })
 
-  it('shows name and branch when they are shown', async () => {
+  it('shows name and branch once they are open', async () => {
     signInAs()
     mockDrop([dropItem('i2', dev)])
     renderWithQuery(<TonightScreen />)

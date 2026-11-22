@@ -22,12 +22,13 @@ export const kabir: PublicProfile = {
   first_name: null,
   branch: null,
   year: null,
-  hometown: 'Lucknow',
+  hometown: null,
   looking_for: 'serious',
-  shown_cards: ['hometown', 'looking_for'],
-  hidden_cards: ['first_name', 'branch', 'photo', 'contact'],
+  shown_cards: ['looking_for'],
+  hidden_cards: ['first_name', 'branch', 'hometown', 'photo', 'contact'],
 }
 
+/** As if a few cards were already open between you (swaps aren't built yet). */
 export const dev: PublicProfile = {
   ...kabir,
   nickname: 'Lost playlist',

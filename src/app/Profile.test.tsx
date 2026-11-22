@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
@@ -136,17 +136,19 @@ describe('profile setup', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('No numbers, handles or links')
   })
 
-  it('lets you choose which cards are shown and warns about name + branch', async () => {
+  it('shows the same layout for everyone, with no choice to make', async () => {
     withOptions()
     signInAs(undefined, none, { ...empty, basics_done: true, prompts_done: true })
     renderRoutes(routes, '/profile/setup/cards')
 
-    const name = await screen.findByRole('button', { name: /First name: hidden/ })
-    await userEvent.click(name)
-    await userEvent.click(screen.getByRole('button', { name: /Branch: hidden/ }))
-
-    expect(screen.getByRole('button', { name: /First name: shown/ })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByText(/easy to identify on campus/)).toBeInTheDocument()
+    const cards = await screen.findByRole('list', { name: 'Your cards' })
+    const row = (title: string) => within(cards).getByText(title).closest('li')
+    expect(row('Looking for')).toHaveTextContent('Shown')
+    expect(row('First name')).toHaveTextContent('Hidden')
+    expect(row('Branch')).toHaveTextContent('Hidden')
+    expect(row('Hometown')).toHaveTextContent('Hidden')
+    expect(row('Photo')).toHaveTextContent('Swap only')
+    expect(within(cards).queryByRole('button')).not.toBeInTheDocument()
   })
 
   it('finishes the profile and opens the app', async () => {

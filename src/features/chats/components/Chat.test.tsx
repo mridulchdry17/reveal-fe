@@ -66,8 +66,8 @@ describe('Chat', () => {
     expect(messages).toHaveTextContent('ok wait you also like films??')
     expect(messages).toHaveTextContent('obviously')
     const cards = screen.getByRole('list', { name: 'Their cards' })
-    expect(cards).toHaveTextContent('Lucknow')
-    expect(cards).toHaveTextContent('4 hidden')
+    expect(cards).not.toHaveTextContent('Lucknow')
+    expect(cards).toHaveTextContent('5 hidden')
   })
 
   it('marks their latest message as seen', async () => {
