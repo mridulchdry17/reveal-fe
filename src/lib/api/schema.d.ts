@@ -699,8 +699,6 @@ export interface components {
             interested_in: components["schemas"]["InterestedIn"] | null;
             /** Match On */
             match_on: components["schemas"]["MatchOn"][];
-            /** Women Write First */
-            women_write_first: boolean;
             /** Basics Done */
             basics_done: boolean;
             /** Prompts Done */
@@ -725,12 +723,6 @@ export interface components {
             interested_in: components["schemas"]["InterestedIn"];
             /** Match On */
             match_on?: components["schemas"]["MatchOn"][];
-            /**
-             * Women Write First
-             * @description Only applies to women: matches wait for her to start
-             * @default false
-             */
-            women_write_first: boolean;
         };
         /** ProfileOptions */
         ProfileOptions: {

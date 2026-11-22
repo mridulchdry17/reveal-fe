@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
 import type { Gender, InterestedIn, MatchOn, MyProfile, PreferencesUpdate } from '../api/profile'
 import { profileErrorMessage } from '../utils/errorMessage'
@@ -19,7 +19,6 @@ type Values = {
   gender: Gender | ''
   interested_in: InterestedIn | ''
   match_on: MatchOn[]
-  women_write_first: boolean
 }
 
 function Segmented<T extends string>({
@@ -52,16 +51,14 @@ function Segmented<T extends string>({
 }
 
 export function PreferencesForm({ profile, onSave, saving, error }: Props) {
-  const { register, handleSubmit, control } = useForm<Values>({
+  const { register, handleSubmit } = useForm<Values>({
     defaultValues: {
       gender: profile.gender ?? '',
       interested_in: profile.interested_in ?? '',
       match_on: profile.match_on,
-      women_write_first: profile.women_write_first,
     },
   })
   const [hint, setHint] = useState<string | null>(null)
-  const gender = useWatch({ control, name: 'gender' })
 
   const submit = handleSubmit((values) => {
     if (!values.gender) return setHint('Tell us who you are.')
@@ -71,7 +68,6 @@ export function PreferencesForm({ profile, onSave, saving, error }: Props) {
       gender: values.gender,
       interested_in: values.interested_in,
       match_on: values.match_on,
-      women_write_first: values.gender === 'woman' && values.women_write_first,
     })
   })
 
@@ -99,20 +95,6 @@ export function PreferencesForm({ profile, onSave, saving, error }: Props) {
           </div>
         </fieldset>
 
-        {gender === 'woman' && (
-          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-[18px] border border-border bg-surface px-4 py-3.5">
-            <span className="flex flex-col gap-0.5">
-              <span className="text-[15px] font-bold">I send the first message</span>
-              <span className="text-[13px] text-muted">Matches wait for you to start</span>
-            </span>
-            <input
-              type="checkbox"
-              role="switch"
-              {...register('women_write_first')}
-              className="relative h-7 w-[46px] shrink-0 cursor-pointer appearance-none rounded-full bg-border before:absolute before:top-[3px] before:left-[3px] before:size-[22px] before:rounded-full before:bg-surface checked:bg-accent checked:before:translate-x-[18px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            />
-          </label>
-        )}
       </StepLayout>
     </form>
   )
