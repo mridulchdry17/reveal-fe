@@ -1,4 +1,6 @@
-import type { LookingFor } from '../api/drops'
+import type { components } from '@/lib/api/schema'
+
+type LookingFor = components['schemas']['LookingFor']
 
 // Same words as GET /v1/profile/options; typed so a new choice fails the build here.
 export const lookingForLabels: Record<LookingFor, string> = {
