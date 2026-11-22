@@ -191,6 +191,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/profile/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Choices for the profile screens */
+        get: operations["options_v1_profile_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/profile/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My profile */
+        get: operations["my_profile_v1_profile_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/profile/me/basics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Nickname, vibe and interests */
+        put: operations["update_basics_v1_profile_me_basics_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/profile/me/prompts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** The three prompts */
+        put: operations["update_prompts_v1_profile_me_prompts_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/profile/me/cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Card contents and which are shown without a swap */
+        put: operations["update_cards_v1_profile_me_cards_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/profile/me/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Who to show me, and safety choices */
+        put: operations["update_preferences_v1_profile_me_preferences_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/verification/me": {
         parameters: {
             query?: never;
@@ -271,6 +373,15 @@ export interface components {
              */
             created_at: string;
         };
+        /** BasicsUpdate */
+        BasicsUpdate: {
+            /** Nickname */
+            nickname: string;
+            /** Vibe */
+            vibe: string;
+            /** Interests */
+            interests: string[];
+        };
         /** Body_submit_id_card_v1_verification_id_card_post */
         Body_submit_id_card_v1_verification_id_card_post: {
             /**
@@ -283,6 +394,30 @@ export interface components {
              * @description Front of the college ID card
              */
             id_card: string;
+        };
+        /**
+         * Card
+         * @description The 7 cards, in order. Only the first five can be shown without a swap.
+         * @enum {string}
+         */
+        Card: "first_name" | "branch" | "hometown" | "looking_for" | "voice" | "photo" | "contact";
+        /** CardsUpdate */
+        CardsUpdate: {
+            /** Branch */
+            branch: string;
+            /**
+             * Year
+             * @description Year of study, 1 = first-year
+             */
+            year: number;
+            /** Hometown */
+            hometown: string;
+            looking_for: components["schemas"]["LookingFor"];
+            /**
+             * Shown Cards
+             * @description Cards shown without a swap
+             */
+            shown_cards: components["schemas"]["Card"][];
         };
         /**
          * CollegeEmailRequest
@@ -305,6 +440,11 @@ export interface components {
             /** Detail */
             detail: string;
         };
+        /**
+         * Gender
+         * @enum {string}
+         */
+        Gender: "woman" | "man" | "nonbinary";
         /** GoogleSignInRequest */
         GoogleSignInRequest: {
             /**
@@ -331,6 +471,11 @@ export interface components {
              */
             database: "ok" | "down";
         };
+        /**
+         * InterestedIn
+         * @enum {string}
+         */
+        InterestedIn: "women" | "men" | "everyone";
         /** LetInRequest */
         LetInRequest: {
             /**
@@ -356,6 +501,16 @@ export interface components {
             /** Email */
             email: string;
         };
+        /**
+         * LookingFor
+         * @enum {string}
+         */
+        LookingFor: "serious" | "see_where_it_goes" | "friends_first" | "not_sure";
+        /**
+         * MatchOn
+         * @enum {string}
+         */
+        MatchOn: "shared_interests" | "same_hometown" | "same_vibe" | "nearby_years";
         /** Me */
         Me: {
             /**
@@ -375,6 +530,113 @@ export interface components {
              */
             verified: boolean;
             verified_via: components["schemas"]["VerificationMethod"] | null;
+        };
+        /**
+         * MyProfile
+         * @description Everything the owner sees about their own profile, including locked cards.
+         */
+        MyProfile: {
+            /**
+             * First Name
+             * @description From the Google account; card 1
+             */
+            first_name: string;
+            /** Nickname */
+            nickname: string | null;
+            /** Vibe */
+            vibe: string | null;
+            /** Interests */
+            interests: string[];
+            /** Prompts */
+            prompts: components["schemas"]["PromptOut"][];
+            /** Branch */
+            branch: string | null;
+            /** Year */
+            year: number | null;
+            /** Hometown */
+            hometown: string | null;
+            looking_for: components["schemas"]["LookingFor"] | null;
+            /** Shown Cards */
+            shown_cards: components["schemas"]["Card"][];
+            gender: components["schemas"]["Gender"] | null;
+            interested_in: components["schemas"]["InterestedIn"] | null;
+            /** Match On */
+            match_on: components["schemas"]["MatchOn"][];
+            /** Women Write First */
+            women_write_first: boolean;
+            /** Basics Done */
+            basics_done: boolean;
+            /** Prompts Done */
+            prompts_done: boolean;
+            /** Cards Done */
+            cards_done: boolean;
+            /** Preferences Done */
+            preferences_done: boolean;
+            /** Complete */
+            complete: boolean;
+        };
+        /** Option */
+        Option: {
+            /** Value */
+            value: string;
+            /** Label */
+            label: string;
+        };
+        /** PreferencesUpdate */
+        PreferencesUpdate: {
+            gender: components["schemas"]["Gender"];
+            interested_in: components["schemas"]["InterestedIn"];
+            /** Match On */
+            match_on?: components["schemas"]["MatchOn"][];
+            /**
+             * Women Write First
+             * @description Only applies to women: matches wait for her to start
+             * @default false
+             */
+            women_write_first: boolean;
+        };
+        /** ProfileOptions */
+        ProfileOptions: {
+            /** Vibes */
+            vibes: string[];
+            /** Interest Suggestions */
+            interest_suggestions: string[];
+            /** Min Interests */
+            min_interests: number;
+            /** Max Interests */
+            max_interests: number;
+            /** Prompt Questions */
+            prompt_questions: string[];
+            /** Prompt Answer Max */
+            prompt_answer_max: number;
+            /** Nickname Suggestions */
+            nickname_suggestions: string[];
+            /** Looking For */
+            looking_for: components["schemas"]["Option"][];
+        };
+        /** PromptIn */
+        PromptIn: {
+            /** Question */
+            question: string;
+            /** Answer */
+            answer: string;
+        };
+        /** PromptOut */
+        PromptOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Question */
+            question: string;
+            /** Answer */
+            answer: string;
+        };
+        /** PromptsUpdate */
+        PromptsUpdate: {
+            /** Prompts */
+            prompts: components["schemas"]["PromptIn"][];
         };
         /** RejectRequest */
         RejectRequest: {
@@ -1031,6 +1293,268 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    options_v1_profile_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileOptions"];
+                };
+            };
+        };
+    };
+    my_profile_v1_profile_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyProfile"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    update_basics_v1_profile_me_basics_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BasicsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyProfile"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_prompts_v1_profile_me_prompts_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromptsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyProfile"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_cards_v1_profile_me_cards_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CardsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyProfile"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_preferences_v1_profile_me_preferences_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreferencesUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyProfile"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

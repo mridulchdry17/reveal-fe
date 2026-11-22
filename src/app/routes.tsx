@@ -6,6 +6,8 @@ import { SignInScreen } from '@/features/auth/components/SignInScreen'
 import { IdCardScreen } from '@/features/auth/components/IdCardScreen'
 import { PendingScreen } from '@/features/auth/components/PendingScreen'
 import { VerifyScreen } from '@/features/auth/components/VerifyScreen'
+import { ProfileSetupScreen } from '@/features/profile/components/ProfileSetupScreen'
+import { ProfileSummary } from '@/features/profile/components/ProfileSummary'
 import { ChatsScreen } from '@/features/chats/components/ChatsScreen'
 import { YouScreen } from '@/features/settings/components/YouScreen'
 import { TonightScreen } from '@/features/tonight/components/TonightScreen'
@@ -14,6 +16,7 @@ import { WaitlistScreen } from '@/features/waitlist/components/WaitlistScreen'
 import { AppShell } from './AppShell'
 import { RequireAdmin } from './RequireAdmin'
 import { RequireAuth } from './RequireAuth'
+import { RequireProfile } from './RequireProfile'
 import { RequireVerified } from './RequireVerified'
 
 // Before launch, `/` is the public waitlist and the app lives under `/app`.
@@ -36,6 +39,19 @@ export const routes: RouteObject[] = [
     children: [{ element: <RequireAdmin />, children: [{ index: true, element: <AdminScreen /> }] }],
   },
   {
+    path: '/profile/setup',
+    element: <RequireAuth />,
+    children: [
+      {
+        element: <RequireVerified />,
+        children: [
+          { index: true, element: <ProfileSetupScreen /> },
+          { path: ':step', element: <ProfileSetupScreen /> },
+        ],
+      },
+    ],
+  },
+  {
     path: '/app',
     element: <RequireAuth />,
     children: [
@@ -43,12 +59,17 @@ export const routes: RouteObject[] = [
         element: <RequireVerified />,
         children: [
           {
-            element: <AppShell />,
+            element: <RequireProfile />,
             children: [
-              { index: true, element: <Navigate to="tonight" replace /> },
-              { path: 'tonight', element: <TonightScreen /> },
-              { path: 'chats', element: <ChatsScreen /> },
-              { path: 'you', element: <YouScreen account={<AccountSection />} /> },
+              {
+                element: <AppShell />,
+                children: [
+                  { index: true, element: <Navigate to="tonight" replace /> },
+                  { path: 'tonight', element: <TonightScreen /> },
+                  { path: 'chats', element: <ChatsScreen /> },
+                  { path: 'you', element: <YouScreen account={<AccountSection />} profile={<ProfileSummary />} /> },
+                ],
+              },
             ],
           },
         ],
