@@ -34,6 +34,7 @@ export const completeProfile: MyProfile = {
   year: 2,
   hometown: 'Jaipur',
   looking_for: 'serious',
+  contact: null,
   gender: 'woman',
   interested_in: 'men',
   match_on: [],

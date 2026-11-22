@@ -3,8 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getMyProfile,
   getProfileOptions,
+  removeContact,
   saveBasics,
   saveCards,
+  saveContact,
   savePreferences,
   savePrompts,
   type MyProfile,
@@ -19,7 +21,7 @@ export function useMyProfile() {
   return useQuery({ queryKey: profileKeys.mine, queryFn: getMyProfile })
 }
 
-function useSave<T>(save: (body: T) => Promise<MyProfile>) {
+function useSave<T = void>(save: (body: T) => Promise<MyProfile>) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: save,
@@ -31,3 +33,5 @@ export const useSaveBasics = () => useSave(saveBasics)
 export const useSavePrompts = () => useSave(savePrompts)
 export const useSaveCards = () => useSave(saveCards)
 export const useSavePreferences = () => useSave(savePreferences)
+export const useSaveContact = () => useSave(saveContact)
+export const useRemoveContact = () => useSave(removeContact)

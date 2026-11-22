@@ -6,6 +6,7 @@ import { SignInScreen } from '@/features/auth/components/SignInScreen'
 import { IdCardScreen } from '@/features/auth/components/IdCardScreen'
 import { PendingScreen } from '@/features/auth/components/PendingScreen'
 import { VerifyScreen } from '@/features/auth/components/VerifyScreen'
+import { ContactSection } from '@/features/profile/components/ContactSection'
 import { ProfileSetupScreen } from '@/features/profile/components/ProfileSetupScreen'
 import { ProfileSummary } from '@/features/profile/components/ProfileSummary'
 import { ChatScreen } from '@/features/chats/components/ChatScreen'
@@ -73,7 +74,20 @@ export const routes: RouteObject[] = [
                   { path: 'tonight', element: <TonightScreen /> },
                   { path: 'chats', element: <ChatsScreen likes={<LikesBanner />} /> },
                   { path: 'likes', element: <LikesScreen /> },
-                  { path: 'you', element: <YouScreen account={<AccountSection />} profile={<ProfileSummary />} /> },
+                  {
+                    path: 'you',
+                    element: (
+                      <YouScreen
+                        account={<AccountSection />}
+                        profile={
+                          <div className="flex flex-col gap-3">
+                            <ProfileSummary />
+                            <ContactSection />
+                          </div>
+                        }
+                      />
+                    ),
+                  },
                 ],
               },
             ],
