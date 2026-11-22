@@ -661,7 +661,7 @@ export interface components {
         };
         /**
          * Card
-         * @description The 7 cards, in order. Only the first five can be shown without a swap.
+         * @description The 7 cards, in order. Everyone has the same layout: see SHOWN_CARDS.
          * @enum {string}
          */
         Card: "first_name" | "branch" | "hometown" | "looking_for" | "voice" | "photo" | "contact";
@@ -677,11 +677,6 @@ export interface components {
             /** Hometown */
             hometown: string;
             looking_for: components["schemas"]["LookingFor"];
-            /**
-             * Shown Cards
-             * @description Cards shown without a swap
-             */
-            shown_cards: components["schemas"]["Card"][];
         };
         /**
          * ChatSummary
@@ -914,8 +909,6 @@ export interface components {
             /** Hometown */
             hometown: string | null;
             looking_for: components["schemas"]["LookingFor"] | null;
-            /** Shown Cards */
-            shown_cards: components["schemas"]["Card"][];
             gender: components["schemas"]["Gender"] | null;
             interested_in: components["schemas"]["InterestedIn"] | null;
             /** Match On */
