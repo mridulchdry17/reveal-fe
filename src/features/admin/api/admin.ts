@@ -5,6 +5,7 @@ import type { components } from '@/lib/api/schema'
 export type Review = components['schemas']['Review']
 export type AdminAction = components['schemas']['AdminActionOut']
 export type LetInResult = components['schemas']['LetInResult']
+export type AdminReport = components['schemas']['AdminReport']
 export type PhotoKind = 'selfie' | 'id_card'
 
 export async function getReviews(): Promise<Review[]> {
@@ -52,6 +53,12 @@ export async function letIn(body: { email: string; note?: string }): Promise<Let
 
 export async function getActions(): Promise<AdminAction[]> {
   const { data, error, response } = await api.GET('/v1/admin/actions')
+  if (data) return data
+  throw toApiError(response.status, error)
+}
+
+export async function getReports(): Promise<AdminReport[]> {
+  const { data, error, response } = await api.GET('/v1/admin/reports')
   if (data) return data
   throw toApiError(response.status, error)
 }

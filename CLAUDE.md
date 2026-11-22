@@ -28,8 +28,8 @@ src/
   app/          routes, providers, router, app shell with the 3 tabs
                 routes: `/` = public waitlist (pre-launch), `/app/*` = the app
   features/     now: waitlist (copy its shape: api → hook → screen → form/view), auth,
-                     admin, profile, tonight (drop + Likes list), chats, settings
-                planned: chat, swaps, guess, safety
+                     admin, profile, tonight (drop + Likes list), chats (list, chat, safety), settings
+                planned: swaps, guess
     <feature>/  api/  components/  hooks/  types/  (only what it needs)
   components/   shared UI (Button, Sheet, CardStrip, Toggle)
   lib/          api client, query client, push, watermark-safe image
@@ -106,6 +106,7 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 - Env only via `src/config/env.ts` (validated with zod). No secrets in the frontend.
 - **Auth:** Google's button (`GoogleSignInButton`) hands an ID token to `POST /v1/auth/google`; the returned session token lives in localStorage (`src/lib/auth/token.ts`) and the API client adds `Authorization: Bearer` itself. Bearer, not cookies: the API is cross-site and iOS Safari blocks those cookies. The signed-in account is the `useMe` query (null = signed out); `/app/*` sits behind `RequireAuth` and then `RequireVerified`, which sends students who haven't verified yet to `/verify` (college Google account via `POST /v1/auth/college-email`, or ID card + selfie at `/verify/id-card` → waiting screen `/verify/pending`, or ask an admin to let them in). Verified students then fill the four profile screens at `/profile/setup/:step` (`RequireProfile` sends them to the first unfinished one; choices come from `GET /v1/profile/options`). Admins get `/admin` (behind `RequireAdmin`): ID check queue with photos fetched as blobs through the API, approve/reject with a reason, let someone in by email, and the decision log. Photos are shrunk and re-encoded on the phone (`src/utils/compressImage.ts`), which also strips GPS data. In tests use `signInAs()` and `stubGoogleButton()` from `src/testing/auth.ts`.
 - **Drop and likes** (`features/tonight`): `/app/tonight` shows one profile from `GET /v1/drops/tonight` at a time; a heart on a prompt (or the big Like) opens `LikeSheet` to pick the line and add an optional comment; Pass is one tap. `/app/likes` lists people who liked you (Like back = match, Pass is silent); `LikesBanner` is slotted into the Chats tab from `routes.tsx`. `DropProfile` renders only what the server sent: hidden cards arrive as null and show as a count. In tests use `mockDrop()`, `mockLikes()` and the sample profiles in `src/testing/drops.ts`.
+- **Chat** (`features/chats`): the Chats tab lists live matches (`GET /v1/chats`, polled every 15 s); `/app/chats/:matchId` is a full-screen chat outside `AppShell` that polls `GET /v1/chats/{id}` every 3 s (stops on error, e.g. the chat ended) and marks their latest message read. Either person can write first; there's no timer (product decision, don't add one). The shield button opens `SafetySheet`: Report (reason + optional details, also blocks), Block, Unmatch, each with a "Not yet" confirm; all end the chat for both and land back on Chats with a status line. Admins see reports in the Reports tab. Card labels shared by the drop and chat live in `src/utils/cardLabels.ts`. In tests use `src/testing/chats.ts`.
 
 ## How to work here
 

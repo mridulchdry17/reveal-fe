@@ -34,3 +34,6 @@ afterEach(() => {
   delete window.google
 })
 afterAll(() => server.close())
+
+// jsdom has no layout, so no scrollIntoView. The chat calls it to show the newest message.
+Element.prototype.scrollIntoView = function scrollIntoView() {}

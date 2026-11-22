@@ -8,6 +8,7 @@ import { PendingScreen } from '@/features/auth/components/PendingScreen'
 import { VerifyScreen } from '@/features/auth/components/VerifyScreen'
 import { ProfileSetupScreen } from '@/features/profile/components/ProfileSetupScreen'
 import { ProfileSummary } from '@/features/profile/components/ProfileSummary'
+import { ChatScreen } from '@/features/chats/components/ChatScreen'
 import { ChatsScreen } from '@/features/chats/components/ChatsScreen'
 import { YouScreen } from '@/features/settings/components/YouScreen'
 import { LikesBanner } from '@/features/tonight/components/LikesBanner'
@@ -63,6 +64,8 @@ export const routes: RouteObject[] = [
           {
             element: <RequireProfile />,
             children: [
+              // A chat fills the screen: no tab bar under the message box.
+              { path: 'chats/:matchId', element: <ChatScreen /> },
               {
                 element: <AppShell />,
                 children: [

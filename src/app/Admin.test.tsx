@@ -138,6 +138,31 @@ describe('AdminScreen', () => {
     expect(screen.getByText('“Blurry”')).toBeInTheDocument()
   })
 
+  it('shows reports from students', async () => {
+    signInAs(admin)
+    withReviews([])
+    server.use(
+      http.get(`${api}/reports`, () =>
+        HttpResponse.json([
+          {
+            id: '44444444-4444-4444-8444-444444444444',
+            reason: 'harassment',
+            details: 'kept asking for my number',
+            reporter_email: 'aanya@adgips.ac.in',
+            reported_email: 'kabir@adgips.ac.in',
+            created_at: new Date().toISOString(),
+          },
+        ]),
+      ),
+    )
+    renderRoutes(routes, '/admin?tab=reports')
+
+    expect(await screen.findByText('Harassment')).toBeInTheDocument()
+    expect(screen.getByText('kabir@adgips.ac.in')).toBeInTheDocument()
+    expect(screen.getByText('“kept asking for my number”')).toBeInTheDocument()
+    expect(screen.getByText(/by aanya@adgips.ac.in/)).toBeInTheDocument()
+  })
+
   it('keeps students out', async () => {
     signInAs()
     server.use(http.get(`${env.VITE_API_URL}/health`, () => HttpResponse.json({ status: 'ok', database: 'ok' })))

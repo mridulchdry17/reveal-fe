@@ -1,7 +1,7 @@
 import { HeartIcon, LockIcon } from '@/components/icons'
 
 import type { PublicProfile } from '../api/drops'
-import { branchLine, lookingForLabels } from '../utils/labels'
+import { branchLine, lookingForLabels } from '@/utils/cardLabels'
 
 type Props = {
   profile: PublicProfile
