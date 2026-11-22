@@ -10,6 +10,8 @@ export function profileErrorMessage(error: unknown): string {
     if (error.code === 'permission_denied') return "Verify you're a student first."
     if (error.code === 'photo_too_large') return 'That photo is too large. Try another one.'
     if (error.code === 'not_a_photo') return "That file isn't a photo. Try a JPEG or PNG."
+    if (error.code === 'voice_note_too_large') return 'That recording is too long. Keep it under 30 seconds.'
+    if (error.code === 'not_a_voice_note') return "That recording didn't come through. Try again."
     if (error.code === 'rate_limited') return 'Too many uploads for now. Try again in a while.'
     return "That one's on us. Try again in a minute."
   }

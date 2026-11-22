@@ -4,16 +4,19 @@ import { compressImage } from '@/utils/compressImage'
 
 import {
   getMyPhoto,
+  getMyVoice,
   getMyProfile,
   getProfileOptions,
   removeContact,
   removePhoto,
+  removeVoice,
   saveBasics,
   saveCards,
   saveContact,
   savePreferences,
   savePrompts,
   uploadPhoto,
+  uploadVoice,
   type MyProfile,
 } from '../api/profile'
 import { profileKeys } from '../api/keys'
@@ -70,6 +73,32 @@ export function useRemovePhoto() {
     onSuccess: (profile) => {
       queryClient.setQueryData(profileKeys.mine, profile)
       queryClient.removeQueries({ queryKey: profileKeys.photo })
+    },
+  })
+}
+
+export function useMyVoice(hasVoice: boolean) {
+  return useQuery({ queryKey: profileKeys.voice, queryFn: getMyVoice, enabled: hasVoice, staleTime: Infinity })
+}
+
+export function useUploadVoice() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: uploadVoice,
+    onSuccess: (profile) => {
+      queryClient.setQueryData(profileKeys.mine, profile)
+      void queryClient.invalidateQueries({ queryKey: profileKeys.voice })
+    },
+  })
+}
+
+export function useRemoveVoice() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: removeVoice,
+    onSuccess: (profile) => {
+      queryClient.setQueryData(profileKeys.mine, profile)
+      queryClient.removeQueries({ queryKey: profileKeys.voice })
     },
   })
 }
