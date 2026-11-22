@@ -191,6 +191,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/drops/tonight": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tonight's drop */
+        get: operations["tonight_v1_drops_tonight_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/drops/tonight/{item_id}/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Like one of their prompts, with an optional comment */
+        post: operations["like_v1_drops_tonight__item_id__like_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/drops/tonight/{item_id}/pass": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pass on someone in tonight's drop */
+        post: operations["pass_on_v1_drops_tonight__item_id__pass_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/likes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** People who liked me */
+        get: operations["received_likes_v1_likes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/likes/{like_id}/match": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Like them back: it's a match */
+        post: operations["match_back_v1_likes__like_id__match_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/likes/{like_id}/pass": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pass. They're never told */
+        post: operations["pass_like_v1_likes__like_id__pass_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/profile/options": {
         parameters: {
             query?: never;
@@ -431,6 +533,22 @@ export interface components {
             credential: string;
         };
         /**
+         * Decision
+         * @enum {string}
+         */
+        Decision: "liked" | "passed";
+        /** DropItemOut */
+        DropItemOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** @description Null until liked or passed */
+            decision: components["schemas"]["Decision"] | null;
+            profile: components["schemas"]["PublicProfile"];
+        };
+        /**
          * ErrorResponse
          * @description Body of every DomainError response. Clients branch on `code`, never on `detail`.
          */
@@ -500,6 +618,25 @@ export interface components {
             name: string;
             /** Email */
             email: string;
+        };
+        /** LikeRequest */
+        LikeRequest: {
+            /**
+             * Prompt Id
+             * Format: uuid
+             * @description Which of their prompts you're liking
+             */
+            prompt_id: string;
+            /** Comment */
+            comment?: string | null;
+        };
+        /** LikeResult */
+        LikeResult: {
+            /**
+             * Matched
+             * @description They had already liked you: it's a match
+             */
+            matched: boolean;
         };
         /**
          * LookingFor
@@ -638,6 +775,62 @@ export interface components {
             /** Prompts */
             prompts: components["schemas"]["PromptIn"][];
         };
+        /**
+         * PublicProfile
+         * @description Another student's profile as one viewer may see it.
+         *
+         *     Built only by profiles.service.public_profiles. A hidden card's value is null here,
+         *     never sent and hidden by the app.
+         */
+        PublicProfile: {
+            /** Nickname */
+            nickname: string;
+            /** Vibe */
+            vibe: string;
+            /** Interests */
+            interests: string[];
+            /** Prompts */
+            prompts: components["schemas"]["PromptOut"][];
+            /** First Name */
+            first_name: string | null;
+            /** Branch */
+            branch: string | null;
+            /**
+             * Year
+             * @description Part of the branch card
+             */
+            year: number | null;
+            /** Hometown */
+            hometown: string | null;
+            looking_for: components["schemas"]["LookingFor"] | null;
+            /** Shown Cards */
+            shown_cards: components["schemas"]["Card"][];
+            /** Hidden Cards */
+            hidden_cards: components["schemas"]["Card"][];
+        };
+        /**
+         * ReceivedLike
+         * @description Someone who liked me and is waiting for an answer.
+         */
+        ReceivedLike: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Prompt Question */
+            prompt_question: string;
+            /** Prompt Answer */
+            prompt_answer: string;
+            /** Comment */
+            comment: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            profile: components["schemas"]["PublicProfile"];
+        };
         /** RejectRequest */
         RejectRequest: {
             /**
@@ -686,6 +879,22 @@ export interface components {
              */
             token: string;
             user: components["schemas"]["Me"];
+        };
+        /** Tonight */
+        Tonight: {
+            /**
+             * Drop Date
+             * Format: date
+             * @description College-time date this drop opened, at 9 PM
+             */
+            drop_date: string;
+            /**
+             * Next Drop At
+             * Format: date-time
+             */
+            next_drop_at: string;
+            /** Items */
+            items: components["schemas"]["DropItemOut"][];
         };
         /** ValidationError */
         ValidationError: {
@@ -1293,6 +1502,357 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    tonight_v1_drops_tonight_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tonight"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Profile not finished */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    like_v1_drops_tonight__item_id__like_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LikeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LikeResult"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not in your drop, or the prompt is gone */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Already answered, or the drop has moved on */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pass_on_v1_drops_tonight__item_id__pass_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not in your drop, or the prompt is gone */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Already answered, or the drop has moved on */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    received_likes_v1_likes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReceivedLike"][];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    match_back_v1_likes__like_id__match_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                like_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such like for you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Already answered */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pass_like_v1_likes__like_id__pass_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                like_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such like for you */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Already answered */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
