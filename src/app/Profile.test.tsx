@@ -169,7 +169,7 @@ describe('profile setup', () => {
 
     await userEvent.click(await screen.findByRole('radio', { name: 'Woman' }))
     await userEvent.click(screen.getByRole('radio', { name: 'Men' }))
-    expect(screen.getByRole('switch', { name: /I send the first message/ })).toBeInTheDocument()
+    expect(screen.queryByRole('switch')).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Finish profile' }))
 
     expect(await screen.findByRole('navigation', { name: 'Main' })).toBeInTheDocument()

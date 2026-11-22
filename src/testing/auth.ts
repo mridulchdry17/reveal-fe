@@ -38,7 +38,6 @@ export const completeProfile: MyProfile = {
   gender: 'woman',
   interested_in: 'men',
   match_on: [],
-  women_write_first: false,
   basics_done: true,
   prompts_done: true,
   cards_done: true,
