@@ -170,9 +170,27 @@ export function VerifyScreen() {
           ))}
 
         {method === 'admin' && (
-          <p className="m-0 rounded-2xl bg-surface-2 p-4 text-sm leading-6">
-            Getting let in by an admin is coming soon. We'll open it for first-years before launch.
-          </p>
+          <section
+            aria-label="Ask an admin"
+            className="flex flex-col gap-3 rounded-2xl bg-surface-2 p-4 text-sm leading-6"
+          >
+            <p className="m-0">
+              Message a Reveal admin (whoever shared Reveal with you) with your name, year and the
+              email you signed in with:
+            </p>
+            <p className="m-0 rounded-xl bg-surface px-3 py-2.5 font-bold break-all">
+              {me.data?.email}
+            </p>
+            <p className="m-0 text-muted">Once they let you in, come back and tap below.</p>
+            <button
+              type="button"
+              onClick={() => void me.refetch()}
+              disabled={me.isFetching}
+              className="h-11 rounded-full border-[1.5px] border-border-strong bg-transparent text-sm font-semibold text-text"
+            >
+              {me.isFetching ? 'Checking…' : "I've been let in"}
+            </button>
+          </section>
         )}
       </div>
     </div>
