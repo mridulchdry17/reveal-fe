@@ -10,6 +10,8 @@ import { ProfileSetupScreen } from '@/features/profile/components/ProfileSetupSc
 import { ProfileSummary } from '@/features/profile/components/ProfileSummary'
 import { ChatsScreen } from '@/features/chats/components/ChatsScreen'
 import { YouScreen } from '@/features/settings/components/YouScreen'
+import { LikesBanner } from '@/features/tonight/components/LikesBanner'
+import { LikesScreen } from '@/features/tonight/components/LikesScreen'
 import { TonightScreen } from '@/features/tonight/components/TonightScreen'
 import { WaitlistScreen } from '@/features/waitlist/components/WaitlistScreen'
 
@@ -66,7 +68,8 @@ export const routes: RouteObject[] = [
                 children: [
                   { index: true, element: <Navigate to="tonight" replace /> },
                   { path: 'tonight', element: <TonightScreen /> },
-                  { path: 'chats', element: <ChatsScreen /> },
+                  { path: 'chats', element: <ChatsScreen likes={<LikesBanner />} /> },
+                  { path: 'likes', element: <LikesScreen /> },
                   { path: 'you', element: <YouScreen account={<AccountSection />} profile={<ProfileSummary />} /> },
                 ],
               },

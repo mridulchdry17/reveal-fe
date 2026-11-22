@@ -113,10 +113,6 @@ export function PreferencesForm({ profile, onSave, saving, error }: Props) {
             />
           </label>
         )}
-
-        <p className="m-0 text-[13px] leading-5 text-muted">
-          First-years are shown only to their own year and the year above.
-        </p>
       </StepLayout>
     </form>
   )
