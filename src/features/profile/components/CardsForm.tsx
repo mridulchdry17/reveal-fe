@@ -48,7 +48,7 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
     { card: 'hometown', title: 'Hometown', detail: v.hometown || 'Fill in above', state: 'hidden' },
     { card: 'looking_for', title: 'Looking for', detail: lookingForLabel ?? 'Fill in above', state: 'shown' },
     { card: 'voice', title: 'Voice note', detail: 'Optional · record a short clip, later', state: 'soon' },
-    { card: 'photo', title: 'Photo', detail: 'Adding photos comes soon', state: 'sealed' },
+    { card: 'photo', title: 'Photo', detail: profile.has_photo ? 'Added · opens by swap' : 'Optional · add it from the You tab', state: 'sealed' },
     { card: 'contact', title: 'Instagram or phone', detail: profile.contact ? 'Added · the last swap' : 'Optional · add it from the You tab', state: 'sealed' },
   ]  // prettier-ignore
 
