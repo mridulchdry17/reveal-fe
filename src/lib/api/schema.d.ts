@@ -505,10 +505,28 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Card contents and which are shown without a swap */
+        /** Card contents */
         put: operations["update_cards_v1_profile_me_cards_put"];
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/profile/me/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Card 7: Instagram or phone, sealed until the contact swap */
+        put: operations["update_contact_v1_profile_me_contact_put"];
+        post?: never;
+        /** Remove card 7 */
+        delete: operations["remove_contact_v1_profile_me_contact_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -732,6 +750,21 @@ export interface components {
             credential: string;
         };
         /**
+         * Contact
+         * @description Card 7: an Instagram handle (no @) or a 10-digit Indian mobile number.
+         */
+        Contact: {
+            kind: components["schemas"]["ContactKind"];
+            /** Value */
+            value: string;
+        };
+        /**
+         * ContactKind
+         * @description Card 7. Opens only through the last swap.
+         * @enum {string}
+         */
+        ContactKind: "instagram" | "phone";
+        /**
          * Decision
          * @enum {string}
          */
@@ -909,6 +942,8 @@ export interface components {
             /** Hometown */
             hometown: string | null;
             looking_for: components["schemas"]["LookingFor"] | null;
+            /** @description Card 7, optional; only ever shown to its owner */
+            contact: components["schemas"]["Contact"] | null;
             gender: components["schemas"]["Gender"] | null;
             interested_in: components["schemas"]["InterestedIn"] | null;
             /** Match On */
@@ -2713,6 +2748,95 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_contact_v1_profile_me_contact_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Contact"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyProfile"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_contact_v1_profile_me_contact_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyProfile"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
