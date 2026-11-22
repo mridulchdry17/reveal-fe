@@ -5,6 +5,9 @@ import { afterAll, afterEach, beforeAll } from 'vitest'
 
 import { server } from './server'
 
+// jsdom doesn't implement scrolling.
+window.scrollTo = () => {}
+
 // jsdom has no object URLs; photo previews only need a string.
 URL.createObjectURL ??= () => 'blob:test-preview'
 URL.revokeObjectURL ??= () => {}
