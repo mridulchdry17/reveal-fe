@@ -81,3 +81,19 @@ export function ShieldCheckIcon(props: IconProps) {
     </Icon>
   )
 }
+
+export function HeartIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M8 13.5S2.5 10.3 2.5 6.3A2.8 2.8 0 0 1 8 5a2.8 2.8 0 0 1 5.5 1.3c0 4-5.5 7.2-5.5 7.2z" />
+    </Icon>
+  )
+}
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 4l8 8M12 4l-8 8" />
+    </Icon>
+  )
+}
