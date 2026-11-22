@@ -1,3 +1,5 @@
+import { Link } from 'react-router'
+
 type Props = {
   name: string
   email: string
@@ -23,6 +25,14 @@ export function AccountCard({ name, email, isAdmin, signingOut, onSignOut }: Pro
           </span>
         )}
       </div>
+      {isAdmin && (
+        <Link
+          to="/admin"
+          className="flex h-11 items-center justify-center rounded-full bg-text text-sm font-bold text-bg no-underline"
+        >
+          Open admin
+        </Link>
+      )}
       <button
         type="button"
         onClick={onSignOut}

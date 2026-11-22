@@ -86,13 +86,14 @@ describe('VerifyScreen', () => {
     expect(await screen.findByRole('heading', { name: 'ID card photo' })).toBeInTheDocument()
   })
 
-  it('says letting people in by hand is coming soon', async () => {
+  it('tells people without email or ID which email to send an admin', async () => {
     stubGoogleButton()
     signInAs(unverifiedUser)
     renderRoutes(routes, '/verify')
 
     await userEvent.click(await screen.findByRole('radio', { name: /No email or ID yet/ }))
-    expect(screen.getByText(/let in by an admin is coming soon/)).toBeInTheDocument()
+    expect(screen.getByText(unverifiedUser.email)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: "I've been let in" })).toBeInTheDocument()
   })
 
   it('sends someone whose ID is being checked to the waiting screen', async () => {
