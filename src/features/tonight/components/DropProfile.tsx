@@ -21,15 +21,20 @@ export function DropProfile({ profile, onLikePrompt }: Props) {
   return (
     <article
       aria-label={profile.nickname}
-      className="flex flex-col gap-3.5 rounded-3xl border border-border bg-surface p-4"
+      className="flex flex-col gap-4 rounded-[28px] border border-border bg-surface p-4 shadow-[0_18px_40px_-28px_rgb(40_20_10/0.45)]"
     >
-      <div className="hatch flex h-[104px] items-center justify-center gap-2.5 rounded-2xl border border-dashed border-locked text-sm font-semibold text-locked">
-        <LockIcon className="size-5" />
-        Photo opens through swaps
+      <div className="flex h-[188px] flex-col items-center justify-center gap-1 rounded-[20px] border border-dashed border-white/25 bg-night text-white">
+        <span aria-hidden="true" className="font-display text-[84px] leading-none text-peach italic">
+          ?
+        </span>
+        <span className="flex items-center gap-1.5 text-[13px] font-semibold text-white/80">
+          <LockIcon className="size-4" />
+          Photo opens through swaps
+        </span>
       </div>
 
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="m-0 font-display text-2xl font-bold tracking-[-0.02em]">{profile.nickname}</h2>
+        <h2 className="m-0 font-display text-[34px] leading-none font-normal">{profile.nickname}</h2>
         {profile.first_name && <span className="text-sm text-muted">{profile.first_name}</span>}
       </div>
 
@@ -50,10 +55,14 @@ export function DropProfile({ profile, onLikePrompt }: Props) {
 
       <ul aria-label="Prompts" className="m-0 flex list-none flex-col gap-2.5 p-0">
         {profile.prompts.map((prompt) => (
-          <li key={prompt.id} className="flex justify-between gap-3 rounded-2xl bg-bg p-3.5">
+          <li key={prompt.id} className="flex justify-between gap-3 rounded-[20px] bg-bg p-4">
             <span className="flex flex-col gap-1">
-              <span className="text-[13px] text-muted">{prompt.question}</span>
-              <span className="font-display text-[19px] leading-tight font-medium">{prompt.answer}</span>
+              <span className="text-[11px] font-semibold tracking-[0.14em] text-muted uppercase">
+                {prompt.question}
+              </span>
+              <span className="font-display text-[22px] leading-tight font-normal italic">
+                “<span>{prompt.answer}</span>”
+              </span>
             </span>
             {onLikePrompt && (
               <button
