@@ -113,7 +113,7 @@ describe('Swaps in a chat', () => {
 
     const viewer = screen.getByRole('dialog', { name: "Sunset chaser's photo" })
     expect(within(viewer).getByRole('img', { name: /1 of 9 pieces open/ })).toBeInTheDocument()
-    expect(viewer).toHaveTextContent('Each card you swap opens one; swapping photos opens the rest.')
+    expect(viewer).toHaveTextContent('Each card you swap or guess right opens one, up to 6; swapping photos opens the rest.')
   })
 
   it('shows their contact once swapped', async () => {

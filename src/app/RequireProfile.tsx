@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router'
 import { useMyProfile } from '@/features/profile/hooks/useProfile'
 import { nextStep, stepPath } from '@/features/profile/utils/steps'
 
-/** Inside RequireVerified: finish the four profile screens before the app. */
+/** Inside RequireVerified: finish the five profile screens before the app. */
 export function RequireProfile() {
   const profile = useMyProfile()
 

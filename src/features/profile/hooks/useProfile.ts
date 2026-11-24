@@ -13,6 +13,7 @@ import {
   saveBasics,
   saveCards,
   saveContact,
+  saveGuesses,
   savePreferences,
   savePrompts,
   uploadPhoto,
@@ -39,6 +40,7 @@ function useSave<T = void>(save: (body: T) => Promise<MyProfile>) {
 
 export const useSaveBasics = () => useSave(saveBasics)
 export const useSavePrompts = () => useSave(savePrompts)
+export const useSaveGuesses = () => useSave(saveGuesses)
 export const useSaveCards = () => useSave(saveCards)
 export const useSavePreferences = () => useSave(savePreferences)
 export const useSaveContact = () => useSave(saveContact)

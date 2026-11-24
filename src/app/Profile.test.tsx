@@ -19,6 +19,7 @@ const empty: components['schemas']['MyProfile'] = {
   vibe: null,
   interests: [],
   prompts: [],
+  guess_cards: [],
   branch: null,
   year: null,
   hometown: null,
@@ -27,6 +28,7 @@ const empty: components['schemas']['MyProfile'] = {
   interested_in: null,
   basics_done: false,
   prompts_done: false,
+  guesses_done: false,
   cards_done: false,
   preferences_done: false,
   complete: false,
@@ -40,6 +42,18 @@ const options = {
   prompt_answer_max: 120,
   nickname_suggestions: ['Midnight chai'],
   looking_for: [{ value: 'serious', label: 'Something serious' }],
+  guess_kinds: [
+    { value: 'everyday', label: 'Everyday choice' },
+    { value: 'hot_take', label: 'Hot take' },
+    { value: 'little_thing', label: 'Little thing' },
+  ],
+  guess_suggestions: {
+    everyday: ['Chai or coffee?', 'My go-to canteen order'],
+    hot_take: ['Pineapple on pizza?'],
+    little_thing: ['My comfort show'],
+  },
+  guess_question_max: 90,
+  guess_option_max: 40,
 }
 
 function withOptions() {
@@ -136,9 +150,106 @@ describe('profile setup', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('No numbers, handles or links')
   })
 
-  it('shows the same layout for everyone, with no choice to make', async () => {
+  it('resumes at the guess cards for a profile finished before them', async () => {
+    withOptions()
+    signInAs(undefined, none, { ...completeProfile, guess_cards: [], guesses_done: false, complete: false })
+    renderRoutes(routes, '/app/tonight')
+
+    expect(await screen.findByRole('heading', { name: 'Make them guess you.' })).toBeInTheDocument()
+    expect(screen.getByText('Profile 3 of 5')).toBeInTheDocument()
+  })
+
+  it('saves three guess cards, then moves to the cards', async () => {
     withOptions()
     signInAs(undefined, none, { ...empty, basics_done: true, prompts_done: true })
+    let sent: unknown = null
+    server.use(
+      http.put(`${api}/me/guesses`, async ({ request }) => {
+        sent = await request.json()
+        return HttpResponse.json({ ...empty, basics_done: true, prompts_done: true, guesses_done: true })
+      }),
+    )
+    renderRoutes(routes, '/profile/setup/guesses')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Chai or coffee?' }))
+    const answers = [
+      ['Chai', 'Coffee', 'Neither'],
+      ['Yes', 'Never', 'Only at 2am'],
+      ['Friends', 'Panchayat', 'The Office'],
+    ]
+    await userEvent.type(screen.getByLabelText('Question 2'), 'Pineapple on pizza?')
+    await userEvent.type(screen.getByLabelText('Question 3'), 'My comfort show')
+    for (const [i, options] of answers.entries()) {
+      for (const [j, option] of options.entries()) {
+        await userEvent.type(screen.getByLabelText(`Answer ${j + 1} to question ${i + 1}`), option)
+      }
+    }
+    const marks = (i: number) => within(screen.getByRole('group', { name: `Answers to question ${i}` }))
+    await userEvent.click(marks(1).getByRole('radio', { name: 'Answer 1 is true' }))
+    await userEvent.click(marks(2).getByRole('radio', { name: 'Answer 3 is true' }))
+    await userEvent.click(marks(3).getByRole('radio', { name: 'Answer 2 is true' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Next' }))
+
+    expect(await screen.findByRole('heading', { name: 'Your 7 cards' })).toBeInTheDocument()
+    expect(sent).toEqual({
+      cards: [
+        { kind: 'everyday', question: 'Chai or coffee?', options: answers[0], answer: 0 },
+        { kind: 'hot_take', question: 'Pineapple on pizza?', options: answers[1], answer: 2 },
+        { kind: 'little_thing', question: 'My comfort show', options: answers[2], answer: 1 },
+      ],
+    })
+  })
+
+  it('asks for a true answer on each guess card before saving', async () => {
+    withOptions()
+    signInAs(undefined, none, { ...completeProfile, guesses_done: false })
+    let saved = false
+    server.use(
+      http.put(`${api}/me/guesses`, () => {
+        saved = true
+        return HttpResponse.json(completeProfile)
+      }),
+    )
+    renderRoutes(routes, '/profile/setup/guesses')
+
+    const group = within(await screen.findByRole('group', { name: 'Answers to question 2' }))
+    await userEvent.clear(group.getByLabelText('Answer 3 to question 2'))
+    await userEvent.click(screen.getByRole('button', { name: 'Next' }))
+
+    expect(await group.findByText('Fill this one in.')).toBeInTheDocument()
+    expect(saved).toBe(false)
+  })
+
+  it("puts the server's reason under the answer it's about", async () => {
+    withOptions()
+    signInAs(undefined, none, { ...completeProfile, guesses_done: false })
+    server.use(
+      http.put(`${api}/me/guesses`, () =>
+        HttpResponse.json(
+          {
+            detail: [
+              {
+                loc: ['body', 'cards', 2, 'options', 0],
+                msg: 'Value error, No numbers, handles or links here. Those go on your last card.',
+              },
+            ],
+          },
+          { status: 422 },
+        ),
+      ),
+    )
+    renderRoutes(routes, '/profile/setup/guesses')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Next' }))
+
+    const group = within(screen.getByRole('group', { name: 'Answers to question 3' }))
+    expect(await group.findByText(/No numbers, handles or links here/)).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('Fix the marked bits')
+  })
+
+  it('shows the same layout for everyone, with no choice to make', async () => {
+    withOptions()
+    signInAs(undefined, none, { ...empty, basics_done: true, prompts_done: true, guesses_done: true })
     renderRoutes(routes, '/profile/setup/cards')
 
     const cards = await screen.findByRole('list', { name: 'Your cards' })
@@ -153,11 +264,12 @@ describe('profile setup', () => {
 
   it('finishes the profile and opens the app', async () => {
     withOptions()
-    signInAs(undefined, none, { ...empty, basics_done: true, prompts_done: true, cards_done: true })
+    signInAs(undefined, none, { ...empty, basics_done: true, prompts_done: true, guesses_done: true, cards_done: true })
     let profile: components['schemas']['MyProfile'] = {
       ...empty,
       basics_done: true,
       prompts_done: true,
+      guesses_done: true,
       cards_done: true,
     }
     server.use(
@@ -189,5 +301,19 @@ describe('profile setup', () => {
       await screen.findByRole('heading', { name: 'Give yourself a nickname' }),
     ).toBeInTheDocument()
     expect(screen.getByLabelText('Nickname')).toHaveValue('Quiet storm')
+  })
+
+  it('lists my guess cards in the You tab with a way to edit them', async () => {
+    withOptions()
+    signInAs()
+    renderRoutes(routes, '/app/you')
+
+    const list = await screen.findByRole('list', { name: 'Your guess cards' })
+    const card = within(list).getByText('Pineapple on pizza?').closest('li')
+    expect(card).toHaveTextContent('Only at 2am · True')
+    await userEvent.click(screen.getByRole('link', { name: 'Edit guess cards' }))
+
+    expect(await screen.findByRole('heading', { name: 'Make them guess you.' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Question 2')).toHaveValue('Pineapple on pizza?')
   })
 })

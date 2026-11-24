@@ -81,7 +81,7 @@ export function TheirPhoto({ url, pieces, nickname, onClose }: Props) {
       <p className="m-0 max-w-md text-center text-sm leading-6 text-white/80">
         {all
           ? 'You swapped photos.'
-          : `${pieces.length} of 9 pieces open. Each card you swap opens one; swapping photos opens the rest.`}
+          : `${pieces.length} of 9 pieces open. Each card you swap or guess right opens one, up to 6; swapping photos opens the rest.`}
       </p>
     </div>
   )

@@ -4,14 +4,22 @@ import { Link } from 'react-router'
 import { AlertIcon } from '@/components/icons'
 import { ScreenHeader } from '@/components/ScreenHeader'
 
+import { useLikeGuessed } from '../hooks/useGuessed'
 import { useLikes, useMatchBack, usePassLike } from '../hooks/useLikes'
+import type { GuessSlot } from '../types/guessSlot'
 import { dropErrorMessage } from '../utils/errorMessage'
-import { DropProfile } from './DropProfile'
 import { MatchMoment } from './MatchMoment'
+import { ReceivedLikeCard } from './ReceivedLikeCard'
+
+type Props = {
+  /** Their guess cards, composed in from the guess feature. */
+  guess?: GuessSlot
+}
 
 /** People who liked one of my prompts. Like back to match, or pass without them knowing. */
-export function LikesScreen() {
+export function LikesScreen({ guess }: Props) {
   const likes = useLikes()
+  const guessed = useLikeGuessed()
   const matchBack = useMatchBack()
   const pass = usePassLike()
   const [matched, setMatched] = useState<string | null>(null)
@@ -60,52 +68,19 @@ export function LikesScreen() {
       )}
 
       {likes.data?.map((like) => (
-        <div key={like.id} className="flex flex-col gap-3">
-          <div className="flex flex-col gap-3 rounded-[28px] border border-border bg-surface p-5 shadow-[0_18px_40px_-30px_rgb(40_20_10/0.45)]">
-            <p className="m-0 text-[13px] text-muted">
-              <span className="font-display text-[26px] leading-none text-text">{like.profile.nickname}</span> liked
-              "{like.prompt_question}"
-            </p>
-            <div className="flex flex-col gap-1 rounded-[20px] border border-border bg-bg px-4 py-3">
-              <span className="text-[11px] font-bold tracking-[0.14em] text-muted uppercase">Your answer</span>
-              <span className="font-display text-[22px] leading-[1.1] font-normal italic">
-                “{like.prompt_answer}”
-              </span>
-            </div>
-            {like.comment && (
-              <div className="flex flex-col gap-1 self-start rounded-[20px] rounded-tl-md bg-forest px-4 py-3 text-white">
-                <span className="text-[11px] font-bold tracking-[0.14em] text-peach uppercase">They said</span>
-                <p className="m-0 font-display text-[22px] leading-[1.1] font-normal italic">“{like.comment}”</p>
-              </div>
-            )}
-          </div>
-          <DropProfile profile={like.profile} />
-          <div className="grid grid-cols-[1fr_2fr] gap-2.5">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => {
-                setMatched(null)
-                pass.mutate(like.id)
-              }}
-              className="h-[54px] rounded-full border-[1.5px] border-border-strong bg-transparent text-[15px] font-semibold text-text disabled:opacity-60"
-            >
-              Pass
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() =>
-                matchBack.mutate(like.id, {
-                  onSuccess: () => setMatched(like.profile.nickname),
-                })
-              }
-              className="h-[54px] rounded-full bg-accent text-base font-bold text-on-accent disabled:opacity-60"
-            >
-              Like back
-            </button>
-          </div>
-        </div>
+        <ReceivedLikeCard
+          key={like.id}
+          like={like}
+          guess={guess}
+          busy={busy}
+          onGuessed={(cardId, result) => guessed.onGuessed(like.id, cardId, result)}
+          onStale={guessed.onStale}
+          onPass={() => {
+            setMatched(null)
+            pass.mutate(like.id)
+          }}
+          onMatch={() => matchBack.mutate(like.id, { onSuccess: () => setMatched(like.profile.nickname) })}
+        />
       ))}
     </section>
   )

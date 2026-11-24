@@ -1,16 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 
 import { AlertIcon, ShieldCheckIcon } from '@/components/icons'
+import { useObjectUrl } from '@/hooks/useObjectUrl'
 import { ApiError } from '@/lib/api/errors'
 
 import type { Card } from '../api/chats'
 import { useChat, useEndChat, useMarkRead, useSendMessage, type SafetyAction } from '../hooks/useChats'
-import { useAnswerSwap, useAskSwap, useTheirPhoto, useTheirVoice } from '../hooks/useSwaps'
+import { useAnswerSwap, useAskSwap, useRefreshThread, useTheirPhoto, useTheirVoice } from '../hooks/useSwaps'
+import type { GuessSlot } from '../types/guessSlot'
 import { chatErrorMessage } from '../utils/errorMessage'
 import { shortTime } from '../utils/time'
 import { CardStrip } from './CardStrip'
 import { Initial } from './ChatRow'
+import { GuessSheet } from './GuessSheet'
 import { SafetySheet } from './SafetySheet'
 import { SwapRequest } from './SwapRequest'
 import { SwapSheet } from './SwapSheet'
@@ -18,8 +21,13 @@ import { TheirPhoto } from './TheirPhoto'
 
 const MESSAGE_MAX = 1000
 
+type Props = {
+  /** Their guess cards, composed in from the guess feature. */
+  guess?: GuessSlot
+}
+
 /** One chat. New messages arrive by polling every few seconds while it's open. */
-export function ChatScreen() {
+export function ChatScreen({ guess }: Props) {
   const { matchId = '' } = useParams()
   const navigate = useNavigate()
   const chat = useChat(matchId)
@@ -30,6 +38,8 @@ export function ChatScreen() {
   const [safetyOpen, setSafetyOpen] = useState(false)
   const [asking, setAsking] = useState<Card | null>(null)
   const [photoOpen, setPhotoOpen] = useState(false)
+  const [guessOpen, setGuessOpen] = useState(false)
+  const refreshThread = useRefreshThread(matchId)
   const [playing, setPlaying] = useState(false)
   const ask = useAskSwap(matchId)
   const answer = useAnswerSwap(matchId)
@@ -54,6 +64,7 @@ export function ChatScreen() {
 
   const closeSwap = useCallback(() => setAsking(null), [])
   const closePhoto = useCallback(() => setPhotoOpen(false), [])
+  const closeGuess = useCallback(() => setGuessOpen(false), [])
 
   const closeSafety = useCallback(() => {
     setSafetyOpen(false)
@@ -85,6 +96,7 @@ export function ChatScreen() {
 
   const { profile, swaps } = chat.data
   const request = swaps.cards.find((c) => c.state === 'they_asked')
+  const unguessed = profile.guess_cards.filter((c) => c.answer === null).length
   const answerError = answer.isError ? chatErrorMessage(answer.error) : undefined
   const select = (card: Card) => {
     const state = swaps.cards.find((c) => c.card === card)?.state
@@ -147,6 +159,16 @@ export function ChatScreen() {
           </button>
         </div>
         <CardStrip profile={profile} cards={swaps.cards} playing={playing} onSelect={select} />
+        {guess && unguessed > 0 && (
+          <button
+            type="button"
+            onClick={() => setGuessOpen(true)}
+            className="flex min-h-11 w-fit items-center gap-2 rounded-full border-[1.5px] border-dashed border-border-strong bg-transparent px-4 text-[13px] font-semibold text-text"
+          >
+            Guess {profile.nickname}'s cards{' '}
+            <span className="font-normal text-muted">· {unguessed} left</span>
+          </button>
+        )}
         {voiceUrl && (
           <audio
             ref={audio}
@@ -282,6 +304,18 @@ export function ChatScreen() {
         />
       )}
 
+      {guessOpen && guess && (
+        <GuessSheet nickname={profile.nickname} onClose={closeGuess}>
+          {guess({
+            cards: profile.guess_cards,
+            rightGuesses: profile.right_guesses,
+            reward: profile.has_blurred_photo ? 'pieces' : null,
+            onGuessed: () => void refreshThread(),
+            onStale: () => void refreshThread(),
+          })}
+        </GuessSheet>
+      )}
+
       {photoOpen && pieces.length > 0 && (
         <TheirPhoto url={photoUrl} pieces={pieces} nickname={profile.nickname} onClose={closePhoto} />
       )}
@@ -305,16 +339,4 @@ function Shell({ children }: { children: ReactNode }) {
       <div className="mx-auto flex min-h-dvh max-w-md flex-col">{children}</div>
     </div>
   )
-}
-
-/** An object URL for a fetched file, released when it changes or the screen closes. */
-function useObjectUrl(blob: Blob | undefined) {
-  const url = useMemo(() => (blob ? URL.createObjectURL(blob) : null), [blob])
-  useEffect(
-    () => () => {
-      if (url) URL.revokeObjectURL(url)
-    },
-    [url],
-  )
-  return url
 }

@@ -69,7 +69,7 @@ export function PreferencesForm({ profile, onSave, saving, error }: Props) {
   return (
     <form onSubmit={submit} noValidate>
       <StepLayout
-        step={4}
+        step={5}
         backTo={stepPath('cards')}
         title="Who should we"
         accent="show you?"

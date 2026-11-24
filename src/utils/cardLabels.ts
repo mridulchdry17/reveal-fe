@@ -1,6 +1,7 @@
 import type { components } from '@/lib/api/schema'
 
 type LookingFor = components['schemas']['LookingFor']
+type GuessKind = components['schemas']['GuessKind']
 
 // Same words as GET /v1/profile/options; typed so a new choice fails the build here.
 export const lookingForLabels: Record<LookingFor, string> = {
@@ -8,6 +9,13 @@ export const lookingForLabels: Record<LookingFor, string> = {
   see_where_it_goes: 'See where it goes',
   friends_first: 'Friends first',
   not_sure: 'Not sure yet',
+}
+
+// Same words as GET /v1/profile/options guess_kinds.
+export const guessKindLabels: Record<GuessKind, string> = {
+  everyday: 'Everyday choice',
+  hot_take: 'Hot take',
+  little_thing: 'Little thing',
 }
 
 const yearLabels = ['1st year', '2nd year', '3rd year', '4th year', '5th year']
