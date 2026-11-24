@@ -31,23 +31,28 @@ export function TheirPhoto({ url, pieces, nickname, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="fixed inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-text/90 px-4 py-6"
+      className="fixed inset-0 z-30 flex flex-col items-center justify-center gap-5 bg-night px-4 py-6 text-white"
     >
-      <div className="flex w-full max-w-md items-center justify-between text-bg">
-        <h2 id={titleId} className="m-0 text-base font-bold">
-          {nickname}'s photo
-        </h2>
+      <div className="flex w-full max-w-md items-end justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <p className="m-0 text-[11px] font-bold tracking-[0.16em] text-peach uppercase">
+            {all ? 'All 9 pieces' : `${pieces.length} of 9 pieces`}
+          </p>
+          <h2 id={titleId} className="m-0 truncate font-display text-[36px] leading-[0.95] font-normal">
+            {nickname}'s <em className="text-peach">photo</em>
+          </h2>
+        </div>
         <button
           type="button"
           aria-label="Close"
           onClick={onClose}
-          className="-mr-2 flex size-11 items-center justify-center bg-transparent text-bg"
+          className="flex size-11 shrink-0 items-center justify-center rounded-full border-[1.5px] border-white/30 bg-transparent text-white"
         >
           <CloseIcon className="size-5" />
         </button>
       </div>
       <div
-        className="relative w-full max-w-md overflow-hidden rounded-2xl select-none [-webkit-touch-callout:none]"
+        className="relative w-full max-w-md overflow-hidden rounded-[24px] select-none [-webkit-touch-callout:none]"
         onContextMenu={(event) => event.preventDefault()}
       >
         {url ? (
@@ -58,7 +63,7 @@ export function TheirPhoto({ url, pieces, nickname, onClose }: Props) {
             className="pointer-events-none block w-full"
           />
         ) : (
-          <div className="aspect-[3/4] w-full bg-surface-2" />
+          <div className="aspect-[3/4] w-full bg-white/10" />
         )}
         {/* Covers the image so a long press hits this layer, not the picture. */}
         <div aria-hidden="true" className="absolute inset-0 grid grid-cols-3 grid-rows-3">
@@ -73,7 +78,7 @@ export function TheirPhoto({ url, pieces, nickname, onClose }: Props) {
           )}
         </div>
       </div>
-      <p className="m-0 max-w-md text-center text-[13px] leading-5 text-bg/80">
+      <p className="m-0 max-w-md text-center text-sm leading-6 text-white/80">
         {all
           ? 'You swapped photos.'
           : `${pieces.length} of 9 pieces open. Each card you swap opens one; swapping photos opens the rest.`}

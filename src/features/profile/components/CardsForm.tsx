@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
-import { LockIcon } from '@/components/icons'
+import { CheckIcon, LockIcon } from '@/components/icons'
 
 import type { Card, CardsUpdate, LookingFor, MyProfile, ProfileOptions } from '../api/profile'
 import { profileErrorMessage } from '../utils/errorMessage'
@@ -27,7 +27,17 @@ type Values = {
 }
 
 const inputClass =
-  'h-12 w-full rounded-xl border-[1.5px] border-field bg-surface px-3 text-[15px] text-text focus:border-text focus:outline-none'
+  'h-12 w-full rounded-2xl border-[1.5px] border-field bg-surface px-3.5 text-[15px] text-text focus:border-text focus:outline-none'
+
+/** A slight, alternating tilt so the cards look dealt rather than listed. */
+const tilts = ['-rotate-[1.5deg]', 'rotate-[1.2deg]', '-rotate-1', 'rotate-[1.5deg]', '-rotate-[1.2deg]', 'rotate-1', '-rotate-[0.8deg]']
+
+const cardTone: Record<CardState, string> = {
+  shown: 'border-[1.5px] border-open bg-surface text-text',
+  hidden: 'hatch border-[1.5px] border-dashed border-locked text-text',
+  optional: 'border-[1.5px] border-dashed border-border-strong bg-surface-2 text-text',
+  sealed: 'bg-night text-white',
+}
 
 export function CardsForm({ profile, options, onSave, saving, error }: Props) {
   const { register, handleSubmit, control } = useForm<Values>({
@@ -71,8 +81,9 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
       <StepLayout
         step={3}
         backTo={stepPath('prompts')}
-        title="Your 7 cards"
-        subtitle="Everyone sees what you're looking for. The rest stay hidden until you both agree to swap."
+        title="Your 7"
+        accent="cards"
+        subtitle="Same layout for everyone, nothing to decide. What you're looking for is shown; the rest open only when you both swap."
         submitLabel="Next"
         submitting={saving}
         error={hint ?? (error ? profileErrorMessage(error) : null)}
@@ -115,18 +126,17 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
           </label>
         </div>
 
-        <ol aria-label="Your cards" className="m-0 flex list-none flex-col gap-2 p-0">
+        <ol aria-label="Your cards" className="m-0 grid list-none grid-cols-2 gap-x-3 gap-y-3.5 p-0">
           {cards.map(({ card, title, detail, state }, i) => (
             <li
               key={card}
-              className={`flex items-center gap-3 rounded-[14px] border border-border px-3.5 py-3 ${state === 'shown' || state === 'hidden' ? 'bg-surface' : 'bg-surface-2'}`}
+              className={`flex min-h-[124px] flex-col justify-between gap-3 rounded-[20px] p-3.5 shadow-[0_10px_24px_rgb(40_20_10/0.08)] ${cardTone[state]} ${tilts[i]} ${i === cards.length - 1 ? 'col-span-2' : ''}`}
             >
-              <span aria-hidden="true" className="w-6 text-[13px] text-muted">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="text-[15px] font-bold">{title}</span>
-                <span className="truncate text-[13px] text-muted">{detail}</span>
+              <span className="flex min-w-0 flex-col gap-1">
+                <span className="font-display text-[21px] leading-none font-normal">{title}</span>
+                <span className={`line-clamp-2 text-[13px] leading-[1.35] ${state === 'sealed' ? 'text-white/80' : 'text-muted'}`}>
+                  {detail}
+                </span>
               </span>
               <CardBadge state={state} />
             </li>
@@ -138,20 +148,22 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
 }
 
 function CardBadge({ state }: { state: CardState }) {
+  const base = 'flex w-fit items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold'
   switch (state) {
     case 'shown':
-      return <span className="rounded-full bg-open-bg px-3 py-1.5 text-[13px] font-bold text-open">Shown</span>
-    case 'hidden':
       return (
-        <span className="hatch rounded-full border border-dashed border-locked px-3 py-1.5 text-[13px] font-medium text-locked">
-          Hidden
+        <span className={`${base} bg-open-bg text-open`}>
+          <CheckIcon className="size-3" />
+          Shown
         </span>
       )
+    case 'hidden':
+      return <span className={`${base} bg-surface text-locked`}>Hidden</span>
     case 'optional':
-      return <span className="rounded-full bg-surface px-2.5 py-1.5 text-[13px] font-medium text-muted">Optional</span>
+      return <span className={`${base} bg-surface text-muted`}>Optional</span>
     case 'sealed':
       return (
-        <span className="flex items-center gap-1 rounded-full bg-locked-bg px-2.5 py-1.5 text-[13px] font-medium text-locked">
+        <span className={`${base} bg-white/10 text-peach`}>
           <LockIcon className="size-3.5" />
           Swap only
         </span>

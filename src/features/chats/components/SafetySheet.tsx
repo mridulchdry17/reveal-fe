@@ -39,55 +39,66 @@ export function SafetySheet({ nickname, pending, error, onAction, onClose }: Pro
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
+  const name = <em className="text-accent-text">{nickname}</em>
   const title = {
-    menu: `${nickname}`,
-    unmatch: `Unmatch ${nickname}?`,
-    block: `Block ${nickname}?`,
-    report: `Report ${nickname}`,
+    menu: name,
+    unmatch: <>Unmatch {name}?</>,
+    block: <>Block {name}?</>,
+    report: <>Report {name}</>,
   }[step]
+  const kicker = step === 'menu' ? 'Safety' : step === 'report' ? 'Report' : 'Are you sure?'
+
 
   return (
-    <div className="fixed inset-0 z-20 flex items-end justify-center bg-text/30">
+    <div className="fixed inset-0 z-20 flex items-end justify-center bg-text/40">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="flex max-h-[90dvh] w-full max-w-md flex-col gap-4 overflow-y-auto rounded-t-[28px] border-t border-border bg-surface px-5 pt-3 pb-[max(2rem,env(safe-area-inset-bottom))]"
+        className="rise flex max-h-[90dvh] w-full max-w-md flex-col gap-5 overflow-y-auto rounded-t-[28px] border-t border-border bg-surface px-5 pt-3 pb-[max(2rem,env(safe-area-inset-bottom))]"
       >
-        <span aria-hidden="true" className="h-[5px] w-10 self-center rounded-full bg-border" />
-        <div className="flex items-center justify-between">
-          <h2 id={titleId} className="m-0 font-display text-[28px] leading-none font-normal">
-            {title}
-          </h2>
+        <span aria-hidden="true" className="h-[5px] w-10 self-center rounded-full bg-border-strong" />
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-2">
+            <p className="m-0 text-[11px] font-bold tracking-[0.16em] text-accent-text uppercase">{kicker}</p>
+            <h2 id={titleId} className="m-0 font-display text-[38px] leading-[0.95] font-normal tracking-[-0.01em]">
+              {title}
+            </h2>
+          </div>
           <button
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="-mr-2.5 flex size-11 items-center justify-center bg-transparent text-muted"
+            className="-mr-1 flex size-11 shrink-0 items-center justify-center rounded-full border-[1.5px] border-border-strong bg-transparent text-text"
           >
             <CloseIcon className="size-5" />
           </button>
         </div>
 
         {step === 'menu' && (
-          <ul className="m-0 flex list-none flex-col gap-2 p-0">
-            <MenuItem
-              label="Report"
-              detail="Tell an admin what happened. This also blocks them."
-              onClick={() => setStep('report')}
-              danger
-            />
-            <MenuItem
-              label="Block"
-              detail="End the chat. You won't see each other again."
-              onClick={() => setStep('block')}
-            />
-            <MenuItem
-              label="Unmatch"
-              detail="End the chat for both of you."
-              onClick={() => setStep('unmatch')}
-            />
-          </ul>
+          <>
+            <p className="m-0 -mt-2 text-[15px] leading-6 text-muted">
+              Each of these ends the chat for both of you. You'll be asked to confirm first.
+            </p>
+            <ul className="m-0 flex list-none flex-col gap-2 p-0">
+              <MenuItem
+                label="Report"
+                detail="Tell an admin what happened. This also blocks them."
+                onClick={() => setStep('report')}
+                danger
+              />
+              <MenuItem
+                label="Block"
+                detail="End the chat. You won't see each other again."
+                onClick={() => setStep('block')}
+              />
+              <MenuItem
+                label="Unmatch"
+                detail="End the chat for both of you."
+                onClick={() => setStep('unmatch')}
+              />
+            </ul>
+          </>
         )}
 
         {(step === 'unmatch' || step === 'block') && (
@@ -119,7 +130,7 @@ export function SafetySheet({ nickname, pending, error, onAction, onClose }: Pro
               {reasons.map((r) => (
                 <label
                   key={r.value}
-                  className="flex min-h-11 cursor-pointer items-center gap-3 rounded-2xl border border-border px-3.5 text-[15px] has-checked:border-accent has-checked:bg-accent-bg has-focus-visible:outline-2 has-focus-visible:outline-accent"
+                  className="flex min-h-12 cursor-pointer items-center gap-3 rounded-[18px] border border-border bg-bg px-4 text-[15px] has-checked:border-accent has-checked:bg-accent-bg has-focus-visible:outline-2 has-focus-visible:outline-accent"
                 >
                   <input
                     type="radio"
@@ -142,7 +153,7 @@ export function SafetySheet({ nickname, pending, error, onAction, onClose }: Pro
                 maxLength={500}
                 value={details}
                 onChange={(event) => setDetails(event.target.value)}
-                className="resize-none rounded-2xl border-[1.5px] border-field bg-bg p-3.5 text-base font-normal text-text focus:border-accent focus:outline-none"
+                className="resize-none rounded-[20px] border-[1.5px] border-field bg-bg p-3.5 text-base font-normal text-text focus:border-accent focus:outline-none"
               />
             </label>
             <p className="m-0 text-[13px] leading-5 text-muted">
@@ -185,12 +196,17 @@ function MenuItem({
       <button
         type="button"
         onClick={onClick}
-        className="flex w-full flex-col gap-0.5 rounded-2xl border border-border bg-transparent p-3.5 text-left"
+        className={`flex w-full items-center gap-3 rounded-[20px] border bg-bg p-4 text-left ${
+          danger ? 'border-[1.5px] border-accent' : 'border-border'
+        }`}
       >
-        <span className={`text-base font-bold ${danger ? 'text-accent-text' : 'text-text'}`}>
-          {label}
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className={`text-base font-bold ${danger ? 'text-accent-text' : 'text-text'}`}>{label}</span>
+          <span className="text-[13px] leading-5 text-muted">{detail}</span>
         </span>
-        <span className="text-[13px] text-muted">{detail}</span>
+        <span aria-hidden="true" className="text-lg text-muted">
+          →
+        </span>
       </button>
     </li>
   )
@@ -216,7 +232,7 @@ function Actions({
       <button
         type="button"
         onClick={onBack}
-        className="h-[54px] rounded-full border border-border-strong bg-transparent text-[15px] font-semibold text-text"
+        className="h-[54px] rounded-full border-[1.5px] border-border-strong bg-transparent text-[15px] font-semibold text-text"
       >
         Not yet
       </button>

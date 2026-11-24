@@ -34,7 +34,7 @@ describe('VerifyScreen', () => {
     renderRoutes(routes, '/verify')
 
     expect(
-      await screen.findByRole('heading', { name: "Prove you're from campus" }),
+      await screen.findByRole('heading', { name: "Only students. That's the point." }),
     ).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Continue with Google' }))
 

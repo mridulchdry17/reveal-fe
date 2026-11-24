@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
-import { useLocation } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import { AlertIcon } from '@/components/icons'
 import { ScreenHeader } from '@/components/ScreenHeader'
+import { Sticker } from '@/components/Sticker'
 
 import { useChats } from '../hooks/useChats'
 import { chatErrorMessage } from '../utils/errorMessage'
@@ -21,13 +22,18 @@ const endedMessages = {
 
 export function ChatsScreen({ likes }: Props) {
   const chats = useChats()
+  const count = chats.data?.length ?? 0
   const ended = (useLocation().state as { ended?: keyof typeof endedMessages } | null)?.ended
 
   return (
     <section className="flex flex-col gap-3 pb-6">
-      <ScreenHeader title="Chats" />
+      <ScreenHeader
+        kicker={count > 0 ? `${count} ${count === 1 ? 'match' : 'matches'}` : 'Your matches'}
+        title="Chats"
+        subtitle="Talk first. Swap cards when it feels right."
+      />
       {ended && (
-        <p role="status" className="m-0 rounded-2xl bg-surface-2 p-3.5 text-sm leading-5">
+        <p role="status" className="m-0 rounded-[20px] border border-border bg-surface-2 p-4 text-sm leading-5">
           {endedMessages[ended]}
         </p>
       )}
@@ -40,10 +46,23 @@ export function ChatsScreen({ likes }: Props) {
         </p>
       )}
       {chats.data?.length === 0 && (
-        <p className="m-0 text-sm leading-6 text-muted">
-          No matches yet. Like a line in tonight's drop; when they like you back, you can chat
-          here.
-        </p>
+        <div className="relative flex flex-col gap-3 overflow-hidden rounded-[28px] bg-forest px-5 pt-7 pb-5 text-white">
+          <Sticker tone="peach" tilt={6} className="absolute top-4 right-4">
+            no swiping here
+          </Sticker>
+          <h2 className="m-0 mt-4 max-w-[12ch] font-display text-[38px] leading-[0.95] font-normal">
+            Your chats <em className="text-peach">start here.</em>
+          </h2>
+          <p className="m-0 text-sm leading-6 text-white/80">
+            No matches yet. Like an answer in tonight's drop; when they like you back, you can chat here.
+          </p>
+          <Link
+            to="/app/tonight"
+            className="mt-1 inline-flex h-11 w-fit items-center rounded-full bg-white px-5 text-sm font-bold text-text no-underline"
+          >
+            Open tonight's drop
+          </Link>
+        </div>
       )}
       {chats.data && chats.data.length > 0 && (
         <ul aria-label="Matches" className="m-0 flex list-none flex-col gap-2.5 p-0">

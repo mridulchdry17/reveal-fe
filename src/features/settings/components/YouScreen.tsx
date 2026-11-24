@@ -22,16 +22,32 @@ export function YouScreen({ account, profile }: Props) {
   const status = useServerStatus()
 
   return (
-    <section>
-      <ScreenHeader title="You" />
-      {profile && <div className="mb-3">{profile}</div>}
-      {account && <div className="mb-3">{account}</div>}
-      <dl className="m-0 flex items-center justify-between rounded-2xl border border-border bg-surface p-4">
-        <dt className="text-sm font-semibold">Server</dt>
-        <dd className={`m-0 text-sm ${status === 'connected' ? 'text-open' : 'text-muted'}`}>
-          {statusLabel[status]}
-        </dd>
-      </dl>
+    <section className="rise pb-8">
+      {/* The whole title is the accent word, so the heading's name stays "You". */}
+      <ScreenHeader
+        kicker="How you show up"
+        title=""
+        accent="You"
+        subtitle="Make it sound like you. Your photo, voice and contact stay Hidden until you swap."
+      />
+      {profile && <div className="mt-3">{profile}</div>}
+
+      <div className="mt-8 flex flex-col gap-3">
+        <p className="m-0 text-[11px] font-bold tracking-[0.16em] text-muted uppercase">The boring bits</p>
+        {account}
+        <dl className="m-0 flex min-h-11 items-center justify-between rounded-[20px] border border-border bg-surface px-4 py-3">
+          <dt className="text-sm font-semibold">Server</dt>
+          <dd className="m-0 flex items-center gap-2 text-sm text-muted">
+            <span
+              aria-hidden="true"
+              className={`size-2 rounded-full ${status === 'connected' ? 'bg-open' : 'bg-border-strong'}`}
+            />
+            <span className={status === 'connected' ? 'font-semibold text-open' : undefined}>
+              {statusLabel[status]}
+            </span>
+          </dd>
+        </dl>
+      </div>
     </section>
   )
 }

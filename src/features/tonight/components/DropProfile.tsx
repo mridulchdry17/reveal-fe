@@ -1,4 +1,5 @@
-import { HeartIcon, LockIcon } from '@/components/icons'
+import { CheckIcon, HeartIcon, LockIcon } from '@/components/icons'
+import { Sticker } from '@/components/Sticker'
 
 import type { PublicProfile } from '../api/drops'
 import { branchLine, lookingForLabels } from '@/utils/cardLabels'
@@ -21,32 +22,47 @@ export function DropProfile({ profile, onLikePrompt }: Props) {
   return (
     <article
       aria-label={profile.nickname}
-      className="flex flex-col gap-4 rounded-[28px] border border-border bg-surface p-4 shadow-[0_18px_40px_-28px_rgb(40_20_10/0.45)]"
+      className="rise flex flex-col gap-4 rounded-[28px] border border-border bg-surface p-3 pb-5 shadow-[0_18px_40px_-28px_rgb(40_20_10/0.45)]"
     >
-      <div className="flex h-[188px] flex-col items-center justify-center gap-1 rounded-[20px] border border-dashed border-white/25 bg-night text-white">
-        <span aria-hidden="true" className="font-display text-[84px] leading-none text-peach italic">
+      <div className="relative flex h-[340px] flex-col justify-between overflow-hidden rounded-[22px] bg-night p-4 text-white">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 flex items-center justify-center pb-16 font-display text-[180px] leading-none text-white/[0.07] italic"
+        >
           ?
         </span>
-        <span className="flex items-center gap-1.5 text-[13px] font-semibold text-white/80">
-          <LockIcon className="size-4" />
+        <span className="relative flex w-fit items-center gap-1.5 rounded-full border border-dashed border-white/35 px-3 py-1.5 text-[12px] font-semibold text-white/85">
+          <LockIcon className="size-3.5" />
           Photo opens through swaps
         </span>
+        <Sticker tone="peach" tilt={5} className="absolute top-[72px] right-4">
+          verified student
+        </Sticker>
+        <div className="relative flex flex-col gap-1.5">
+          {profile.first_name && (
+            <span className="text-[11px] font-bold tracking-[0.16em] text-peach uppercase">
+              {profile.first_name}
+            </span>
+          )}
+          <h2 className="m-0 font-display text-[46px] leading-[0.92] font-normal tracking-[-0.01em] text-balance">
+            {profile.nickname}
+          </h2>
+          <p className="m-0 text-[15px] text-white/80">{profile.vibe}</p>
+        </div>
       </div>
 
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="m-0 font-display text-[34px] leading-none font-normal">{profile.nickname}</h2>
-        {profile.first_name && <span className="text-sm text-muted">{profile.first_name}</span>}
-      </div>
-
-      <ul aria-label="Cards" className="m-0 flex list-none flex-wrap gap-1.5 p-0">
-        <li className="rounded-full bg-surface-2 px-2.5 py-1.5 text-[13px]">{profile.vibe}</li>
+      <ul aria-label="Cards" className="m-0 flex list-none flex-wrap gap-1.5 px-1">
         {shown.map((value) => (
-          <li key={value} className="rounded-full bg-open-bg px-2.5 py-1.5 text-[13px] text-open">
+          <li
+            key={value}
+            className="flex items-center gap-1 rounded-full bg-open-bg px-3 py-1.5 text-[13px] font-semibold text-open"
+          >
+            <CheckIcon className="size-3.5" />
             {value}
           </li>
         ))}
         {hidden > 0 && (
-          <li className="flex items-center gap-1 rounded-full border border-dashed border-locked px-2.5 py-1.5 text-[13px] text-locked">
+          <li className="hatch flex items-center gap-1 rounded-full border-[1.5px] border-dashed border-locked px-3 py-1.5 text-[13px] font-semibold text-locked">
             <LockIcon className="size-3.5" />
             {hidden} hidden
           </li>
@@ -55,32 +71,37 @@ export function DropProfile({ profile, onLikePrompt }: Props) {
 
       <ul aria-label="Prompts" className="m-0 flex list-none flex-col gap-2.5 p-0">
         {profile.prompts.map((prompt) => (
-          <li key={prompt.id} className="flex justify-between gap-3 rounded-[20px] bg-bg p-4">
-            <span className="flex flex-col gap-1">
-              <span className="text-[11px] font-semibold tracking-[0.14em] text-muted uppercase">
-                {prompt.question}
-              </span>
-              <span className="font-display text-[22px] leading-tight font-normal italic">
+          <li
+            key={prompt.id}
+            className="flex flex-col gap-2 rounded-[22px] border border-border bg-bg px-4 pt-4 pb-3"
+          >
+            <span className="text-[11px] font-bold tracking-[0.14em] text-muted uppercase">
+              {prompt.question}
+            </span>
+            <span className="flex items-end justify-between gap-3">
+              <span className="font-display text-[26px] leading-[1.08] font-normal italic">
                 “<span>{prompt.answer}</span>”
               </span>
+              {onLikePrompt && (
+                <button
+                  type="button"
+                  aria-label={`Like "${prompt.question}"`}
+                  onClick={() => onLikePrompt(prompt.id)}
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full border-[1.5px] border-border-strong bg-surface text-accent-text transition-transform duration-150 active:scale-90"
+                >
+                  <HeartIcon className="size-5" />
+                </button>
+              )}
             </span>
-            {onLikePrompt && (
-              <button
-                type="button"
-                aria-label={`Like "${prompt.question}"`}
-                onClick={() => onLikePrompt(prompt.id)}
-                className="flex size-11 shrink-0 items-center justify-center self-end rounded-full border border-border bg-surface text-accent"
-              >
-                <HeartIcon className="size-5" />
-              </button>
-            )}
           </li>
         ))}
       </ul>
 
-      <p className="m-0 text-[13px] text-muted">
-        Into: <span className="text-text">{profile.interests.join(' · ')}</span>
-      </p>
+      {profile.interests.length > 0 && (
+        <p className="m-0 px-1 text-[13px] text-muted">
+          Into <span className="text-text">{profile.interests.join(' · ')}</span>
+        </p>
+      )}
     </article>
   )
 }

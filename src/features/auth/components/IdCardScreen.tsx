@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router'
 
 import { AlertIcon, CameraIcon, CheckIcon, IdCardIcon } from '@/components/icons'
+import { ScreenHeader } from '@/components/ScreenHeader'
 
 import { useMe } from '../hooks/useMe'
 import { useSubmitIdCard } from '../hooks/useSubmitIdCard'
@@ -46,13 +47,13 @@ export function IdCardScreen() {
                 </Link>
               }
             />
-            <div>
-              <h1 className="m-0 font-display text-[42px] leading-[0.98] font-normal tracking-[-0.01em]">
-                Photo of your college ID
-              </h1>
-              <p className="mt-2.5 mb-0 text-[15px] leading-6 text-pretty text-muted">
-                The front side, with your photo and name easy to read.
-              </p>
+            <div className="rise">
+              <ScreenHeader
+                kicker="ID card"
+                title="Snap your"
+                accent="college ID"
+                subtitle="The front side, with your photo and name easy to read."
+              />
             </div>
             <PhotoPicker
               file={idCard}
@@ -67,7 +68,7 @@ export function IdCardScreen() {
                 </>
               }
             />
-            <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-sm">
+            <ul className="m-0 flex list-none flex-col gap-2.5 rounded-[24px] border border-border bg-surface p-4 text-sm">
               {[
                 'Lay it flat in good light',
                 'No glare over your photo or name',
@@ -97,13 +98,13 @@ export function IdCardScreen() {
                 </button>
               }
             />
-            <div>
-              <h1 className="m-0 font-display text-[42px] leading-[0.98] font-normal tracking-[-0.01em]">
-                One quick selfie
-              </h1>
-              <p className="mt-2.5 mb-0 text-[15px] leading-6 text-pretty text-muted">
-                So a person can match your face to your ID, and nobody signs up as someone else.
-              </p>
+            <div className="rise">
+              <ScreenHeader
+                kicker="Selfie"
+                title="One quick"
+                accent="selfie"
+                subtitle="So a person can match your face to your ID, and nobody signs up as someone else."
+              />
             </div>
             <PhotoPicker
               file={selfie}
@@ -118,7 +119,7 @@ export function IdCardScreen() {
                 </>
               }
             />
-            <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-sm">
+            <ul className="m-0 flex list-none flex-col gap-2.5 rounded-[24px] border border-border bg-surface p-4 text-sm">
               {['Face the camera in good light', 'No sunglasses or mask', 'Just you in the photo'].map(
                 (tip) => (
                   <li key={tip} className="flex items-center gap-2.5">
