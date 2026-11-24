@@ -7,9 +7,9 @@ export function whatsappMessage(college: string, url: string): string {
   return [
     `Someone's building a dating app only for ${college}.`,
     '',
-    'No faces at first. You see a line they wrote, a voice note, their branch.',
-    'Photo opens only if both say yes.',
-    'New people every night at 9.',
+    'No swiping. You guess their little answers and their photo sharpens.',
+    'Full photo only if you both say yes.',
+    'A few new people every night at 9.',
     '',
     'Pehle baat, phir photo.',
     '',
