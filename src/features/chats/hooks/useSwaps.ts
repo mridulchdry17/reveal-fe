@@ -27,6 +27,12 @@ export function useAnswerSwap(matchId: string) {
   })
 }
 
+/** A guess landed: the thread brings the new photo pieces, and the pieces refetch the photo. */
+export function useRefreshThread(matchId: string) {
+  const queryClient = useQueryClient()
+  return () => queryClient.invalidateQueries({ queryKey: chatKeys.thread(matchId), exact: true })
+}
+
 export function useTheirPhoto(matchId: string, pieces: number[]) {
   return useQuery({
     queryKey: chatKeys.photo(matchId, pieces),
