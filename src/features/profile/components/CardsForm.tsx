@@ -79,8 +79,8 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
   return (
     <form onSubmit={submit} noValidate>
       <StepLayout
-        step={3}
-        backTo={stepPath('prompts')}
+        step={4}
+        backTo={stepPath('guesses')}
         title="Your 7"
         accent="cards"
         subtitle="Same layout for everyone, nothing to decide. What you're looking for is shown; the rest open only when you both swap."

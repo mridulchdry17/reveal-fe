@@ -9,6 +9,7 @@ import {
   useProfileOptions,
   useSaveBasics,
   useSaveCards,
+  useSaveGuesses,
   useSavePreferences,
   useSavePrompts,
 } from '../hooks/useProfile'
@@ -16,12 +17,13 @@ import { profileErrorMessage } from '../utils/errorMessage'
 import { stepPath, steps, type Step } from '../utils/steps'
 import { BasicsForm } from './BasicsForm'
 import { CardsForm } from './CardsForm'
+import { GuessesForm } from './GuessesForm'
 import { PreferencesForm } from './PreferencesForm'
 import { PromptsForm } from './PromptsForm'
 
 const isStep = (value: string | undefined): value is Step => steps.some((s) => s === value)
 
-/** The four profile screens. Each saves on Next, so leaving halfway keeps what's done. */
+/** The five profile screens. Each saves on Next, so leaving halfway keeps what's done. */
 export function ProfileSetupScreen() {
   const { step } = useParams()
   const navigate = useNavigate()
@@ -29,6 +31,7 @@ export function ProfileSetupScreen() {
   const options = useProfileOptions()
   const basics = useSaveBasics()
   const prompts = useSavePrompts()
+  const guesses = useSaveGuesses()
   const cards = useSaveCards()
   const preferences = useSavePreferences()
 
@@ -96,6 +99,15 @@ export function ProfileSetupScreen() {
           onSave={(v) => prompts.mutate(v, { onSuccess: () => next('prompts') })}
           saving={prompts.isPending}
           error={prompts.error}
+        />
+      )}
+      {step === 'guesses' && (
+        <GuessesForm
+          profile={profile.data}
+          options={options.data}
+          onSave={(v) => guesses.mutate(v, { onSuccess: () => next('guesses') })}
+          saving={guesses.isPending}
+          error={guesses.error}
         />
       )}
       {step === 'cards' && (

@@ -6,6 +6,8 @@ export type MyProfile = components['schemas']['MyProfile']
 export type ProfileOptions = components['schemas']['ProfileOptions']
 export type BasicsUpdate = components['schemas']['BasicsUpdate']
 export type PromptsUpdate = components['schemas']['PromptsUpdate']
+export type GuessCardsUpdate = components['schemas']['GuessCardsUpdate']
+export type GuessKind = components['schemas']['GuessKind']
 export type CardsUpdate = components['schemas']['CardsUpdate']
 export type PreferencesUpdate = components['schemas']['PreferencesUpdate']
 export type Card = components['schemas']['Card']
@@ -38,6 +40,12 @@ export async function saveBasics(body: BasicsUpdate): Promise<MyProfile> {
 
 export async function savePrompts(body: PromptsUpdate): Promise<MyProfile> {
   const { data, error, response } = await api.PUT('/v1/profile/me/prompts', { body })
+  if (data) return data
+  throw toApiError(response.status, error)
+}
+
+export async function saveGuesses(body: GuessCardsUpdate): Promise<MyProfile> {
+  const { data, error, response } = await api.PUT('/v1/profile/me/guesses', { body })
   if (data) return data
   throw toApiError(response.status, error)
 }

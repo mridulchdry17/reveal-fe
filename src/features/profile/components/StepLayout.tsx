@@ -5,7 +5,7 @@ import { AlertIcon } from '@/components/icons'
 import { ScreenHeader } from '@/components/ScreenHeader'
 
 type Props = {
-  step: 1 | 2 | 3 | 4
+  step: 1 | 2 | 3 | 4 | 5
   backTo?: string
   /** The heading's plain words; with `accent` this is the heading's accessible name. */
   title: string
@@ -18,7 +18,7 @@ type Props = {
   error?: string | null
 }
 
-/** "Profile n of 4": header, progress, title, the form's fields, and the submit button. */
+/** "Profile n of 5": header, progress, title, the form's fields, and the submit button. */
 export function StepLayout({
   step,
   backTo,
@@ -45,11 +45,11 @@ export function StepLayout({
             <span />
           )}
           <span className="text-[11px] font-bold tracking-[0.16em] text-accent-text uppercase">
-            Profile {step} of 4
+            Profile {step} of 5
           </span>
         </header>
         <div aria-hidden="true" className="flex gap-1.5">
-          {[1, 2, 3, 4].map((n) => (
+          {[1, 2, 3, 4, 5].map((n) => (
             <span key={n} className={`h-1 flex-1 rounded-full ${n <= step ? 'bg-accent' : 'bg-border'}`} />
           ))}
         </div>
