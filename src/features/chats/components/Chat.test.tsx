@@ -66,8 +66,9 @@ describe('Chat', () => {
     expect(messages).toHaveTextContent('ok wait you also like films??')
     expect(messages).toHaveTextContent('obviously')
     const cards = screen.getByRole('list', { name: 'Their cards' })
-    expect(cards).not.toHaveTextContent('Lucknow')
-    expect(cards).toHaveTextContent('5 hidden')
+    expect(cards).toHaveTextContent('Something serious')
+    expect(within(cards).getByRole('button', { name: 'Swap names' })).toBeInTheDocument()
+    expect(cards).toHaveTextContent('Photo · after a card swap')
   })
 
   it('marks their latest message as seen', async () => {
