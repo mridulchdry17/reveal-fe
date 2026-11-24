@@ -84,7 +84,7 @@ export function AdminScreen() {
           </Link>
           <span className="text-[13px] text-muted">Admins only</span>
         </header>
-        <h1 className="m-0 font-display text-[32px] leading-[1.05] font-extrabold tracking-[-0.03em]">
+        <h1 className="m-0 font-display text-[42px] leading-[0.98] font-normal tracking-[-0.01em]">
           Admin
         </h1>
 

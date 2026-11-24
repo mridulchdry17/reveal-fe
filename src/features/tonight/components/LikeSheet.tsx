@@ -51,7 +51,7 @@ export function LikeSheet({ profile, promptId, sending, error, onSend, onClose }
       >
         <span aria-hidden="true" className="h-[5px] w-10 self-center rounded-full bg-border" />
         <div className="flex items-center justify-between">
-          <h2 id={titleId} className="m-0 font-display text-[22px] font-bold">
+          <h2 id={titleId} className="m-0 font-display text-[28px] leading-none font-normal">
             Like {profile.nickname}
           </h2>
           <button
@@ -66,7 +66,10 @@ export function LikeSheet({ profile, promptId, sending, error, onSend, onClose }
 
         <form
           onSubmit={handleSubmit((values) =>
-            onSend({ prompt_id: values.prompt_id, comment: values.comment.trim() || null }),
+            onSend({
+              prompt_id: values.prompt_id,
+              comment: values.comment.trim() || null,
+            }),
           )}
           className="flex flex-col gap-4"
         >
@@ -79,7 +82,7 @@ export function LikeSheet({ profile, promptId, sending, error, onSend, onClose }
               >
                 <input type="radio" value={prompt.id} {...register('prompt_id')} className="sr-only" />
                 <span className="text-[13px] text-muted">{prompt.question}</span>
-                <span className="font-display text-[17px] leading-tight font-medium">{prompt.answer}</span>
+                <span className="font-display text-[19px] leading-tight font-normal italic">{prompt.answer}</span>
               </label>
             ))}
           </fieldset>
@@ -108,8 +111,7 @@ export function LikeSheet({ profile, promptId, sending, error, onSend, onClose }
           </div>
 
           <p className="m-0 text-[13px] leading-5 text-muted">
-            They see your profile, the line you liked and your comment. If they like you back, it's
-            a match.
+            They see your profile, the line you liked and your comment. If they like you back, it's a match.
           </p>
 
           {error && (
@@ -122,7 +124,7 @@ export function LikeSheet({ profile, promptId, sending, error, onSend, onClose }
           <button
             type="submit"
             disabled={sending}
-            className="flex h-[54px] items-center justify-center rounded-2xl bg-accent text-base font-bold text-on-accent disabled:opacity-60"
+            className="flex h-[54px] items-center justify-center rounded-full bg-accent text-base font-bold text-on-accent disabled:opacity-60"
           >
             {sending ? 'Sending…' : 'Send like'}
           </button>

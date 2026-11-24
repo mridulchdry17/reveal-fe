@@ -13,7 +13,7 @@ import { StepHeader } from './StepHeader'
 const backClass =
   '-ml-2 flex h-11 items-center rounded-full bg-transparent px-2 text-sm font-semibold text-muted'
 const primaryClass =
-  'flex h-[54px] w-full items-center justify-center gap-2.5 rounded-2xl border-0 bg-accent text-base font-bold text-on-accent disabled:opacity-60'
+  'flex h-[54px] w-full items-center justify-center gap-2.5 rounded-full border-0 bg-accent text-base font-bold text-on-accent disabled:opacity-60'
 
 /** ID card photo, then a selfie, then send both for a person to check. */
 export function IdCardScreen() {
@@ -47,7 +47,7 @@ export function IdCardScreen() {
               }
             />
             <div>
-              <h1 className="m-0 font-display text-[32px] leading-[1.05] font-extrabold tracking-[-0.03em]">
+              <h1 className="m-0 font-display text-[42px] leading-[0.98] font-normal tracking-[-0.01em]">
                 Photo of your college ID
               </h1>
               <p className="mt-2.5 mb-0 text-[15px] leading-6 text-pretty text-muted">
@@ -68,14 +68,16 @@ export function IdCardScreen() {
               }
             />
             <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-sm">
-              {['Lay it flat in good light', 'No glare over your photo or name', 'Whole card in the frame'].map(
-                (tip) => (
-                  <li key={tip} className="flex items-center gap-2.5">
-                    <CheckIcon className="size-4 shrink-0 text-open" />
-                    {tip}
-                  </li>
-                ),
-              )}
+              {[
+                'Lay it flat in good light',
+                'No glare over your photo or name',
+                'Whole card in the frame',
+              ].map((tip) => (
+                <li key={tip} className="flex items-center gap-2.5">
+                  <CheckIcon className="size-4 shrink-0 text-open" />
+                  {tip}
+                </li>
+              ))}
             </ul>
             <div className="mt-auto flex flex-col gap-3">
               {idCard && (
@@ -96,7 +98,7 @@ export function IdCardScreen() {
               }
             />
             <div>
-              <h1 className="m-0 font-display text-[32px] leading-[1.05] font-extrabold tracking-[-0.03em]">
+              <h1 className="m-0 font-display text-[42px] leading-[0.98] font-normal tracking-[-0.01em]">
                 One quick selfie
               </h1>
               <p className="mt-2.5 mb-0 text-[15px] leading-6 text-pretty text-muted">
@@ -127,8 +129,8 @@ export function IdCardScreen() {
               )}
             </ul>
             <p className="m-0 text-[13px] leading-5 text-muted">
-              Your ID and selfie are only for this check. They're deleted after review and nobody
-              on Reveal ever sees them.
+              Your ID and selfie are only for this check. They're deleted after review and nobody on Reveal
+              ever sees them.
             </p>
             <div className="mt-auto flex flex-col gap-3">
               {submit.isError && (
@@ -138,12 +140,7 @@ export function IdCardScreen() {
                 </p>
               )}
               {selfie && (
-                <button
-                  type="button"
-                  onClick={send}
-                  disabled={submit.isPending}
-                  className={primaryClass}
-                >
+                <button type="button" onClick={send} disabled={submit.isPending} className={primaryClass}>
                   {submit.isPending ? 'Sending…' : 'Send for review'}
                 </button>
               )}

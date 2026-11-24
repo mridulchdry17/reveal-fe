@@ -85,7 +85,7 @@ export function PhotoSection() {
               className={
                 hasPhoto
                   ? 'h-11 flex-1 rounded-full border-[1.5px] border-border-strong bg-transparent text-sm font-semibold text-text disabled:opacity-60'
-                  : 'h-11 flex-1 rounded-full border-0 bg-accent text-sm font-bold text-on-accent disabled:opacity-60'
+                  : 'h-11 flex-1 rounded-full border-0 bg-text text-sm font-bold text-bg disabled:opacity-60'
               }
             >
               {upload.isPending ? 'Uploading…' : hasPhoto ? 'Change' : 'Add a photo'}

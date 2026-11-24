@@ -38,7 +38,7 @@ export function SwapSheet({ card, nickname, mode, pending, error, onSwap, onNotY
         className="flex w-full max-w-md flex-col gap-4 rounded-t-[28px] border-t border-border bg-surface px-5 pt-3 pb-[max(2rem,env(safe-area-inset-bottom))]"
       >
         <span aria-hidden="true" className="h-[5px] w-10 self-center rounded-full bg-border" />
-        <h2 id={titleId} className="m-0 font-display text-[22px] font-bold">
+        <h2 id={titleId} className="m-0 font-display text-[28px] leading-none font-normal">
           {mode === 'ask' ? `Swap ${plural}?` : `${nickname} wants to swap ${plural}`}
         </h2>
         <p className="m-0 text-[15px] leading-6">

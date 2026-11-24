@@ -35,12 +35,8 @@ export function SignInScreen() {
     <div className="min-h-dvh bg-bg text-text">
       <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-6 pt-4 pb-8">
         <header className="flex h-12 items-center">
-          <span className="flex items-center gap-2">
-            <span aria-hidden="true" className="relative size-5">
-              <span className="absolute top-0.5 left-0 h-[15px] w-[11px] -rotate-[8deg] rounded-[3px] bg-open" />
-              <span className="absolute top-0.5 left-2 h-[15px] w-[11px] rotate-[6deg] rounded-[3px] hatch border border-dashed border-locked" />
-            </span>
-            <span className="font-display text-xl font-extrabold tracking-[-0.03em]">Reveal</span>
+          <span className="font-display text-[30px] leading-none">
+            Re<em className="text-accent-text">veal</em>
           </span>
         </header>
 
@@ -52,15 +48,17 @@ export function SignInScreen() {
             <AlertIcon className="mt-0.5 size-5 shrink-0 text-warn" />
             <span>
               You're in another app's browser, where Google sign-in doesn't work. Tap{' '}
-              <span className="font-bold">•••</span> at the top and open Reveal in Chrome or
-              Safari.
+              <span className="font-bold">•••</span> at the top and open Reveal in Chrome or Safari.
             </span>
           </p>
         )}
 
         <div className="mt-4">
-          <h1 className="m-0 font-display text-[34px] leading-[1.05] font-extrabold tracking-[-0.03em]">
+          <h1 className="m-0 font-display text-[56px] leading-[0.92] font-normal tracking-[-0.01em]">
             Sign in
+            <span aria-hidden="true" className="text-accent-text">
+              .
+            </span>
           </h1>
           <p className="mt-2.5 mb-0 text-[15px] leading-6 text-pretty text-muted">
             Use the Google account you check every day. This is only your login. Next we'll check
@@ -102,8 +100,7 @@ export function SignInScreen() {
         </section>
 
         <p className="m-0 text-[13px] leading-5 text-muted">
-          We only get your name and email from Google. We never post anything or see your
-          password.
+          We only get your name and email from Google. We never post anything or see your password.
         </p>
 
         <p className="mt-auto mb-0 text-center text-[13px] leading-5 text-muted">

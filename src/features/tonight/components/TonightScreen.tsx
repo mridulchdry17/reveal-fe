@@ -8,6 +8,7 @@ import { dropErrorMessage } from '../utils/errorMessage'
 import { timeLeft } from '../utils/timeLeft'
 import { DropProfile } from './DropProfile'
 import { LikeSheet } from './LikeSheet'
+import { NextDrop } from './NextDrop'
 
 /** Tonight's drop: one profile at a time. Like a line or pass. */
 export function TonightScreen() {
@@ -89,8 +90,8 @@ export function TonightScreen() {
 
       {matched && (
         <p role="status" className="m-0 rounded-2xl bg-open-bg p-3.5 text-sm leading-5 text-text">
-          <span className="font-bold">It's a match with {matched}.</span> You both liked each
-          other. Chat is coming in the next update.
+          <span className="font-bold">It's a match with {matched}.</span> You both liked each other.
+          Chat is coming in the next update.
         </p>
       )}
       {(pass.isError || (like.isError && !liking)) && (
@@ -134,16 +135,15 @@ export function TonightScreen() {
           </div>
         </>
       ) : (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-center">
-          <h2 className="m-0 font-display text-xl font-bold">
-            {items.length > 0 ? "That's everyone for tonight" : 'No one new right now'}
-          </h2>
-          <p className="mt-2 mb-0 text-sm leading-6 text-muted">
-            {items.length > 0
+        <NextDrop
+          nextDropAt={next_drop_at}
+          heading={items.length > 0 ? "That's everyone for tonight" : 'No one new right now'}
+          body={
+            items.length > 0
               ? `${next}. People who like you show up in Chats.`
-              : 'Your drop fills up as more students finish their profiles. Check back later, or invite friends from your college.'}
-          </p>
-        </div>
+              : 'Your drop fills up as more students finish their profiles. Check back later, or invite friends from your college.'
+          }
+        />
       )}
 
       {liking && (
@@ -163,7 +163,9 @@ export function TonightScreen() {
 function Header({ subtitle }: { subtitle?: string }) {
   return (
     <header className="flex flex-col gap-0.5 pb-3">
-      <h1 className="m-0 font-display text-[28px] font-bold tracking-[-0.03em]">Tonight's drop</h1>
+      <h1 className="m-0 font-display text-[40px] leading-none font-normal tracking-[-0.01em]">
+        Tonight's drop
+      </h1>
       {subtitle && <p className="m-0 text-[13px] text-muted">{subtitle}</p>}
     </header>
   )

@@ -8,7 +8,7 @@ import { profileErrorMessage } from '../utils/errorMessage'
 const MAX_SECONDS = 30
 
 const primary =
-  'h-11 rounded-full border-0 bg-accent text-sm font-bold text-on-accent disabled:opacity-60'
+  'h-11 rounded-full border-0 bg-text text-sm font-bold text-bg disabled:opacity-60'
 const secondary =
   'h-11 rounded-full border-[1.5px] border-border-strong bg-transparent text-sm font-semibold text-text disabled:opacity-60'
 const quiet = 'h-11 rounded-full border-0 bg-transparent px-3 text-sm font-semibold text-muted disabled:opacity-60'

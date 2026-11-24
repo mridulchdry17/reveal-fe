@@ -21,7 +21,9 @@ export function PromptsForm({ profile, options, onSave, saving, error }: Props) 
     (i) => profile.prompts[i] ?? { question: options.prompt_questions[i] ?? '', answer: '' },
   )
   const { register, handleSubmit, setValue, control } = useForm<PromptsUpdate>({
-    defaultValues: { prompts: initial.map(({ question, answer }) => ({ question, answer })) },
+    defaultValues: {
+      prompts: initial.map(({ question, answer }) => ({ question, answer })),
+    },
   })
   const [ownQuestion, setOwnQuestion] = useState(
     initial.map((p) => !options.prompt_questions.includes(p.question)),
@@ -30,8 +32,12 @@ export function PromptsForm({ profile, options, onSave, saving, error }: Props) 
   const prompts = useWatch({ control, name: 'prompts' })
 
   const submit = handleSubmit((values) => {
-    const cleaned = values.prompts.map((p) => ({ question: p.question.trim(), answer: p.answer.trim() }))
-    if (cleaned.some((p) => p.question.length < 3)) return setHint('Pick or write a question for each prompt.')
+    const cleaned = values.prompts.map((p) => ({
+      question: p.question.trim(),
+      answer: p.answer.trim(),
+    }))
+    if (cleaned.some((p) => p.question.length < 3))
+      return setHint('Pick or write a question for each prompt.')
     if (cleaned.some((p) => p.answer.length < 2)) return setHint('Answer all three prompts.')
     if (new Set(cleaned.map((p) => p.question.toLowerCase())).size < 3) {
       return setHint('Pick three different prompts.')
@@ -101,7 +107,7 @@ export function PromptsForm({ profile, options, onSave, saving, error }: Props) 
                 maxLength={options.prompt_answer_max}
                 placeholder="Your answer"
                 {...register(`prompts.${i}.answer`)}
-                className="resize-none border-0 bg-transparent p-0 font-display text-[21px] leading-tight font-medium text-text placeholder:text-muted focus:outline-none"
+                className="resize-none border-0 bg-transparent p-0 font-display text-[21px] leading-tight font-normal text-text placeholder:text-muted focus:outline-none"
               />
               <span className="self-end text-xs text-muted">
                 {prompt.answer.length} / {options.prompt_answer_max}

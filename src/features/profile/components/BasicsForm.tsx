@@ -70,7 +70,7 @@ export function BasicsForm({ profile, options, onSave, saving, error }: Props) {
             maxLength={30}
             autoComplete="off"
             {...register('nickname')}
-            className="h-14 rounded-[14px] border-2 border-field bg-surface px-4 font-display text-xl font-bold text-text focus:border-accent focus:outline-none"
+            className="h-14 rounded-[14px] border-2 border-field bg-surface px-4 font-display text-xl font-normal text-text focus:border-accent focus:outline-none"
           />
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[13px] text-muted">Try</span>

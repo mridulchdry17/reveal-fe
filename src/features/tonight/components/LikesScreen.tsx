@@ -18,18 +18,20 @@ export function LikesScreen() {
 
   return (
     <section className="flex flex-col gap-4 pb-6">
-      <Link to="/app/chats" className="-ml-1 flex h-11 w-fit items-center px-1 text-sm font-semibold text-muted no-underline">
+      <Link
+        to="/app/chats"
+        className="-ml-1 flex h-11 w-fit items-center px-1 text-sm font-semibold text-muted no-underline"
+      >
         ← Chats
       </Link>
       <header className="flex flex-col gap-0.5">
-        <h1 className="m-0 font-display text-[28px] font-bold tracking-[-0.03em]">Liked you</h1>
+        <h1 className="m-0 font-display text-[40px] leading-none font-normal tracking-[-0.01em]">Liked you</h1>
         <p className="m-0 text-[13px] text-muted">Like them back to match. Passing is private.</p>
       </header>
 
       {matched && (
         <p role="status" className="m-0 rounded-2xl bg-open-bg p-3.5 text-sm leading-5">
-          <span className="font-bold">It's a match with {matched}.</span> Chat is coming in the
-          next update.
+          <span className="font-bold">It's a match with {matched}.</span> Chat is coming in the next update.
         </p>
       )}
       {error && (
@@ -48,7 +50,7 @@ export function LikesScreen() {
       )}
       {likes.data?.length === 0 && (
         <div className="rounded-3xl border border-border bg-surface p-6 text-center">
-          <h2 className="m-0 font-display text-xl font-bold">No likes waiting</h2>
+          <h2 className="m-0 font-display text-xl font-normal">No likes waiting</h2>
           <p className="mt-2 mb-0 text-sm leading-6 text-muted">
             When someone likes one of your prompts, they'll show up here.
           </p>
@@ -63,7 +65,7 @@ export function LikesScreen() {
             </p>
             <p className="m-0 text-sm text-muted">{like.prompt_answer}</p>
             {like.comment && (
-              <p className="m-0 font-display text-[19px] leading-tight font-medium">"{like.comment}"</p>
+              <p className="m-0 font-display text-[21px] leading-tight font-normal italic">"{like.comment}"</p>
             )}
           </div>
           <DropProfile profile={like.profile} />
@@ -75,7 +77,7 @@ export function LikesScreen() {
                 setMatched(null)
                 pass.mutate(like.id)
               }}
-              className="h-[54px] rounded-2xl border border-border-strong bg-transparent text-[15px] font-semibold text-text"
+              className="h-[54px] rounded-full border border-border-strong bg-transparent text-[15px] font-semibold text-text"
             >
               Pass
             </button>
@@ -83,9 +85,11 @@ export function LikesScreen() {
               type="button"
               disabled={busy}
               onClick={() =>
-                matchBack.mutate(like.id, { onSuccess: () => setMatched(like.profile.nickname) })
+                matchBack.mutate(like.id, {
+                  onSuccess: () => setMatched(like.profile.nickname),
+                })
               }
-              className="h-[54px] rounded-2xl bg-accent text-base font-bold text-on-accent"
+              className="h-[54px] rounded-full bg-accent text-base font-bold text-on-accent"
             >
               Like back
             </button>
