@@ -128,7 +128,7 @@ export function ContactSection() {
             <button
               type="submit"
               disabled={save.isPending}
-              className="h-11 flex-1 rounded-full border-0 bg-accent text-sm font-bold text-on-accent disabled:opacity-60"
+              className="h-11 flex-1 rounded-full border-0 bg-text text-sm font-bold text-bg disabled:opacity-60"
             >
               {save.isPending ? 'Saving…' : 'Save'}
             </button>
