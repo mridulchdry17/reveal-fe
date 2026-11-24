@@ -81,6 +81,7 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 - Look = **Golden hour** from the "Reveal UI Mockups" canvas, as CSS variables in `src/index.css`, mapped into Tailwind. Don't use raw hex in components.
   - **Golden hour** (the only theme in use): chai cream bg `#F8F1E7`, milk surface `#FFFDF9`, plum ink text `#2A1E2E`, muted `#75636B`, Rani pink accent `#B8336A`, marigold locked `#9A5B00` on `#FFF0D6`, tulsi green open `#1D7558` (a shade darker than the mockup for contrast), warn `#A14A2A`.
   - **After 9** (dark) is defined under `[data-theme='ink']` but not used: day theme only, no automatic night switch.
+  - **Daylight editorial** under `[data-theme='editorial']` is the waitlist page's look (cream `#F3ECE3`, terracotta accent `#B4532C`, plus the `forest`, `night` and `peach` panel colours). It swaps the display font to Instrument Serif. Only the waitlist sets it for now.
 - Accent is only for the one committing action on a screen (Swap, Send, Continue). Everything else is neutral.
 - Fonts: Fraunces (serif) for headings and the users' written lines; DM Sans for everything else.
 - Mobile first at 390px wide. Touch targets ≥ 44px. Text contrast ≥ 4.5:1 in both themes.

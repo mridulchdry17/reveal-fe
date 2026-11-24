@@ -1,55 +1,59 @@
-import type { ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { CheckIcon } from '@/components/icons'
 import { env } from '@/config/env'
 
 import { useJoinWaitlist } from '../hooks/useJoinWaitlist'
-import { HeroProfile } from './HeroProfile'
+import { GuessHero } from './GuessHero'
 import { JoinedCard } from './JoinedCard'
 import { WaitlistForm, type WaitlistFormValues } from './WaitlistForm'
 
 const college = env.VITE_COLLEGE_NAME
 
-const glyphBase = 'relative flex h-[60px] w-11 shrink-0 items-center justify-center rounded-lg'
+const strip = ['no swiping', 'faces come last', 'students only', 'drops at 9pm', 'like an answer', 'both say yes']
 
-const rules: { title: string; body: string; glyph: ReactNode }[] = [
+const rules = [
   {
-    title: 'Seven cards. Your call.',
-    body: "Name, branch, hometown, what you're after, a voice note. Show what you like. Photo and number stay hidden.",
-    glyph: (
-      <span className={`${glyphBase} bg-open font-display text-2xl font-extrabold text-bg`}>7</span>
-    ),
+    title: 'A few people at 9pm',
+    body: 'A small drop. No endless scroll, no stack of faces.',
+    tone: 'bg-forest text-white',
+    number: 'text-peach',
+    tilt: '-rotate-[1.5deg]',
   },
   {
-    title: '9pm. A few new people.',
-    body: 'About five, every night. Gone by 9am.',
-    glyph: <span className={`${glyphBase} bg-text font-display text-sm font-extrabold text-bg`}>9pm</span>,
+    title: 'Guess their answers',
+    body: 'Everyone writes 3 little questions about themselves. Every right guess sharpens their photo.',
+    tone: 'bg-surface text-text border border-border',
+    number: 'text-accent-text',
+    tilt: 'rotate-[1.2deg]',
   },
   {
-    title: 'Like a line, not a face.',
-    body: 'Reply to something they wrote, with a note.',
-    glyph: (
-      <span className={`${glyphBase} border border-border bg-surface font-display text-2xl font-extrabold text-text`}>
-        “
-      </span>
-    ),
+    title: 'Like an answer, not a face',
+    body: 'Tell them why their answer got you. If they like you back, you can talk.',
+    tone: 'bg-peach-strong text-text',
+    number: 'text-text',
+    tilt: '-rotate-1',
   },
   {
-    title: "Swap, don't stalk.",
-    body: 'A card opens only when you both tap yes, together. Photo always comes last.',
-    glyph: (
-      <span className={`${glyphBase} hatch overflow-hidden border-[1.5px] border-dashed border-locked`}>
-        <span className="absolute inset-0 bg-open [clip-path:polygon(0_0,100%_0,0_100%)]" />
-      </span>
-    ),
+    title: 'Swap, then both say yes',
+    body: 'Name, hometown, a voice note, one swap at a time. The full photo opens only when you both choose to.',
+    tone: 'bg-night text-white',
+    number: 'text-peach',
+    tilt: 'rotate-[1.4deg]',
   },
+]
+
+const versus = [
+  { no: 'Swiping on faces', yes: 'Guessing on vibes' },
+  { no: 'Endless scroll', yes: 'A few, at 9pm' },
+  { no: 'Randoms and bots', yes: `Verified ${college} only` },
+  { no: 'Photos for anyone', yes: 'Both say yes first' },
 ]
 
 const safety = [
   `Only verified students from ${college}. No outsiders.`,
   'Hide anyone you know: seniors, your ex, your roommate.',
-  "Every screenshot carries the viewer's watermark.",
+  "Every photo carries the viewer's watermark.",
 ]
 
 export function WaitlistScreen() {
@@ -62,93 +66,72 @@ export function WaitlistScreen() {
   }
 
   return (
-    <div className="min-h-dvh bg-bg text-text">
-      <div className="mx-auto max-w-md px-5 md:max-w-5xl md:px-10">
-        <header className="flex h-14 items-center justify-between md:h-16">
-          <span className="flex items-center gap-2">
-            <span aria-hidden="true" className="relative size-5">
-              <span className="absolute top-0.5 left-0 h-[15px] w-[11px] -rotate-[8deg] rounded-[3px] bg-open" />
-              <span className="absolute top-0.5 left-2 h-[15px] w-[11px] rotate-[6deg] rounded-[3px] hatch border border-dashed border-locked" />
+    <div data-theme="editorial" className="min-h-dvh overflow-x-clip bg-bg text-text">
+      <GuessHero college={college} />
+
+      <div aria-hidden="true" className="-mx-4 mt-5 -rotate-2 overflow-hidden bg-accent py-3.5 text-on-accent">
+        <div className="marquee flex w-max">
+          {[...strip, ...strip].map((word, i) => (
+            <span key={i} className="flex items-center gap-[18px] pr-[18px] font-display text-2xl whitespace-nowrap">
+              {word}
+              <span className="text-sm">✦</span>
             </span>
-            <span className="font-display text-xl font-extrabold tracking-[-0.03em]">Reveal</span>
-          </span>
-          <span className="flex items-center gap-1.5 text-xs font-semibold text-muted">
-            <span aria-hidden="true" className="pulse-dot size-1.5 rounded-full bg-open" />
-            Waitlist open
-          </span>
-        </header>
+          ))}
+        </div>
+      </div>
 
-        <section className="text-center">
-          <div className="mt-6 md:mt-10">
-            <HeroProfile />
-          </div>
-          <p className="mt-8 mb-0 inline-flex h-8 max-w-full items-center gap-1.5 truncate rounded-full border border-border bg-surface px-3 text-[13px] font-semibold">
-            <CheckIcon className="size-3.5 shrink-0 text-open" />
-            {college} only · verified students
-          </p>
-          <h1 className="mx-auto mt-4 mb-0 font-display text-[38px] leading-[0.98] font-extrabold tracking-[-0.035em] text-balance md:max-w-[14ch] md:text-[64px]">
-            Get known <span className="mark">before you're seen.</span>
-          </h1>
-          <p className="mx-auto mt-4 mb-0 max-w-[32ch] text-base leading-6 text-pretty text-muted md:max-w-[42ch] md:text-lg md:leading-7">
-            A dating app for {college}, and only {college}. Your photo stays hidden until you both say yes, at
-            the same moment.
-          </p>
-        </section>
-
-        <div className="mt-8 md:mt-16 md:grid md:grid-cols-[420px_1fr] md:items-start md:gap-16">
-          <section
-            id="join"
-            aria-labelledby={join.data ? undefined : 'join-heading'}
-            className="scroll-mt-6 rounded-[28px] border border-border bg-surface p-5 pt-6 shadow-[0_1px_0_rgb(42_30_46/0.04),0_24px_48px_-32px_rgb(42_30_46/0.35)] md:sticky md:top-8"
-          >
-            {join.data ? (
-              <JoinedCard
-                position={join.data.position}
-                alreadyJoined={join.data.already_joined}
-                college={college}
-                origin={window.location.origin}
-              />
-            ) : (
-              <>
-                <h2 id="join-heading" className="m-0 font-display text-2xl font-extrabold tracking-[-0.02em]">
-                  Save your spot
-                </h2>
-                <p className="mt-1 mb-5 text-sm text-muted">Takes 20 seconds. Students only.</p>
-                <WaitlistForm onSubmit={submit} />
-              </>
-            )}
+      <div className="mx-auto max-w-md px-5 md:max-w-5xl md:px-10">
+        <div className="md:grid md:grid-cols-2 md:gap-16">
+          <section aria-labelledby="rules-heading" className="pt-12">
+            <p className="m-0 text-[11px] font-bold tracking-[0.16em] text-accent-text uppercase">The rules</p>
+            <h2 id="rules-heading" className="mt-2 mb-0 font-display text-[46px] leading-[0.95] font-normal">
+              Four steps.
+              <br />
+              <em>Zero swiping.</em>
+            </h2>
+            <ol className="mt-6 mb-0 flex list-none flex-col gap-3.5 p-0">
+              {rules.map((rule, i) => (
+                <li
+                  key={rule.title}
+                  className={`flex gap-3.5 rounded-3xl p-5 shadow-[0_12px_30px_rgb(40_20_10/0.1)] ${rule.tone} ${rule.tilt}`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`w-10 shrink-0 font-display text-[56px] leading-[0.8] italic ${rule.number}`}
+                  >
+                    {i + 1}
+                  </span>
+                  <span className="flex flex-col gap-1.5">
+                    <span className="font-display text-[26px] leading-none">{rule.title}</span>
+                    <span className="text-sm leading-5 opacity-90">{rule.body}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
           </section>
 
-          <div className="mt-14 md:mt-0">
-            <section aria-labelledby="rules-heading">
-              <p className="m-0 text-xs font-bold tracking-[0.12em] text-muted uppercase">The rules</p>
-              <h2
-                id="rules-heading"
-                className="mt-2 mb-0 font-display text-[28px] leading-[1.05] font-extrabold tracking-[-0.025em]"
-              >
-                Slow on purpose.
+          <div className="pt-12 md:pt-[148px]">
+            <section aria-labelledby="versus-heading">
+              <h2 id="versus-heading" className="m-0 font-display text-[40px] leading-[0.98] font-normal">
+                Not another
+                <br />
+                <em className="text-accent-text">face-rating app.</em>
               </h2>
-              <ul className="mt-5 mb-0 list-none divide-y divide-border border-y border-border p-0">
-                {rules.map((rule) => (
-                  <li key={rule.title} className="flex gap-4 py-5">
-                    <span aria-hidden="true">{rule.glyph}</span>
-                    <span className="flex flex-col">
-                      <span className="font-display text-lg leading-6 font-bold tracking-[-0.01em]">
-                        {rule.title}
-                      </span>
-                      <span className="mt-1 text-[15px] leading-6 text-muted">{rule.body}</span>
-                    </span>
+              <ul className="mt-5 mb-0 grid list-none grid-cols-2 gap-2.5 p-0">
+                {versus.map((item) => (
+                  <li
+                    key={item.no}
+                    className="flex flex-col gap-1.5 rounded-[18px] border border-border bg-surface p-3.5"
+                  >
+                    <span className="text-[13px] text-muted line-through">{item.no}</span>
+                    <span className="text-[15px] font-semibold">{item.yes}</span>
                   </li>
                 ))}
               </ul>
             </section>
 
-            <section aria-labelledby="safety-heading" className="mt-12 rounded-[28px] bg-surface-2 p-5">
-              <p className="m-0 text-xs font-bold tracking-[0.12em] text-muted uppercase">Safety</p>
-              <h2
-                id="safety-heading"
-                className="mt-2 mb-0 font-display text-[24px] leading-[1.1] font-extrabold tracking-[-0.02em] text-balance"
-              >
+            <section aria-labelledby="safety-heading" className="mt-8">
+              <h2 id="safety-heading" className="m-0 font-display text-[26px] leading-[1.1] font-normal">
                 Nobody finds out unless you want them to.
               </h2>
               <ul className="mt-4 mb-0 flex list-none flex-col gap-3 p-0">
@@ -160,29 +143,54 @@ export function WaitlistScreen() {
                 ))}
               </ul>
             </section>
-
-            {!join.data && (
-              <a
-                href="#join"
-                className="mt-6 flex h-12 w-full items-center justify-center rounded-full border-[1.5px] border-border-strong text-sm font-semibold text-text no-underline md:hidden"
-              >
-                Save your spot ↑
-              </a>
-            )}
           </div>
         </div>
 
-        <footer className="mt-12 flex flex-col gap-1 pb-[max(2rem,env(safe-area-inset-bottom))] text-center text-xs text-muted">
-          <span>18+ only · Made by students, for students</span>
-          <span>Not affiliated with {college}.</span>
-          {env.VITE_CONTACT_EMAIL && (
-            <span>
-              Delete your data or report a problem:{' '}
-              <a href={`mailto:${env.VITE_CONTACT_EMAIL}`} className="text-text underline underline-offset-2">
-                {env.VITE_CONTACT_EMAIL}
-              </a>
-            </span>
+        <section
+          id="join"
+          aria-labelledby={join.data ? undefined : 'join-heading'}
+          className="mx-auto mt-14 max-w-[480px] scroll-mt-6 rounded-[30px] bg-night p-5 pt-7 text-white"
+        >
+          {join.data ? (
+            <JoinedCard
+              position={join.data.position}
+              alreadyJoined={join.data.already_joined}
+              college={college}
+              origin={window.location.origin}
+            />
+          ) : (
+            <>
+              <p className="m-0 text-[11px] font-bold tracking-[0.16em] text-peach uppercase">Waitlist</p>
+              <h2 id="join-heading" className="mt-1.5 mb-0 font-display text-[44px] leading-[0.95] font-normal">
+                Claim your <em className="text-peach">spot.</em>
+              </h2>
+              <p className="mt-2 mb-6 text-sm text-white/75">Takes 20 seconds. Students only.</p>
+              <div className="rounded-3xl bg-surface p-5 text-text">
+                <WaitlistForm onSubmit={submit} />
+              </div>
+            </>
           )}
+        </section>
+
+        <footer className="mt-14 flex flex-col gap-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
+          <span
+            aria-hidden="true"
+            className="font-display text-[118px] leading-[0.8] tracking-[-0.03em] md:text-[200px]"
+          >
+            Re<em className="text-accent-text">veal</em>
+          </span>
+          <div className="flex flex-col gap-1 text-xs text-muted">
+            <span>18+ only · Made by students, for students</span>
+            <span>Not affiliated with {college}.</span>
+            {env.VITE_CONTACT_EMAIL && (
+              <span>
+                Delete your data or report a problem:{' '}
+                <a href={`mailto:${env.VITE_CONTACT_EMAIL}`} className="text-text underline underline-offset-2">
+                  {env.VITE_CONTACT_EMAIL}
+                </a>
+              </span>
+            )}
+          </div>
         </footer>
       </div>
     </div>

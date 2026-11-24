@@ -60,8 +60,8 @@ describe('WaitlistScreen', () => {
 
     await fillAndSubmit()
 
-    expect(await screen.findByRole('img', { name: /one of the first 50/i })).toBeInTheDocument()
-    expect(screen.queryByText('3')).not.toBeInTheDocument()
+    const ticket = await screen.findByRole('img', { name: /one of the first 50/i })
+    expect(ticket).not.toHaveTextContent('3')
   })
 
   it('shows the real number after the first 50', async () => {
@@ -133,5 +133,27 @@ describe('WaitlistScreen', () => {
     await fillAndSubmit()
 
     expect(await screen.findByRole('alert')).toHaveTextContent("Couldn't reach Reveal")
+  })
+})
+
+describe('the guessing game in the hero', () => {
+  it('shows the true answer after a guess and moves through all three clues', async () => {
+    renderAt('/')
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('radio', { name: /canteen chai stall/i }))
+    expect(screen.getByText('Correct. Look up.')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Next clue' }))
+    await user.click(screen.getByRole('radio', { name: /Maggi at 2am/i }))
+    expect(screen.getByText('Wrong. The photo stays blurry.')).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /Fest DJ night/i })).toHaveTextContent('True')
+
+    await user.click(screen.getByRole('button', { name: 'Next clue' }))
+    await user.click(screen.getByRole('radio', { name: /Lo-fi, always/i }))
+    await user.click(screen.getByRole('button', { name: 'Finish' }))
+
+    expect(screen.getByText(/1 of 3 right/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /I want in/i })).toHaveAttribute('href', '#join')
   })
 })
