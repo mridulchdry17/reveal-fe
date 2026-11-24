@@ -55,7 +55,8 @@ export function BasicsForm({ profile, options, onSave, saving, error }: Props) {
     <form onSubmit={submit} noValidate>
       <StepLayout
         step={1}
-        title="Give yourself a nickname"
+        title="Give yourself a"
+        accent="nickname"
         subtitle="Something that sounds like you. It's your name here until you swap first names."
         submitLabel="Next"
         submitting={saving}
@@ -70,7 +71,7 @@ export function BasicsForm({ profile, options, onSave, saving, error }: Props) {
             maxLength={30}
             autoComplete="off"
             {...register('nickname')}
-            className="h-14 rounded-[14px] border-2 border-field bg-surface px-4 font-display text-xl font-normal text-text focus:border-accent focus:outline-none"
+            className="h-[72px] rounded-[24px] border-2 border-field bg-surface px-5 font-display text-[34px] font-normal text-text focus:border-accent focus:outline-none"
           />
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[13px] text-muted">Try</span>
@@ -79,7 +80,7 @@ export function BasicsForm({ profile, options, onSave, saving, error }: Props) {
                 key={name}
                 type="button"
                 onClick={() => setValue('nickname', name)}
-                className="min-h-11 rounded-full border border-border bg-transparent px-3 text-sm font-medium text-text"
+                className="min-h-11 rounded-full border-[1.5px] border-dashed border-border-strong bg-transparent px-3.5 font-display text-[17px] font-normal text-text italic"
               >
                 {name}
               </button>
@@ -88,8 +89,8 @@ export function BasicsForm({ profile, options, onSave, saving, error }: Props) {
         </div>
 
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-          <legend className="mb-2.5 text-base font-bold">
-            Your vibe <span className="text-sm font-normal text-muted">· pick one</span>
+          <legend className="mb-2.5 font-display text-[24px] leading-none font-normal">
+            Your vibe <span className="font-sans text-sm text-muted">· pick one</span>
           </legend>
           <div className="grid grid-cols-2 gap-2">
             {options.vibes.map((vibe) => (
@@ -99,9 +100,9 @@ export function BasicsForm({ profile, options, onSave, saving, error }: Props) {
         </fieldset>
 
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-          <legend className="mb-2.5 text-base font-bold">
+          <legend className="mb-2.5 font-display text-[24px] leading-none font-normal">
             Interests{' '}
-            <span className="text-sm font-normal text-muted">
+            <span className="font-sans text-sm text-muted">
               · {options.min_interests} to {options.max_interests} ({interests.length} picked)
             </span>
           </legend>
@@ -134,13 +135,13 @@ export function BasicsForm({ profile, options, onSave, saving, error }: Props) {
                   addCustom()
                 }
               }}
-              className="h-11 min-w-0 flex-1 rounded-full border border-dashed border-border-strong bg-transparent px-3.5 text-sm text-text"
+              className="h-11 min-w-0 flex-1 rounded-full border-[1.5px] border-dashed border-border-strong bg-transparent px-4 text-sm text-text placeholder:text-muted"
             />
             <button
               type="button"
               onClick={addCustom}
               disabled={full || !custom.trim()}
-              className="h-11 rounded-full border border-border bg-transparent px-4 text-sm font-semibold text-text disabled:opacity-50"
+              className="h-11 rounded-full border-0 bg-text px-5 text-sm font-bold text-bg disabled:opacity-40"
             >
               Add
             </button>

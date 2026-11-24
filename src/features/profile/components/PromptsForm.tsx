@@ -51,8 +51,9 @@ export function PromptsForm({ profile, options, onSave, saving, error }: Props) 
       <StepLayout
         step={2}
         backTo={stepPath('basics')}
-        title="Answer 3 prompts"
-        subtitle="This is what people fall for first. Names, numbers and handles are blocked."
+        title="Answer 3"
+        accent="prompts"
+        subtitle="This is what people fall for first. Be specific, be a little weird. Names, numbers and handles are blocked."
         submitLabel="Next"
         submitting={saving}
         error={hint ?? (error ? profileErrorMessage(error) : null)}
@@ -62,7 +63,7 @@ export function PromptsForm({ profile, options, onSave, saving, error }: Props) 
           return (
             <div
               key={i}
-              className="flex flex-col gap-2 rounded-[18px] border border-border bg-surface p-4 focus-within:border-accent"
+              className="flex flex-col gap-3 rounded-[24px] border-[1.5px] border-border bg-surface p-4 shadow-[0_10px_24px_rgb(40_20_10/0.06)] focus-within:border-accent"
             >
               <label htmlFor={`question-${i}`} className="sr-only">
                 Prompt {i + 1}
@@ -75,7 +76,7 @@ export function PromptsForm({ profile, options, onSave, saving, error }: Props) 
                   setOwnQuestion((all) => all.map((v, j) => (j === i ? own : v)))
                   setValue(`prompts.${i}.question`, own ? '' : event.target.value)
                 }}
-                className="h-11 rounded-xl border border-border bg-bg px-2 text-[13px] font-semibold text-muted"
+                className="h-11 rounded-full border-[1.5px] border-field bg-surface-2 px-3 text-[13px] font-bold text-text"
               >
                 {options.prompt_questions.map((q) => (
                   <option key={q} value={q} disabled={taken.includes(q)}>
@@ -94,28 +95,35 @@ export function PromptsForm({ profile, options, onSave, saving, error }: Props) 
                     maxLength={60}
                     placeholder="Your own prompt"
                     {...register(`prompts.${i}.question`)}
-                    className="h-11 rounded-xl border border-border bg-bg px-3 text-sm text-text"
+                    className="h-11 rounded-full border-[1.5px] border-field bg-surface px-4 text-sm text-text"
                   />
                 </>
               )}
               <label htmlFor={`answer-${i}`} className="sr-only">
                 Your answer to prompt {i + 1}
               </label>
-              <textarea
-                id={`answer-${i}`}
-                rows={2}
-                maxLength={options.prompt_answer_max}
-                placeholder="Your answer"
-                {...register(`prompts.${i}.answer`)}
-                className="resize-none border-0 bg-transparent p-0 font-display text-[21px] leading-tight font-normal text-text placeholder:text-muted focus:outline-none"
-              />
+              <div className="flex gap-1.5">
+                <span aria-hidden="true" className="font-display text-[34px] leading-[0.9] text-accent-text">
+                  “
+                </span>
+                <textarea
+                  id={`answer-${i}`}
+                  rows={2}
+                  maxLength={options.prompt_answer_max}
+                  placeholder="Your answer"
+                  {...register(`prompts.${i}.answer`)}
+                  className="min-w-0 flex-1 resize-none border-0 bg-transparent p-0 pt-1 font-display text-[24px] leading-[1.15] font-normal text-text italic placeholder:text-muted focus:outline-none"
+                />
+              </div>
               <span className="self-end text-xs text-muted">
                 {prompt.answer.length} / {options.prompt_answer_max}
               </span>
             </div>
           )
         })}
-        <p className="m-0 text-[13px] text-muted">People can like a single prompt and comment on it.</p>
+        <p className="m-0 text-[13px] text-muted">
+          People can like one answer and say why. A good line beats a good angle.
+        </p>
       </StepLayout>
     </form>
   )

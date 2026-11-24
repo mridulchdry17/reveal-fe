@@ -1,6 +1,9 @@
 import { useEffect } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
 
+import { AlertIcon } from '@/components/icons'
+import { Wordmark } from '@/components/Wordmark'
+
 import {
   useMyProfile,
   useProfileOptions,
@@ -38,15 +41,22 @@ export function ProfileSetupScreen() {
 
   if (profile.isPending || options.isPending) {
     return (
-      <p role="status" className="m-0 flex min-h-dvh items-center justify-center bg-bg text-sm text-muted">
-        Loading…
-      </p>
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-3 bg-bg text-text">
+        <Wordmark className="text-[40px]" />
+        <p role="status" className="m-0 text-sm text-muted">
+          Loading…
+        </p>
+      </div>
     )
   }
   if (profile.isError || options.isError) {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-3 bg-bg px-6 text-center">
-        <p role="alert" className="m-0 text-sm">
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-bg px-6 text-center text-text">
+        <p className="m-0 font-display text-[36px] leading-none">
+          Hmm, <em className="text-accent-text">that didn't load.</em>
+        </p>
+        <p role="alert" className="m-0 flex max-w-[32ch] gap-2 text-left text-sm text-muted">
+          <AlertIcon className="mt-0.5 size-4 shrink-0 text-accent-text" />
           {profileErrorMessage(profile.error ?? options.error)}
         </p>
         <button
@@ -55,7 +65,7 @@ export function ProfileSetupScreen() {
             void profile.refetch()
             void options.refetch()
           }}
-          className="h-11 rounded-full border-[1.5px] border-border-strong bg-transparent px-5 text-sm font-semibold text-text"
+          className="h-12 rounded-full border-0 bg-text px-6 text-sm font-bold text-bg"
         >
           Try again
         </button>

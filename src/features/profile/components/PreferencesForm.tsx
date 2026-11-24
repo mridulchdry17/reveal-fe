@@ -21,29 +21,24 @@ type Values = {
   match_on: MatchOn[]
 }
 
-function Segmented<T extends string>({
+/** One choice from three, as big tap tiles. */
+function Tiles<T extends string>({
   legend,
   name,
   labels,
   register,
 }: {
   legend: string
-  name: string
+  name: 'gender' | 'interested_in'
   labels: Record<T, string>
   register: ReturnType<typeof useForm<Values>>['register']
 }) {
   return (
     <fieldset className="m-0 border-0 p-0">
-      <legend className="mb-2.5 text-[15px] font-bold">{legend}</legend>
-      <div className="grid grid-cols-3 gap-1 rounded-[14px] border border-border bg-surface p-1">
+      <legend className="mb-2.5 font-display text-[24px] leading-none font-normal">{legend}</legend>
+      <div className="grid grid-cols-3 gap-2">
         {(Object.entries(labels) as [T, string][]).map(([value, label]) => (
-          <label
-            key={value}
-            className="flex h-10 cursor-pointer items-center justify-center rounded-[10px] text-sm font-medium text-text has-checked:bg-text has-checked:font-bold has-checked:text-bg has-focus-visible:outline-2 has-focus-visible:outline-accent"
-          >
-            <input type="radio" value={value} {...register(name as 'gender' | 'interested_in')} className="sr-only" />
-            {label}
-          </label>
+          <Chip key={value} type="radio" shape="tile" value={value} label={label} {...register(name)} />
         ))}
       </div>
     </fieldset>
@@ -76,17 +71,19 @@ export function PreferencesForm({ profile, onSave, saving, error }: Props) {
       <StepLayout
         step={4}
         backTo={stepPath('cards')}
-        title="Who should we show you?"
+        title="Who should we"
+        accent="show you?"
+        subtitle="Tell us who you are and who you'd like to meet. Tap one of each."
         submitLabel="Finish profile"
         submitting={saving}
         error={hint ?? (error ? profileErrorMessage(error) : null)}
       >
-        <Segmented legend="I am" name="gender" labels={genderLabels} register={register} />
-        <Segmented legend="Interested in" name="interested_in" labels={interestedInLabels} register={register} />
+        <Tiles legend="I am" name="gender" labels={genderLabels} register={register} />
+        <Tiles legend="Interested in" name="interested_in" labels={interestedInLabels} register={register} />
 
         <fieldset className="m-0 border-0 p-0">
-          <legend className="mb-2.5 text-[15px] font-bold">
-            Match me on <span className="text-sm font-normal text-muted">· optional</span>
+          <legend className="mb-2.5 font-display text-[24px] leading-none font-normal">
+            Match me on <span className="font-sans text-sm text-muted">· optional</span>
           </legend>
           <div className="flex flex-wrap gap-2">
             {(Object.entries(matchOnLabels) as [MatchOn, string][]).map(([value, label]) => (
@@ -94,7 +91,6 @@ export function PreferencesForm({ profile, onSave, saving, error }: Props) {
             ))}
           </div>
         </fieldset>
-
       </StepLayout>
     </form>
   )
