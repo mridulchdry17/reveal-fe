@@ -1,3 +1,5 @@
+import { Sticker } from '@/components/Sticker'
+
 import { useNow } from '../hooks/useNow'
 import { countdown, dropDay } from '../utils/countdown'
 
@@ -16,9 +18,12 @@ export function NextDrop({ nextDropAt, heading, body }: Props) {
   return (
     <section
       aria-labelledby="next-drop-heading"
-      className="flex min-h-[calc(100dvh-230px)] flex-col items-center justify-center rounded-[32px] bg-forest px-6 py-10 text-center text-white"
+      className="rise relative flex min-h-[calc(100dvh-230px)] flex-col items-center justify-center overflow-hidden rounded-[32px] bg-forest px-6 py-10 text-center text-white"
     >
-      <p className="m-0 text-xs font-semibold tracking-[0.18em] text-peach uppercase">
+      <Sticker tone="peach" tilt={-6} className="absolute top-5 left-5">
+        worth the wait
+      </Sticker>
+      <p className="m-0 mt-6 text-[11px] font-bold tracking-[0.16em] text-peach uppercase">
         Your next drop
       </p>
       <p className="mt-3 mb-0 font-display text-[60px] leading-[0.92]">

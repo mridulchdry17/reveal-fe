@@ -33,7 +33,7 @@ describe('Likes', () => {
     renderRoutes(routes, '/app/likes')
 
     expect(await screen.findByText(/liked "Hot take"/)).toBeInTheDocument()
-    expect(screen.getByText('"Only with extra masala"')).toBeInTheDocument()
+    expect(screen.getByText('“Only with extra masala”')).toBeInTheDocument()
     expect(screen.getByRole('article', { name: 'Sunset chaser' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Like "/ })).not.toBeInTheDocument()
   })

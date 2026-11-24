@@ -4,7 +4,7 @@ import { HeartIcon } from '@/components/icons'
 
 import { useLikes } from '../hooks/useLikes'
 
-/** "2 people liked you", linking to the Likes list. Nothing when no one is waiting. */
+/** "2 people liked your words", linking to the Likes list. Nothing when no one is waiting. */
 export function LikesBanner() {
   const likes = useLikes()
   const count = likes.data?.length ?? 0
@@ -13,16 +13,17 @@ export function LikesBanner() {
   return (
     <Link
       to="/app/likes"
-      className="flex items-center gap-3.5 rounded-2xl bg-accent-bg p-4 text-text no-underline"
+      className="rise flex items-center gap-4 rounded-[24px] bg-forest p-5 text-white no-underline shadow-[0_18px_40px_-26px_rgb(20_40_30/0.7)]"
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent">
-        <HeartIcon className="size-5" />
-      </span>
-      <span className="flex flex-col gap-0.5">
-        <span className="text-[15px] font-bold">
-          {count === 1 ? '1 person liked you' : `${count} people liked you`}
+      <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <span className="text-[11px] font-bold tracking-[0.16em] text-peach uppercase">Waiting on you</span>
+        <span className="font-display text-[30px] leading-[0.95] font-normal">
+          {count === 1 ? '1 person' : `${count} people`} liked <em className="text-peach">your words.</em>
         </span>
-        <span className="text-[13px] text-accent-text">See what they liked</span>
+        <span className="text-[13px] text-white/80">See what they liked →</span>
+      </span>
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-peach text-text">
+        <HeartIcon className="size-6" />
       </span>
     </Link>
   )

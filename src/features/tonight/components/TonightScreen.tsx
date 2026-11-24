@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 
 import { AlertIcon, CloseIcon, HeartIcon } from '@/components/icons'
+import { ScreenHeader } from '@/components/ScreenHeader'
 
 import type { DropItem, LikeRequest } from '../api/drops'
 import { useLikeItem, usePassItem, useTonight } from '../hooks/useTonight'
@@ -8,6 +9,7 @@ import { dropErrorMessage } from '../utils/errorMessage'
 import { timeLeft } from '../utils/timeLeft'
 import { DropProfile } from './DropProfile'
 import { LikeSheet } from './LikeSheet'
+import { MatchMoment } from './MatchMoment'
 import { NextDrop } from './NextDrop'
 
 /** Tonight's drop: one profile at a time. Like a line or pass. */
@@ -28,12 +30,12 @@ export function TonightScreen() {
   }, [like])
 
   if (drop.isPending) {
-    return <Header subtitle="Getting tonight's drop…" />
+    return <Header kicker="Tonight" subtitle="Getting tonight's drop…" />
   }
   if (drop.isError) {
     return (
       <section>
-        <Header />
+        <Header kicker="Tonight" />
         <p role="alert" className="m-0 flex gap-2 text-sm text-accent-text">
           <AlertIcon className="mt-0.5 size-4 shrink-0" />
           {dropErrorMessage(drop.error)}
@@ -41,7 +43,7 @@ export function TonightScreen() {
         <button
           type="button"
           onClick={() => void drop.refetch()}
-          className="mt-4 h-11 rounded-full border-[1.5px] border-border-strong bg-transparent px-5 text-sm font-semibold text-text"
+          className="mt-4 h-11 rounded-full bg-text px-5 text-sm font-bold text-bg"
         >
           Try again
         </button>
@@ -53,6 +55,12 @@ export function TonightScreen() {
   const current = items.find((item) => !item.decision)
   const seen = items.filter((item) => item.decision).length
   const next = `Next drop in ${timeLeft(next_drop_at)}`
+  const kicker =
+    items.length === 0
+      ? 'Between drops'
+      : current
+        ? `${seen + 1} of ${items.length} tonight`
+        : 'All caught up'
 
   const send = (body: LikeRequest) => {
     if (!liking) return
@@ -70,30 +78,24 @@ export function TonightScreen() {
 
   return (
     <section className="flex flex-col gap-4 pb-6">
-      <div className="flex items-end justify-between">
-        <Header subtitle={next} />
-        {items.length > 0 && (
-          <span
-            role="img"
-            aria-label={`${seen} of ${items.length} seen`}
-            className="flex gap-1 pb-4"
-          >
-            {items.map((item) => (
-              <span
-                key={item.id}
-                className={`h-1 w-[18px] rounded-full ${item.decision ? 'bg-accent' : 'bg-border'}`}
-              />
-            ))}
-          </span>
-        )}
-      </div>
+      <Header
+        kicker={kicker}
+        subtitle={next}
+        aside={
+          items.length > 0 && (
+            <span role="img" aria-label={`${seen} of ${items.length} seen`} className="flex gap-1 pb-2">
+              {items.map((item) => (
+                <span
+                  key={item.id}
+                  className={`h-1.5 w-[18px] rounded-full ${item.decision ? 'bg-accent' : 'bg-border-strong/50'}`}
+                />
+              ))}
+            </span>
+          )
+        }
+      />
 
-      {matched && (
-        <p role="status" className="m-0 rounded-2xl bg-open-bg p-3.5 text-sm leading-5 text-text">
-          <span className="font-bold">It's a match with {matched}.</span> You both liked each other.
-          Chat is coming in the next update.
-        </p>
-      )}
+      {matched && <MatchMoment nickname={matched} />}
       {(pass.isError || (like.isError && !liking)) && (
         <p role="alert" className="m-0 flex gap-2 text-sm text-accent-text">
           <AlertIcon className="mt-0.5 size-4 shrink-0" />
@@ -108,7 +110,7 @@ export function TonightScreen() {
             profile={current.profile}
             onLikePrompt={(promptId) => setLiking({ item: current, promptId })}
           />
-          <div className="flex justify-center gap-5">
+          <div className="flex items-center justify-center gap-6 pt-1">
             <button
               type="button"
               aria-label={`Pass on ${current.profile.nickname}`}
@@ -117,7 +119,7 @@ export function TonightScreen() {
                 setMatched(null)
                 pass.mutate({ itemId: current.id })
               }}
-              className="flex size-[60px] items-center justify-center rounded-full border border-border bg-surface text-text"
+              className="flex size-16 items-center justify-center rounded-full border-[1.5px] border-text bg-surface text-text transition-transform duration-150 active:scale-90 disabled:opacity-50"
             >
               <CloseIcon className="size-6" />
             </button>
@@ -128,11 +130,14 @@ export function TonightScreen() {
                 const first = current.profile.prompts[0]
                 if (first) setLiking({ item: current, promptId: first.id })
               }}
-              className="flex size-[60px] items-center justify-center rounded-full bg-accent text-on-accent"
+              className="flex size-[76px] items-center justify-center rounded-full bg-accent text-on-accent shadow-[0_14px_30px_-12px_rgb(180_83_44/0.7)] transition-transform duration-150 active:scale-90"
             >
-              <HeartIcon className="size-[26px]" />
+              <HeartIcon className="size-8" />
             </button>
           </div>
+          <p className="m-0 text-center text-[13px] text-muted">
+            Tap a heart to like one answer. Passing is private.
+          </p>
         </>
       ) : (
         <NextDrop
@@ -141,7 +146,7 @@ export function TonightScreen() {
           body={
             items.length > 0
               ? `${next}. People who like you show up in Chats.`
-              : 'Your drop fills up as more students finish their profiles. Check back later, or invite friends from your college.'
+              : 'Your drop fills up as more of your college finishes their profiles. Check back later, or bring your friends in.'
           }
         />
       )}
@@ -160,13 +165,6 @@ export function TonightScreen() {
   )
 }
 
-function Header({ subtitle }: { subtitle?: string }) {
-  return (
-    <header className="flex flex-col gap-0.5 pb-3">
-      <h1 className="m-0 font-display text-[40px] leading-none font-normal tracking-[-0.01em]">
-        Tonight's drop
-      </h1>
-      {subtitle && <p className="m-0 text-[13px] text-muted">{subtitle}</p>}
-    </header>
-  )
+function Header({ kicker, subtitle, aside }: { kicker: string; subtitle?: string; aside?: ReactNode }) {
+  return <ScreenHeader kicker={kicker} title="Tonight's" accent="drop" subtitle={subtitle} aside={aside} />
 }
