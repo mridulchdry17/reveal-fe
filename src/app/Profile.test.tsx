@@ -302,4 +302,18 @@ describe('profile setup', () => {
     ).toBeInTheDocument()
     expect(screen.getByLabelText('Nickname')).toHaveValue('Quiet storm')
   })
+
+  it('lists my guess cards in the You tab with a way to edit them', async () => {
+    withOptions()
+    signInAs()
+    renderRoutes(routes, '/app/you')
+
+    const list = await screen.findByRole('list', { name: 'Your guess cards' })
+    const card = within(list).getByText('Pineapple on pizza?').closest('li')
+    expect(card).toHaveTextContent('Only at 2am · True')
+    await userEvent.click(screen.getByRole('link', { name: 'Edit guess cards' }))
+
+    expect(await screen.findByRole('heading', { name: 'Make them guess you.' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Question 2')).toHaveValue('Pineapple on pizza?')
+  })
 })
