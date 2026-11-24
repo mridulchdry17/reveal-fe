@@ -1,68 +1,24 @@
 @import 'tailwindcss';
 
-/* Design tokens: "Golden hour" from the Reveal UI Mockups canvas. Components use the
-   Tailwind names (bg-bg, text-muted, bg-accent...), never raw hex. */
-:root,
-[data-theme='paper'] {
-  --bg: #f8f1e7; /* chai cream */
-  --surface: #fffdf9; /* milk */
-  --surface-2: #f1e6d8;
-  --border: #e6d8c6;
-  --border-strong: #cdb9a3;
-  --text: #2a1e2e; /* plum ink */
-  --muted: #75636b;
-  --accent: #b8336a; /* rani pink: the one committing action */
-  --on-accent: #ffffff;
-  --accent-bg: #f9e1ea;
-  --accent-text: #9a2457;
-  --locked: #9a5b00; /* marigold: hidden */
-  --locked-bg: #fff0d6;
-  --open: #1d7558; /* tulsi green: shown (a shade darker than the mockup for 4.5:1 on open-bg) */
-  --open-bg: #ddf1e8;
-  --warn: #a14a2a;
-  --warn-bg: #fce6dc;
-  color-scheme: light;
-}
-
-/* "After 9". Defined, not used: the app is day theme only for now. */
-[data-theme='ink'] {
-  --bg: #1c1320;
-  --surface: #2a1d30;
-  --surface-2: #352640;
-  --border: #47354f;
-  --border-strong: #6a5372;
-  --text: #f8eef2;
-  --muted: #bfaec2;
-  --accent: #ff6fa5;
-  --on-accent: #1c1320;
-  --accent-bg: #4a2236;
-  --accent-text: #ffb3cf;
-  --locked: #ffb547;
-  --locked-bg: #3a2a1a;
-  --open: #5fd3a8;
-  --open-bg: #173a31;
-  --warn: #ff9f80;
-  --warn-bg: #3d241c;
-  color-scheme: dark;
-}
-
-/* "Daylight editorial": the waitlist's look. Set data-theme='editorial' on a page root.
+/* Design tokens: "Daylight editorial" from the Reveal app mockup canvas. Components use the
+   Tailwind names (bg-bg, text-muted, bg-accent...), never raw hex.
    Cream paper, terracotta accent, forest green and near-black panels, Instrument Serif headings. */
+:root,
 [data-theme='editorial'] {
-  --bg: #f3ece3;
+  --bg: #f3ece3; /* paper */
   --surface: #fbf8f3;
   --surface-2: #efe6da;
   --border: #e2d8cb;
   --border-strong: #c9baa9;
-  --text: #1e1a16;
+  --text: #1e1a16; /* ink */
   --muted: #6b6057;
-  --accent: #b4532c; /* terracotta: white text on it is 5:1 */
+  --accent: #b4532c; /* terracotta: the one committing action. White text on it is 5:1 */
   --on-accent: #ffffff;
   --accent-bg: #f4ded2;
-  --accent-text: #a14522; /* terracotta dark enough for small text on cream */
-  --locked: #9a5b00;
+  --accent-text: #a14522; /* terracotta dark enough for small text on paper */
+  --locked: #9a5b00; /* marigold: hidden */
   --locked-bg: #fff0d6;
-  --open: #2f6b47;
+  --open: #2f6b47; /* forest: shown */
   --open-bg: #e3eee6;
   --warn: #a14a2a;
   --warn-bg: #fce6dc;
@@ -94,7 +50,6 @@
 }
 
 :root {
-  --display-face: 'Fraunces', Georgia, serif;
   /* Brand panels that stay the same in every theme. */
   --forest: #1f3a2d;
   --night: #14110f;
@@ -134,19 +89,13 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* Instrument Serif has one weight. Never fake a bold version of it. */
+  font-synthesis-weight: none;
 }
 
 /* ---------- Input boundary token (3:1 against surface, WCAG 1.4.11) ---------- */
 :root,
-[data-theme='paper'] {
-  --field: #8f7f76;
-}
-[data-theme='ink'] {
-  --field: #7a6582;
-}
-[data-theme='editorial'] {
-  --field: #8a7c70;
-}
+[data-theme='editorial'],
 [data-theme='editorial-night'] {
   --field: #8a7c70;
 }
