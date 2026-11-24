@@ -10,25 +10,25 @@ export function GuessHero({ college }: { college: string }) {
   const game = useGuessGame(demoClues)
 
   return (
-    <section aria-labelledby="hero-heading" className="relative overflow-hidden text-white">
+    <section id="try" aria-labelledby="hero-heading" className="relative overflow-hidden text-white">
       <BlurredFace blur={game.blur} />
 
-      <div className="relative mx-auto flex min-h-[800px] max-w-5xl flex-col px-5 pb-4 md:min-h-[720px] md:px-10 md:pb-10">
-        <header className="flex h-16 items-center justify-between">
+      <div className="relative mx-auto flex min-h-svh max-w-5xl flex-col px-5 pb-5 md:min-h-[720px] md:px-10 md:pb-10">
+        <header className="flex h-14 items-center justify-between md:h-16">
           <span className="font-display text-[30px] leading-none">
             Re<em className="text-peach">veal</em>
           </span>
           <a
             href="#join"
-            className="inline-flex h-10 items-center rounded-full bg-white px-4 text-[13px] font-bold text-text no-underline"
+            className="inline-flex h-11 items-center rounded-full bg-white px-4 text-sm font-bold text-text no-underline"
           >
             Get in line
           </a>
         </header>
 
-        <div className="relative flex flex-1 flex-col gap-8 md:grid md:grid-cols-[1fr_400px] md:items-end md:gap-12">
-          <div className="relative pt-6 md:self-center md:pt-0">
-            <div aria-hidden="true" className="mb-5 flex max-w-[260px] gap-1.5">
+        <div className="relative flex flex-1 flex-col gap-6 md:grid md:grid-cols-[1fr_400px] md:items-end md:gap-12">
+          <div className="relative pt-3 md:self-center md:pt-0">
+            <div aria-hidden="true" className="mb-4 flex max-w-[260px] gap-1.5">
               {demoClues.map((clue, i) => (
                 <span
                   key={clue.kind}
@@ -40,14 +40,14 @@ export function GuessHero({ college }: { college: string }) {
             </div>
             <span
               aria-hidden="true"
-              className="float absolute top-[52px] right-0 rounded-xl bg-white px-3 py-2 text-xs font-bold tracking-[0.04em] text-text md:right-auto md:left-[300px]"
+              className="float absolute top-[38px] right-0 rounded-xl bg-white px-3 py-2 text-xs font-bold tracking-[0.04em] text-text md:right-auto md:left-[300px]"
               style={{ '--r': '-7deg' } as CSSProperties}
             >
               DROPS AT 9PM
             </span>
             <h1
               id="hero-heading"
-              className="m-0 font-display text-[78px] leading-[0.86] font-normal tracking-[-0.03em] md:text-[112px]"
+              className="m-0 font-display text-[length:clamp(52px,min(19vw,10.5svh),78px)] leading-[0.86] font-normal tracking-[-0.03em] md:text-[112px]"
             >
               Don't
               <br />
@@ -55,8 +55,8 @@ export function GuessHero({ college }: { college: string }) {
               <br />
               <em className="text-peach">Guess.</em>
             </h1>
-            <p className="mt-4 mb-0 max-w-[30ch] text-[15px] leading-6 text-white/90 md:text-lg">
-              The {college} dating app where the face comes last. Try it: this photo is waiting on you.
+            <p className="mt-3 mb-0 max-w-[30ch] text-[15px] leading-[1.45] text-white/90 md:mt-4 md:text-lg">
+              The {college} dating app where the face comes last.
             </p>
           </div>
 
@@ -69,15 +69,15 @@ export function GuessHero({ college }: { college: string }) {
               STUDENTS ONLY
             </span>
             <div
-              className="rounded-[26px] bg-surface p-[18px] text-text shadow-[0_24px_60px_rgb(10_5_2/0.4)]"
+              className="rounded-[24px] bg-surface p-4 text-text shadow-[0_24px_60px_rgb(10_5_2/0.4)] md:p-[18px]"
               aria-live="polite"
             >
               {game.done ? (
-                <div className="flex flex-col gap-3">
+                <div className="flex min-h-[276px] flex-col justify-between gap-3">
                   <p className="m-0 text-[11px] font-bold tracking-[0.14em] text-accent-text uppercase">
                     {game.right} of {demoClues.length} right · that's the whole game
                   </p>
-                  <p className="m-0 font-display text-[28px] leading-[1.05]">
+                  <p className="m-0 font-display text-[26px] leading-[1.05]">
                     Now imagine it's someone from <em className="text-accent-text">your batch.</em>
                   </p>
                   <p className="m-0 text-sm leading-5 text-muted">
@@ -100,15 +100,15 @@ export function GuessHero({ college }: { college: string }) {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2.5">
+                <div className="flex min-h-[276px] flex-col gap-2">
                   <div className="flex items-center justify-between text-[11px] font-bold tracking-[0.14em] uppercase">
                     <span className="text-muted">
                       0{game.index + 1} · {game.clue.kind}
                     </span>
-                    <span className="text-accent-text">Guess to reveal</span>
+                    <span className="text-accent-text">Try it</span>
                   </div>
-                  <p className="m-0 font-display text-[25px] leading-[1.1]">{game.clue.question}</p>
-                  <div role="radiogroup" aria-label="Your guess" className="flex flex-col gap-[7px]">
+                  <p className="m-0 font-display text-[22px] leading-[1.12] md:text-[25px]">{game.clue.question}</p>
+                  <div role="radiogroup" aria-label="Your guess" className="flex flex-col gap-1.5">
                     {game.clue.options.map((option, i) => {
                       const isAnswer = game.answered && i === game.clue.answer
                       const isWrongPick = game.answered && i === game.picked && !isAnswer
@@ -120,7 +120,7 @@ export function GuessHero({ college }: { college: string }) {
                           aria-checked={game.picked === i}
                           disabled={game.answered}
                           onClick={() => game.guess(i)}
-                          className={`flex min-h-[46px] items-center gap-3 rounded-[14px] border px-3.5 text-left text-[15px] ${
+                          className={`flex min-h-11 items-center gap-3 rounded-[14px] border px-3.5 text-left text-[15px] ${
                             isAnswer
                               ? 'border-open bg-open-bg text-open'
                               : isWrongPick
@@ -138,7 +138,7 @@ export function GuessHero({ college }: { college: string }) {
                       )
                     })}
                   </div>
-                  <div className="flex min-h-11 items-center justify-between gap-3">
+                  <div className="mt-auto flex min-h-11 items-center justify-between gap-3">
                     <span
                       className={`text-[13px] font-semibold ${
                         !game.answered ? 'text-muted' : game.correct ? 'text-open' : 'text-accent-text'
