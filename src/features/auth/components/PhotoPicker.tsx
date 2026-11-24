@@ -26,12 +26,12 @@ export function PhotoPicker({ file, onChange, capture, label, shape, placeholder
   const frame =
     shape === 'oval'
       ? 'h-[196px] w-[150px] rounded-[50%]'
-      : 'aspect-[1.586] w-full max-w-[300px] rounded-xl'
+      : 'aspect-[1.586] w-full max-w-[300px] -rotate-2 rounded-[18px]'
 
   return (
     <label
       htmlFor={id}
-      className="flex h-[280px] cursor-pointer items-center justify-center rounded-[20px] border border-border bg-surface-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent"
+      className="flex h-[280px] cursor-pointer items-center justify-center rounded-[28px] border border-border bg-surface shadow-[0_12px_30px_rgb(40_20_10/0.08)] has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent"
     >
       <input
         id={id}
@@ -50,7 +50,7 @@ export function PhotoPicker({ file, onChange, capture, label, shape, placeholder
         <img src={preview} alt="" className={`${frame} object-cover`} />
       ) : (
         <span
-          className={`${frame} flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border-strong p-4 text-center text-sm text-muted`}
+          className={`${frame} flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border-strong bg-surface-2 p-4 text-center text-sm font-semibold text-muted`}
         >
           {placeholder}
         </span>

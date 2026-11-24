@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router'
 
 import { AlertIcon, LockIcon } from '@/components/icons'
+import { ScreenHeader } from '@/components/ScreenHeader'
+import { Sticker } from '@/components/Sticker'
 import { env } from '@/config/env'
 
 import { useMe } from '../hooks/useMe'
@@ -29,7 +31,7 @@ const methods: { value: Method; title: string; detail: string; badge?: string }[
   {
     value: 'admin',
     title: 'No email or ID yet',
-    detail: 'First-years and new joiners. Ask an admin to let you in',
+    detail: 'Just joined and nothing official yet? Ask an admin to let you in',
   },
 ]
 
@@ -66,19 +68,22 @@ export function VerifyScreen() {
           }
         />
 
-        <div>
-          <h1 className="m-0 font-display text-[42px] leading-[0.98] font-normal tracking-[-0.01em]">
-            Prove you're from campus
-          </h1>
-          <p className="mt-2.5 mb-0 text-[15px] leading-6 text-pretty text-muted">
-            Pick whichever is easier. Everyone on Reveal is a verified student.
-          </p>
+        <div className="rise relative">
+          <ScreenHeader
+            kicker="Verify"
+            title="Only students."
+            accent="That's the point."
+            subtitle={`Prove you're from ${env.VITE_COLLEGE_NAME}. Pick whichever is easier.`}
+          />
+          <Sticker tone="forest" tilt={7} className="absolute top-0 right-1">
+            No randoms
+          </Sticker>
         </div>
 
         {(idStatus === 'rejected' || idStatus === 'expired') && (
           <p
             role="alert"
-            className="m-0 flex gap-2.5 rounded-2xl bg-warn-bg p-3.5 text-sm leading-5"
+            className="m-0 flex gap-2.5 rounded-[20px] bg-warn-bg p-4 text-sm leading-5"
           >
             <AlertIcon className="mt-0.5 size-4 shrink-0 text-warn" />
             <span>
@@ -95,7 +100,7 @@ export function VerifyScreen() {
           {methods.map((m) => (
             <label
               key={m.value}
-              className="flex cursor-pointer items-center gap-3.5 rounded-2xl border-2 border-border bg-surface p-4 has-checked:border-accent has-checked:bg-accent-bg"
+              className="flex cursor-pointer items-center gap-3.5 rounded-[24px] border-2 border-border bg-surface p-4 shadow-[0_10px_24px_rgb(40_20_10/0.06)] has-checked:border-accent has-checked:bg-accent-bg has-checked:shadow-none"
             >
               <input
                 type="radio"
@@ -107,9 +112,9 @@ export function VerifyScreen() {
               />
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="flex items-center justify-between gap-2">
-                  <span className="text-base font-bold">{m.title}</span>
+                  <span className="font-display text-[22px] leading-tight font-normal">{m.title}</span>
                   {m.badge && (
-                    <span className="rounded-full bg-open-bg px-2 py-0.5 text-xs font-bold text-open">
+                    <span className="rounded-full bg-open-bg px-2.5 py-1 text-[11px] font-bold tracking-[0.08em] text-open uppercase">
                       {m.badge}
                     </span>
                   )}
@@ -122,7 +127,7 @@ export function VerifyScreen() {
 
         {method === 'college_email' && (
           <section aria-label="Verify with college email" className="flex flex-col gap-4">
-            <p className="m-0 flex gap-2.5 text-[13px] leading-5 text-muted">
+            <p className="m-0 flex gap-2.5 rounded-[20px] bg-surface-2 p-3.5 text-[13px] leading-5 text-muted">
               <LockIcon className="mt-0.5 size-[18px] shrink-0 text-locked" />
               Only @{env.VITE_COLLEGE_DOMAIN} accounts work here. Your college email is never shown
               on your profile, and one email verifies one account.
@@ -151,7 +156,7 @@ export function VerifyScreen() {
 
         {method === 'id_card' &&
           (idStatus === 'pending' ? (
-            <p className="m-0 rounded-2xl bg-surface-2 p-4 text-sm leading-6">
+            <p className="m-0 rounded-[20px] bg-surface-2 p-4 text-sm leading-6">
               Your ID is already being checked.{' '}
               <Link to="/verify/pending" className="font-bold text-text">
                 See where it is
@@ -175,13 +180,13 @@ export function VerifyScreen() {
         {method === 'admin' && (
           <section
             aria-label="Ask an admin"
-            className="flex flex-col gap-3 rounded-2xl bg-surface-2 p-4 text-sm leading-6"
+            className="flex flex-col gap-3 rounded-[24px] border border-border bg-surface p-5 text-sm leading-6"
           >
             <p className="m-0">
               Message a Reveal admin (whoever shared Reveal with you) with your name, year and the
               email you signed in with:
             </p>
-            <p className="m-0 rounded-xl bg-surface px-3 py-2.5 font-bold break-all">
+            <p className="m-0 rounded-2xl bg-surface-2 px-3.5 py-3 font-bold break-all">
               {me.data?.email}
             </p>
             <p className="m-0 text-muted">Once they let you in, come back and tap below.</p>
@@ -189,7 +194,7 @@ export function VerifyScreen() {
               type="button"
               onClick={() => void me.refetch()}
               disabled={me.isFetching}
-              className="h-11 rounded-full border-[1.5px] border-border-strong bg-transparent text-sm font-semibold text-text"
+              className="h-12 rounded-full border-0 bg-text text-sm font-bold text-bg disabled:opacity-60"
             >
               {me.isFetching ? 'Checking…' : "I've been let in"}
             </button>

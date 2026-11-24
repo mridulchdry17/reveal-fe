@@ -49,7 +49,7 @@ describe('IdCardScreen', () => {
     renderRoutes(routes, '/verify/id-card')
 
     expect(
-      await screen.findByRole('heading', { name: 'Photo of your college ID' }),
+      await screen.findByRole('heading', { name: 'Snap your college ID' }),
     ).toBeInTheDocument()
     await takeBothPhotos()
     expect(screen.getByRole('heading', { name: 'One quick selfie' })).toBeInTheDocument()
@@ -65,7 +65,7 @@ describe('IdCardScreen', () => {
     signInAs(unverifiedUser)
     renderRoutes(routes, '/verify/id-card')
 
-    await screen.findByRole('heading', { name: 'Photo of your college ID' })
+    await screen.findByRole('heading', { name: 'Snap your college ID' })
     expect(screen.queryByRole('button', { name: 'Continue' })).not.toBeInTheDocument()
   })
 
