@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 import { CheckIcon, HeartIcon, LockIcon } from '@/components/icons'
 import { Sticker } from '@/components/Sticker'
 
@@ -8,10 +10,14 @@ type Props = {
   profile: PublicProfile
   /** Shows a heart on each prompt. Leave out where liking isn't possible. */
   onLikePrompt?: (promptId: string) => void
+  /** Their photo, blurred by the server, when we both have one. */
+  photoUrl?: string | null
+  /** Their guess cards, under the name. */
+  guess?: ReactNode
 }
 
 /** Someone else's profile: only what the server sent. Hidden cards arrive empty. */
-export function DropProfile({ profile, onLikePrompt }: Props) {
+export function DropProfile({ profile, onLikePrompt, photoUrl, guess }: Props) {
   const shown = [
     profile.branch && branchLine(profile.branch, profile.year),
     profile.hometown,
@@ -24,13 +30,32 @@ export function DropProfile({ profile, onLikePrompt }: Props) {
       aria-label={profile.nickname}
       className="rise flex flex-col gap-4 rounded-[28px] border border-border bg-surface p-3 pb-5 shadow-[0_18px_40px_-28px_rgb(40_20_10/0.45)]"
     >
-      <div className="relative flex h-[340px] flex-col justify-between overflow-hidden rounded-[22px] bg-night p-4 text-white">
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 flex items-center justify-center pb-16 font-display text-[180px] leading-none text-white/[0.07] italic"
-        >
-          ?
-        </span>
+      <div
+        className="relative flex h-[340px] flex-col justify-between overflow-hidden rounded-[22px] bg-night p-4 text-white select-none [-webkit-touch-callout:none]"
+        onContextMenu={photoUrl ? (event) => event.preventDefault() : undefined}
+      >
+        {photoUrl ? (
+          <>
+            <img
+              src={photoUrl}
+              alt={`${profile.nickname}'s photo, blurred`}
+              draggable={false}
+              className="pointer-events-none absolute inset-0 size-full object-cover"
+            />
+            {/* Keeps the name readable, and a long press lands here instead of on the picture. */}
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(20_17_15/0.45),rgb(20_17_15/0.1)_40%,rgb(20_17_15/0.85))]"
+            />
+          </>
+        ) : (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 flex items-center justify-center pb-16 font-display text-[180px] leading-none text-white/[0.07] italic"
+          >
+            ?
+          </span>
+        )}
         <span className="relative flex w-fit items-center gap-1.5 rounded-full border border-dashed border-white/35 px-3 py-1.5 text-[12px] font-semibold text-white/85">
           <LockIcon className="size-3.5" />
           Photo opens through swaps
@@ -48,8 +73,13 @@ export function DropProfile({ profile, onLikePrompt }: Props) {
             {profile.nickname}
           </h2>
           <p className="m-0 text-[15px] text-white/80">{profile.vibe}</p>
+          {photoUrl && (
+            <p className="m-0 text-[12px] text-white/80">Blurred on purpose. It stays this way until you match and swap.</p>
+          )}
         </div>
       </div>
+
+      {guess}
 
       <ul aria-label="Cards" className="m-0 flex list-none flex-wrap gap-1.5 px-1">
         {shown.map((value) => (

@@ -2,9 +2,13 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react'
 
 import { AlertIcon, CloseIcon, HeartIcon } from '@/components/icons'
 import { ScreenHeader } from '@/components/ScreenHeader'
+import { useObjectUrl } from '@/hooks/useObjectUrl'
 
 import type { DropItem, LikeRequest } from '../api/drops'
+import { useDropPhoto } from '../hooks/useBlurredPhoto'
+import { useDropGuessed } from '../hooks/useGuessed'
 import { useLikeItem, usePassItem, useTonight } from '../hooks/useTonight'
+import type { GuessSlot } from '../types/guessSlot'
 import { dropErrorMessage } from '../utils/errorMessage'
 import { timeLeft } from '../utils/timeLeft'
 import { DropProfile } from './DropProfile'
@@ -12,14 +16,27 @@ import { LikeSheet } from './LikeSheet'
 import { MatchMoment } from './MatchMoment'
 import { NextDrop } from './NextDrop'
 
-/** Tonight's drop: one profile at a time. Like a line or pass. */
-export function TonightScreen() {
+type Props = {
+  /** Their guess cards, composed in from the guess feature. */
+  guess?: GuessSlot
+}
+
+/** Tonight's drop: one profile at a time. Like a line or pass; guessing their cards is optional. */
+export function TonightScreen({ guess }: Props) {
   const drop = useTonight()
   const like = useLikeItem()
   const pass = usePassItem()
   const [liking, setLiking] = useState<{ item: DropItem; promptId: string } | null>(null)
   const [matched, setMatched] = useState<string | null>(null)
-  const currentId = drop.data?.items.find((item) => !item.decision)?.id
+  const currentItem = drop.data?.items.find((item) => !item.decision)
+  const currentId = currentItem?.id
+  const guessed = useDropGuessed()
+  const photo = useDropPhoto(
+    currentId,
+    currentItem?.profile.has_blurred_photo ?? false,
+    currentItem?.profile.right_guesses ?? 0,
+  )
+  const photoUrl = useObjectUrl(photo.data)
   // Each new person starts at the top, not where the last one was scrolled to.
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -109,6 +126,14 @@ export function TonightScreen() {
             key={current.id}
             profile={current.profile}
             onLikePrompt={(promptId) => setLiking({ item: current, promptId })}
+            photoUrl={current.profile.has_blurred_photo ? photoUrl : null}
+            guess={guess?.({
+              cards: current.profile.guess_cards,
+              rightGuesses: current.profile.right_guesses,
+              reward: current.profile.has_blurred_photo ? 'blur' : null,
+              onGuessed: (cardId, result) => guessed.onGuessed(current.id, cardId, result),
+              onStale: guessed.onStale,
+            })}
           />
           <div className="flex items-center justify-center gap-6 pt-1">
             <button
