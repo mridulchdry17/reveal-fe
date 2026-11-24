@@ -15,6 +15,10 @@ import { ProfileSummary } from '@/features/profile/components/ProfileSummary'
 import { ChatScreen } from '@/features/chats/components/ChatScreen'
 import { ChatsScreen } from '@/features/chats/components/ChatsScreen'
 import { GuessCards, type GuessCardsProps } from '@/features/guess/components/GuessCards'
+import { HideListScreen } from '@/features/hide/components/HideListScreen'
+import { HideSection } from '@/features/hide/components/HideSection'
+import { DropReminder } from '@/features/notifications/components/DropReminder'
+import { NotificationsCard } from '@/features/notifications/components/NotificationsCard'
 import { YouScreen } from '@/features/settings/components/YouScreen'
 import { LikesBanner } from '@/features/tonight/components/LikesBanner'
 import { LikesScreen } from '@/features/tonight/components/LikesScreen'
@@ -78,7 +82,7 @@ export const routes: RouteObject[] = [
                 element: <AppShell />,
                 children: [
                   { index: true, element: <Navigate to="tonight" replace /> },
-                  { path: 'tonight', element: <TonightScreen guess={guessCards} /> },
+                  { path: 'tonight', element: <TonightScreen guess={guessCards} reminder={<DropReminder />} /> },
                   { path: 'chats', element: <ChatsScreen likes={<LikesBanner />} /> },
                   { path: 'likes', element: <LikesScreen guess={guessCards} /> },
                   {
@@ -86,6 +90,12 @@ export const routes: RouteObject[] = [
                     element: (
                       <YouScreen
                         account={<AccountSection />}
+                        privacy={
+                          <>
+                            <NotificationsCard />
+                            <HideSection />
+                          </>
+                        }
                         profile={
                           <div className="flex flex-col gap-3">
                             <ProfileSummary />
@@ -98,6 +108,7 @@ export const routes: RouteObject[] = [
                       />
                     ),
                   },
+                  { path: 'you/hidden', element: <HideListScreen /> },
                 ],
               },
             ],
