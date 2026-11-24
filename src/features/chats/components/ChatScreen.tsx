@@ -165,7 +165,7 @@ export function ChatScreen({ guess }: Props) {
             onClick={() => setGuessOpen(true)}
             className="flex min-h-11 w-fit items-center gap-2 rounded-full border-[1.5px] border-dashed border-border-strong bg-transparent px-4 text-[13px] font-semibold text-text"
           >
-            Guess {profile.nickname}'s cards
+            Guess {profile.nickname}'s cards{' '}
             <span className="font-normal text-muted">· {unguessed} left</span>
           </button>
         )}
