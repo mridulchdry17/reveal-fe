@@ -259,6 +259,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/drops/tonight/{item_id}/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Their photo, heavily blurred; clearer with each right guess (JPEG, never cached) */
+        get: operations["blurred_photo_v1_drops_tonight__item_id__photo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/likes": {
         parameters: {
             query?: never;
@@ -304,6 +321,23 @@ export interface paths {
         put?: never;
         /** Pass. They're never told */
         post: operations["pass_like_v1_likes__like_id__pass_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/likes/{like_id}/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Their photo, heavily blurred; clearer with each right guess (JPEG, never cached) */
+        get: operations["blurred_photo_v1_likes__like_id__photo_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -514,6 +548,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/guesses/{card_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Guess one of their cards (one try) */
+        post: operations["guess_v1_guesses__card_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/profile/options": {
         parameters: {
             query?: never;
@@ -575,6 +626,23 @@ export interface paths {
         get?: never;
         /** The three prompts */
         put: operations["update_prompts_v1_profile_me_prompts_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/profile/me/guesses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** My three guess cards (replaces all three) */
+        put: operations["update_guesses_v1_profile_me_guesses_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -959,6 +1027,75 @@ export interface components {
              */
             credential: string;
         };
+        /** GuessCardIn */
+        GuessCardIn: {
+            kind: components["schemas"]["GuessKind"];
+            /** Question */
+            question: string;
+            /** Options */
+            options: string[];
+            /**
+             * Answer
+             * @description Index of the true option
+             */
+            answer: number;
+        };
+        /**
+         * GuessCardOut
+         * @description One of their guess cards, from this viewer's side.
+         */
+        GuessCardOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["GuessKind"];
+            /** Question */
+            question: string;
+            /** Options */
+            options: string[];
+            /**
+             * Picked
+             * @description My guess, or null if I haven't guessed yet
+             */
+            picked: number | null;
+            /**
+             * Answer
+             * @description The true option; null until I've guessed
+             */
+            answer: number | null;
+        };
+        /** GuessCardsUpdate */
+        GuessCardsUpdate: {
+            /** Cards */
+            cards: components["schemas"]["GuessCardIn"][];
+        };
+        /** GuessIn */
+        GuessIn: {
+            /**
+             * Pick
+             * @description Index of the option I pick
+             */
+            pick: number;
+        };
+        /**
+         * GuessKind
+         * @enum {string}
+         */
+        GuessKind: "everyday" | "hot_take" | "little_thing";
+        /** GuessResult */
+        GuessResult: {
+            /** Correct */
+            correct: boolean;
+            /**
+             * Answer
+             * @description Index of the true option
+             */
+            answer: number;
+            /** Picked */
+            picked: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -1073,6 +1210,21 @@ export interface components {
              */
             sent_at: string;
         };
+        /** MyGuessCard */
+        MyGuessCard: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["GuessKind"];
+            /** Question */
+            question: string;
+            /** Options */
+            options: string[];
+            /** Answer */
+            answer: number;
+        };
         /**
          * MyProfile
          * @description Everything the owner sees about their own profile, including locked cards.
@@ -1091,6 +1243,8 @@ export interface components {
             interests: string[];
             /** Prompts */
             prompts: components["schemas"]["PromptOut"][];
+            /** Guess Cards */
+            guess_cards: components["schemas"]["MyGuessCard"][];
             /** Branch */
             branch: string | null;
             /** Year */
@@ -1118,6 +1272,8 @@ export interface components {
             basics_done: boolean;
             /** Prompts Done */
             prompts_done: boolean;
+            /** Guesses Done */
+            guesses_done: boolean;
             /** Cards Done */
             cards_done: boolean;
             /** Preferences Done */
@@ -1157,6 +1313,19 @@ export interface components {
             nickname_suggestions: string[];
             /** Looking For */
             looking_for: components["schemas"]["Option"][];
+            /** Guess Kinds */
+            guess_kinds: components["schemas"]["Option"][];
+            /**
+             * Guess Suggestions
+             * @description A few example questions per guess kind
+             */
+            guess_suggestions: {
+                [key: string]: string[];
+            };
+            /** Guess Question Max */
+            guess_question_max: number;
+            /** Guess Option Max */
+            guess_option_max: number;
         };
         /** PromptIn */
         PromptIn: {
@@ -1225,6 +1394,18 @@ export interface components {
             shown_cards: components["schemas"]["Card"][];
             /** Hidden Cards */
             hidden_cards: components["schemas"]["Card"][];
+            /** Guess Cards */
+            guess_cards: components["schemas"]["GuessCardOut"][];
+            /**
+             * Right Guesses
+             * @description How many of their cards I've guessed right (0-3)
+             */
+            right_guesses: number;
+            /**
+             * Has Blurred Photo
+             * @description We both have a photo, so a blurred one is available before matching (GET /v1/drops/tonight/{item_id}/photo or /v1/likes/{like_id}/photo). Each right guess makes it a little clearer; refetch after one.
+             */
+            has_blurred_photo: boolean;
         };
         /**
          * ReceivedLike
@@ -1329,7 +1510,7 @@ export interface components {
             cards: components["schemas"]["CardSwap"][];
             /**
              * Photo Pieces
-             * @description Open pieces of their photo (0-8, row by row in a 3x3 grid). Empty unless both have a photo.
+             * @description Open pieces of their photo (0-8, row by row in a 3x3 grid). Empty unless both have a photo. One per card swap plus one per right guess on their cards, up to 6; all 9 after the photo swap.
              */
             photo_pieces: number[];
         };
@@ -2180,6 +2361,64 @@ export interface operations {
             };
         };
     };
+    blurred_photo_v1_drops_tonight__item_id__photo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Blurred photo */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": unknown;
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not in your drop, or no photo to show */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     received_likes_v1_likes_get: {
         parameters: {
             query?: never;
@@ -2330,6 +2569,64 @@ export interface operations {
             };
             /** @description Already answered */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    blurred_photo_v1_likes__like_id__photo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                like_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Blurred photo */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": unknown;
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such like for you, or no photo to show */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3058,6 +3355,77 @@ export interface operations {
             };
         };
     };
+    guess_v1_guesses__card_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuessIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuessResult"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such card, or not someone you can see */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Already guessed (code already_guessed) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     options_v1_profile_options_get: {
         parameters: {
             query?: never;
@@ -3177,6 +3545,57 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["PromptsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyProfile"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_guesses_v1_profile_me_guesses_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuessCardsUpdate"];
             };
         };
         responses: {
