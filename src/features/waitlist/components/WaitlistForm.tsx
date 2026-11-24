@@ -173,9 +173,9 @@ export function WaitlistForm({ onSubmit }: Props) {
 function FieldMessage({ field, error, children }: { field: Field; error?: string; children: ReactNode }) {
   if (error) return <ErrorText id={`${field}-error`}>{error}</ErrorText>
   return (
-    <p id={`${field}-hint`} className="mt-2 mb-0 min-h-5 text-[13px] leading-5 text-muted">
+    <div id={`${field}-hint`} className="mt-2 mb-0 min-h-5 text-[13px] leading-5 text-muted">
       {children}
-    </p>
+    </div>
   )
 }
 
