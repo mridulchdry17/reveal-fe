@@ -27,32 +27,43 @@ export function AppShell() {
       </main>
       <nav
         aria-label="Main"
-        className="sticky bottom-0 z-10 grid grid-cols-3 border-t border-border bg-bg/95 px-6 pt-2 pb-[max(1.25rem,env(safe-area-inset-bottom))] backdrop-blur"
+        className="sticky bottom-0 z-10 grid grid-cols-3 border-t border-border bg-bg/95 px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur"
       >
         {tabs.map((tab) => (
           <NavLink
             key={tab.to}
             to={tab.to}
             className={({ isActive }) =>
-              `flex min-h-11 flex-col items-center gap-1 py-1.5 text-[11px] ${
+              `flex min-h-11 flex-col items-center gap-1 py-1 text-[11px] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text ${
                 isActive ? 'font-bold text-text' : 'font-medium text-muted'
               }`
             }
           >
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              {tab.icon}
-            </svg>
-            {tab.label}
+            {({ isActive }) => (
+              <>
+                {/* The active tab gets a filled ink pill behind its icon: a shape change, not colour only. */}
+                <span
+                  className={`flex h-8 w-14 items-center justify-center rounded-full transition-colors duration-150 ${
+                    isActive ? 'bg-text text-bg' : ''
+                  }`}
+                >
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    {tab.icon}
+                  </svg>
+                </span>
+                {tab.label}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>

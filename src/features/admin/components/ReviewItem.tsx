@@ -25,10 +25,10 @@ export function ReviewItem({ review }: { review: Review }) {
   const error = approve.error ?? reject.error
 
   return (
-    <li className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4">
+    <li className="flex flex-col gap-4 rounded-[24px] border border-border bg-surface p-5 shadow-[0_10px_28px_rgb(40_20_10/0.06)]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="m-0 truncate font-display text-lg font-normal">{review.user.name}</p>
+          <p className="m-0 truncate font-display text-[22px] leading-tight font-normal">{review.user.name}</p>
           <p className="m-0 truncate text-sm text-muted">{review.user.email}</p>
         </div>
         <span className="shrink-0 text-xs text-muted">{timeAgo(review.submitted_at)}</span>
@@ -102,7 +102,7 @@ export function ReviewItem({ review }: { review: Review }) {
             type="button"
             onClick={() => approve.mutate(review.id)}
             disabled={busy}
-            className="h-11 flex-1 rounded-full border-0 bg-accent text-sm font-bold text-on-accent disabled:opacity-60"
+            className="h-11 flex-1 rounded-full border-0 bg-text text-sm font-bold text-bg disabled:opacity-60"
           >
             {approve.isPending ? 'Approving…' : 'Approve'}
           </button>

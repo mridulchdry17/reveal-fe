@@ -14,7 +14,7 @@ export function ActionLog({ actions }: { actions: AdminAction[] }) {
   return (
     <ul className="m-0 flex list-none flex-col gap-2 p-0">
       {actions.map((a) => (
-        <li key={a.id} className="rounded-2xl border border-border bg-surface p-3.5 text-sm">
+        <li key={a.id} className="rounded-[20px] border border-border bg-surface p-4 text-sm">
           <p className="m-0 flex justify-between gap-3">
             <span className="min-w-0 truncate">
               <span className="font-bold">{words[a.action]}</span> {a.target_email}

@@ -35,7 +35,7 @@ export function LetInForm() {
           { onSuccess: () => reset() },
         ),
       )}
-      className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4"
+      className="flex flex-col gap-4 rounded-[24px] border border-border bg-surface p-5"
     >
       <p className="m-0 text-sm leading-6 text-muted">
         They need to sign in on Reveal first. Then enter the Google email they signed in with.
@@ -68,7 +68,7 @@ export function LetInForm() {
       <button
         type="submit"
         disabled={letIn.isPending}
-        className="h-12 rounded-full border-0 bg-accent text-sm font-bold text-on-accent disabled:opacity-60"
+        className="h-[54px] rounded-full border-0 bg-accent text-sm font-bold text-on-accent disabled:opacity-60"
       >
         {letIn.isPending ? 'Letting in…' : 'Let them in'}
       </button>

@@ -14,7 +14,7 @@ const reasons: Record<AdminReport['reason'], string> = {
 export function ReportList({ reports }: { reports: AdminReport[] }) {
   if (reports.length === 0) {
     return (
-      <p className="m-0 rounded-2xl bg-surface-2 p-4 text-sm leading-6">
+      <p className="m-0 rounded-[24px] bg-surface-2 p-5 text-sm leading-6">
         No reports. When a student reports someone from a chat, it shows up here.
       </p>
     )
@@ -22,7 +22,7 @@ export function ReportList({ reports }: { reports: AdminReport[] }) {
   return (
     <ul className="m-0 flex list-none flex-col gap-2 p-0">
       {reports.map((r) => (
-        <li key={r.id} className="rounded-2xl border border-border bg-surface p-3.5 text-sm">
+        <li key={r.id} className="rounded-[20px] border border-border bg-surface p-4 text-sm">
           <p className="m-0 flex justify-between gap-3">
             <span className="font-bold">{reasons[r.reason]}</span>
             <span className="shrink-0 text-xs text-muted">{timeAgo(r.created_at)}</span>
