@@ -11,7 +11,7 @@ import { ReviewPhoto } from './ReviewPhoto'
 const reasons = [
   "Selfie doesn't match the ID",
   'ID photo is blurry or cut off',
-  "Not an ADGIPS ID card",
+  'Not an ADGIPS ID card',
   'Selfie is unclear',
 ]
 
@@ -28,7 +28,7 @@ export function ReviewItem({ review }: { review: Review }) {
     <li className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="m-0 truncate font-display text-lg font-bold">{review.user.name}</p>
+          <p className="m-0 truncate font-display text-lg font-normal">{review.user.name}</p>
           <p className="m-0 truncate text-sm text-muted">{review.user.email}</p>
         </div>
         <span className="shrink-0 text-xs text-muted">{timeAgo(review.submitted_at)}</span>

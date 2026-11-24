@@ -67,7 +67,7 @@ export function VerifyScreen() {
         />
 
         <div>
-          <h1 className="m-0 font-display text-[32px] leading-[1.05] font-extrabold tracking-[-0.03em]">
+          <h1 className="m-0 font-display text-[42px] leading-[0.98] font-normal tracking-[-0.01em]">
             Prove you're from campus
           </h1>
           <p className="mt-2.5 mb-0 text-[15px] leading-6 text-pretty text-muted">
@@ -76,7 +76,10 @@ export function VerifyScreen() {
         </div>
 
         {(idStatus === 'rejected' || idStatus === 'expired') && (
-          <p role="alert" className="m-0 flex gap-2.5 rounded-2xl bg-warn-bg p-3.5 text-sm leading-5">
+          <p
+            role="alert"
+            className="m-0 flex gap-2.5 rounded-2xl bg-warn-bg p-3.5 text-sm leading-5"
+          >
             <AlertIcon className="mt-0.5 size-4 shrink-0 text-warn" />
             <span>
               {idStatus === 'rejected'
@@ -162,7 +165,7 @@ export function VerifyScreen() {
               </p>
               <Link
                 to="/verify/id-card"
-                className="flex h-[54px] items-center justify-center rounded-2xl bg-accent text-base font-bold text-on-accent no-underline"
+                className="flex h-[54px] items-center justify-center rounded-full bg-accent text-base font-bold text-on-accent no-underline"
               >
                 Continue with ID card
               </Link>

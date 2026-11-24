@@ -16,7 +16,7 @@ export function AccountCard({ name, email, isAdmin, signingOut, onSignOut }: Pro
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="m-0 truncate font-display text-lg font-bold">{name}</p>
+          <p className="m-0 truncate font-display text-lg font-normal">{name}</p>
           <p className="m-0 truncate text-sm text-muted">{email}</p>
         </div>
         {isAdmin && (

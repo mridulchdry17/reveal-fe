@@ -34,12 +34,8 @@ export function StepLayout({ step, backTo, title, subtitle, children, submitLabe
         ))}
       </div>
       <div>
-        <h1 className="m-0 font-display text-[30px] leading-[1.05] font-extrabold tracking-[-0.03em]">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="mt-2 mb-0 text-[15px] leading-6 text-pretty text-muted">{subtitle}</p>
-        )}
+        <h1 className="m-0 font-display text-[42px] leading-[0.98] font-normal tracking-[-0.01em]">{title}</h1>
+        {subtitle && <p className="mt-2 mb-0 text-[15px] leading-6 text-pretty text-muted">{subtitle}</p>}
       </div>
       {children}
       <div className="mt-auto flex flex-col gap-3 pt-2">
@@ -52,7 +48,7 @@ export function StepLayout({ step, backTo, title, subtitle, children, submitLabe
         <button
           type="submit"
           disabled={submitting}
-          className="h-[54px] rounded-2xl border-0 bg-accent text-base font-bold text-on-accent disabled:opacity-60"
+          className="h-[54px] rounded-full border-0 bg-accent text-base font-bold text-on-accent disabled:opacity-60"
         >
           {submitting ? 'Saving…' : submitLabel}
         </button>

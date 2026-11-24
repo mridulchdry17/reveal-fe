@@ -56,7 +56,7 @@ export function SafetySheet({ nickname, pending, error, onAction, onClose }: Pro
       >
         <span aria-hidden="true" className="h-[5px] w-10 self-center rounded-full bg-border" />
         <div className="flex items-center justify-between">
-          <h2 id={titleId} className="m-0 font-display text-[22px] font-bold">
+          <h2 id={titleId} className="m-0 font-display text-[28px] leading-none font-normal">
             {title}
           </h2>
           <button
@@ -146,8 +146,7 @@ export function SafetySheet({ nickname, pending, error, onAction, onClose }: Pro
               />
             </label>
             <p className="m-0 text-[13px] leading-5 text-muted">
-              They're blocked and the chat ends for both of you. They aren't told who reported
-              them.
+              They're blocked and the chat ends for both of you. They aren't told who reported them.
             </p>
             <Actions
               confirm="Report and block"
@@ -217,7 +216,7 @@ function Actions({
       <button
         type="button"
         onClick={onBack}
-        className="h-[54px] rounded-2xl border border-border-strong bg-transparent text-[15px] font-semibold text-text"
+        className="h-[54px] rounded-full border border-border-strong bg-transparent text-[15px] font-semibold text-text"
       >
         Not yet
       </button>
@@ -225,7 +224,7 @@ function Actions({
         type={submit ? 'submit' : 'button'}
         onClick={onConfirm}
         disabled={pending || disabled}
-        className="h-[54px] rounded-2xl bg-accent text-base font-bold text-on-accent disabled:opacity-50"
+        className="h-[54px] rounded-full bg-accent text-base font-bold text-on-accent disabled:opacity-50"
       >
         {pending ? 'One moment…' : confirm}
       </button>

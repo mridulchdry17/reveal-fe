@@ -22,12 +22,12 @@ export function PendingScreen() {
           <ShieldCheckIcon className="size-[34px]" strokeWidth={1.4} />
         </span>
         <div>
-          <h1 className="m-0 font-display text-[32px] leading-[1.05] font-extrabold tracking-[-0.03em]">
+          <h1 className="m-0 font-display text-[42px] leading-[0.98] font-normal tracking-[-0.01em]">
             We're checking your ID
           </h1>
           <p className="mt-2.5 mb-0 text-[15px] leading-6 text-pretty text-muted">
-            Usually within a few hours. Open Reveal again later and you'll go straight in once
-            it's approved.
+            Usually within a few hours. Open Reveal again later and you'll go straight in once it's
+            approved.
           </p>
         </div>
 
@@ -54,8 +54,8 @@ export function PendingScreen() {
         </p>
 
         <p className="m-0 text-[13px] leading-5 text-muted">
-          If a photo is unclear, we'll ask you to take it again. Your ID and selfie are deleted
-          once we've checked them.
+          If a photo is unclear, we'll ask you to take it again. Your ID and selfie are deleted once
+          we've checked them.
         </p>
 
         <button

@@ -15,7 +15,7 @@ export function ProfileSummary() {
     >
       <div className="min-w-0">
         <p className="m-0 text-[13px] text-muted">You appear as</p>
-        <p className="m-0 truncate font-display text-xl font-bold">{profile.data.nickname}</p>
+        <p className="m-0 truncate font-display text-xl font-normal">{profile.data.nickname}</p>
       </div>
       <Link
         to={stepPath('basics')}
