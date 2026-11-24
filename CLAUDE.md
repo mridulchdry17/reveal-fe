@@ -78,12 +78,12 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 
 ## Design system
 
-- Look = **Golden hour** from the "Reveal UI Mockups" canvas, as CSS variables in `src/index.css`, mapped into Tailwind. Don't use raw hex in components.
-  - **Golden hour** (the only theme in use): chai cream bg `#F8F1E7`, milk surface `#FFFDF9`, plum ink text `#2A1E2E`, muted `#75636B`, Rani pink accent `#B8336A`, marigold locked `#9A5B00` on `#FFF0D6`, tulsi green open `#1D7558` (a shade darker than the mockup for contrast), warn `#A14A2A`.
-  - **After 9** (dark) is defined under `[data-theme='ink']` but not used: day theme only, no automatic night switch.
-  - **Daylight editorial** under `[data-theme='editorial']` is the waitlist page's look (cream `#F3ECE3`, terracotta accent `#B4532C`, plus the `forest`, `night` and `peach` panel colours). It swaps the display font to Instrument Serif. Only the waitlist sets it for now.
+- Look = **Daylight editorial** from the "Reveal app mockup" canvas, as CSS variables in `src/index.css`, mapped into Tailwind. Don't use raw hex in components.
+  - **Daylight editorial** (the app's theme): paper bg `#F3ECE3`, surface `#FBF8F3`, ink text `#1E1A16`, muted `#6B6057`, terracotta accent `#B4532C` (small text uses `accent-text` `#A14522`), marigold locked `#9A5B00` on `#FFF0D6`, forest open `#2F6B47`, warn `#A14A2A`. Brand panels: `forest` `#1F3A2D` (countdown, my chat bubbles), `night` `#14110F` (sealed photo, waitlist form), `peach` `#F7B48C` (highlights on dark panels).
+  - **Editorial night** under `[data-theme='editorial-night']` is the same look on a dark panel. Only the waitlist's sign-up panel sets it.
 - Accent is only for the one committing action on a screen (Swap, Send, Continue). Everything else is neutral.
-- Fonts: Fraunces (serif) for headings and the users' written lines; DM Sans for everything else.
+- Fonts: Instrument Serif for headings, nicknames and the users' written lines (answers in italic); DM Sans for everything else. Instrument Serif has one weight: use `font-normal` with `font-display`, never bold (the page turns off faked bold).
+- Secondary buttons inside a section are ink pills (`bg-text text-bg`); main actions are 54px pills.
 - Mobile first at 390px wide. Touch targets ≥ 44px. Text contrast ≥ 4.5:1 in both themes.
 - Words in the UI: **Shown / Hidden / Swap / Not yet**. No jargon like "face-up", "unlock", "reveal request".
 - Show, don't label: illustrate with realistic content (a real-looking line, "CSE · 2nd year", a voice pill), never abstract codes like "LINE" or "01". If a visual needs explaining, add a one-line key.
