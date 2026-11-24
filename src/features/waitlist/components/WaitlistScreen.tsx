@@ -4,7 +4,9 @@ import { CheckIcon } from '@/components/icons'
 import { env } from '@/config/env'
 
 import { useJoinWaitlist } from '../hooks/useJoinWaitlist'
+import { useOffScreen } from '../hooks/useOffScreen'
 import { GuessHero } from './GuessHero'
+import { JoinBar } from './JoinBar'
 import { JoinedCard } from './JoinedCard'
 import { WaitlistForm, type WaitlistFormValues } from './WaitlistForm'
 
@@ -61,6 +63,9 @@ export function WaitlistScreen() {
   const [searchParams] = useSearchParams()
   const source = searchParams.get('src') ?? undefined
 
+  // On phones, a "Save my spot" bar follows you once the game and the form are both off screen.
+  const showJoinBar = useOffScreen(['try', 'join']) && !join.data
+
   function submit(values: WaitlistFormValues) {
     return join.mutateAsync({ ...values, source })
   }
@@ -81,6 +86,31 @@ export function WaitlistScreen() {
       </div>
 
       <div className="mx-auto max-w-md px-5 md:max-w-5xl md:px-10">
+        <section
+          id="join"
+          data-theme="editorial-night"
+          aria-labelledby={join.data ? undefined : 'join-heading'}
+          className="-mx-2 mt-8 scroll-mt-4 rounded-[28px] bg-night px-5 pt-6 pb-6 text-text md:mx-auto md:mt-14 md:max-w-[480px] md:p-7"
+        >
+          {join.data ? (
+            <JoinedCard
+              position={join.data.position}
+              alreadyJoined={join.data.already_joined}
+              college={college}
+              origin={window.location.origin}
+            />
+          ) : (
+            <>
+              <p className="m-0 text-[11px] font-bold tracking-[0.16em] text-peach uppercase">Liked it?</p>
+              <h2 id="join-heading" className="mt-1.5 mb-0 font-display text-[44px] leading-[0.95] font-normal">
+                Claim your <em className="text-peach">spot.</em>
+              </h2>
+              <p className="mt-2 mb-6 text-sm text-muted">Takes 20 seconds. Students only.</p>
+              <WaitlistForm onSubmit={submit} />
+            </>
+          )}
+        </section>
+
         <div className="md:grid md:grid-cols-2 md:gap-16">
           <section aria-labelledby="rules-heading" className="pt-12">
             <p className="m-0 text-[11px] font-bold tracking-[0.16em] text-accent-text uppercase">The rules</p>
@@ -146,33 +176,7 @@ export function WaitlistScreen() {
           </div>
         </div>
 
-        <section
-          id="join"
-          aria-labelledby={join.data ? undefined : 'join-heading'}
-          className="mx-auto mt-14 max-w-[480px] scroll-mt-6 rounded-[30px] bg-night p-5 pt-7 text-white"
-        >
-          {join.data ? (
-            <JoinedCard
-              position={join.data.position}
-              alreadyJoined={join.data.already_joined}
-              college={college}
-              origin={window.location.origin}
-            />
-          ) : (
-            <>
-              <p className="m-0 text-[11px] font-bold tracking-[0.16em] text-peach uppercase">Waitlist</p>
-              <h2 id="join-heading" className="mt-1.5 mb-0 font-display text-[44px] leading-[0.95] font-normal">
-                Claim your <em className="text-peach">spot.</em>
-              </h2>
-              <p className="mt-2 mb-6 text-sm text-white/75">Takes 20 seconds. Students only.</p>
-              <div className="rounded-3xl bg-surface p-5 text-text">
-                <WaitlistForm onSubmit={submit} />
-              </div>
-            </>
-          )}
-        </section>
-
-        <footer className="mt-14 flex flex-col gap-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
+        <footer className="mt-14 flex flex-col gap-4 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8">
           <span
             aria-hidden="true"
             className="font-display text-[118px] leading-[0.8] tracking-[-0.03em] md:text-[200px]"
@@ -193,6 +197,8 @@ export function WaitlistScreen() {
           </div>
         </footer>
       </div>
+
+      {showJoinBar && <JoinBar />}
     </div>
   )
 }
