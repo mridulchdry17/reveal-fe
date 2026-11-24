@@ -9,7 +9,7 @@ type PublicProfile = components['schemas']['PublicProfile']
 type DropItem = components['schemas']['DropItemOut']
 type ReceivedLike = components['schemas']['ReceivedLike']
 
-/** Kabir shows his hometown and what he's looking for; name, branch, photo, contact hidden. */
+/** Kabir as everyone first sees him: what he's looking for; the rest hidden until swaps. */
 export const kabir: PublicProfile = {
   nickname: 'Sunset chaser',
   vibe: 'Night owl',
@@ -24,6 +24,8 @@ export const kabir: PublicProfile = {
   year: null,
   hometown: null,
   looking_for: 'serious',
+  voice_seconds: null,
+  contact: null,
   shown_cards: ['looking_for'],
   hidden_cards: ['first_name', 'branch', 'hometown', 'photo', 'contact'],
 }

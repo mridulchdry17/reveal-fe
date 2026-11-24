@@ -1,16 +1,20 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 
-import { AlertIcon, LockIcon, ShieldCheckIcon } from '@/components/icons'
+import { AlertIcon, ShieldCheckIcon } from '@/components/icons'
 import { ApiError } from '@/lib/api/errors'
-import { branchLine, lookingForLabels } from '@/utils/cardLabels'
 
-import type { ChatProfile } from '../api/chats'
+import type { Card } from '../api/chats'
 import { useChat, useEndChat, useMarkRead, useSendMessage, type SafetyAction } from '../hooks/useChats'
+import { useAnswerSwap, useAskSwap, useTheirPhoto, useTheirVoice } from '../hooks/useSwaps'
 import { chatErrorMessage } from '../utils/errorMessage'
 import { shortTime } from '../utils/time'
+import { CardStrip } from './CardStrip'
 import { Initial } from './ChatRow'
 import { SafetySheet } from './SafetySheet'
+import { SwapRequest } from './SwapRequest'
+import { SwapSheet } from './SwapSheet'
+import { TheirPhoto } from './TheirPhoto'
 
 const MESSAGE_MAX = 1000
 
@@ -24,7 +28,21 @@ export function ChatScreen() {
   const end = useEndChat(matchId)
   const [draft, setDraft] = useState('')
   const [safetyOpen, setSafetyOpen] = useState(false)
+  const [asking, setAsking] = useState<Card | null>(null)
+  const [photoOpen, setPhotoOpen] = useState(false)
+  const [playing, setPlaying] = useState(false)
+  const ask = useAskSwap(matchId)
+  const answer = useAnswerSwap(matchId)
   const bottom = useRef<HTMLDivElement>(null)
+  const audio = useRef<HTMLAudioElement>(null)
+
+  const board = chat.data?.swaps
+  const pieces = board?.photo_pieces ?? []
+  const voiceOpen = board?.cards.some((c) => c.card === 'voice' && c.state === 'open') ?? false
+  const photo = useTheirPhoto(matchId, pieces)
+  const voice = useTheirVoice(matchId, voiceOpen)
+  const photoUrl = useObjectUrl(photo.data)
+  const voiceUrl = useObjectUrl(voice.data)
 
   const messages = chat.data?.messages ?? []
   const last = messages.at(-1)
@@ -33,6 +51,9 @@ export function ChatScreen() {
     if (last && !last.mine) markRead()
     bottom.current?.scrollIntoView({ block: 'end' })
   }, [last, markRead])
+
+  const closeSwap = useCallback(() => setAsking(null), [])
+  const closePhoto = useCallback(() => setPhotoOpen(false), [])
 
   const closeSafety = useCallback(() => {
     setSafetyOpen(false)
@@ -59,7 +80,23 @@ export function ChatScreen() {
     )
   }
 
-  const { profile } = chat.data
+  const { profile, swaps } = chat.data
+  const request = swaps.cards.find((c) => c.state === 'they_asked')
+  const answerError = answer.isError ? chatErrorMessage(answer.error) : undefined
+  const select = (card: Card) => {
+    const state = swaps.cards.find((c) => c.card === card)?.state
+    if (state === 'open' && card === 'photo') return setPhotoOpen(true)
+    if (state === 'open' && card === 'voice') {
+      const player = audio.current
+      if (player?.paused) void player.play()
+      else player?.pause()
+      return
+    }
+    ask.reset()
+    answer.reset()
+    setAsking(card)
+  }
+  const sheetState = asking ? swaps.cards.find((c) => c.card === asking)?.state : undefined
   const submit = () => {
     const body = draft.trim()
     if (!body || send.isPending) return
@@ -81,7 +118,18 @@ export function ChatScreen() {
           >
             ←
           </Link>
-          <Initial name={profile.nickname} size="sm" />
+          {photoUrl ? (
+            <button
+              type="button"
+              aria-label={`See ${profile.nickname}'s photo`}
+              onClick={() => setPhotoOpen(true)}
+              className="size-9 shrink-0 overflow-hidden rounded-full border-0 bg-surface-2 p-0"
+            >
+              <img src={photoUrl} alt="" draggable={false} className="pointer-events-none size-full object-cover" />
+            </button>
+          ) : (
+            <Initial name={profile.nickname} size="sm" />
+          )}
           <h1 className="m-0 min-w-0 flex-1 truncate text-[17px] font-bold">{profile.nickname}</h1>
           <button
             type="button"
@@ -92,7 +140,17 @@ export function ChatScreen() {
             <ShieldCheckIcon className="size-[22px]" />
           </button>
         </div>
-        <ShownCards profile={profile} />
+        <CardStrip profile={profile} cards={swaps.cards} playing={playing} onSelect={select} />
+        {voiceUrl && (
+          <audio
+            ref={audio}
+            src={voiceUrl}
+            preload="auto"
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+            onEnded={() => setPlaying(false)}
+          />
+        )}
       </header>
 
       <ol aria-label="Messages" className="m-0 flex flex-1 list-none flex-col gap-2 px-4 py-4">
@@ -129,6 +187,20 @@ export function ChatScreen() {
         }}
         className="sticky bottom-0 flex flex-col gap-2 border-t border-border bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]"
       >
+        {request && (
+          <SwapRequest
+            card={request.card}
+            nickname={profile.nickname}
+            pending={answer.isPending}
+            onAnswer={(yes) => answer.mutate({ card: request.card, yes })}
+          />
+        )}
+        {answerError && !asking && (
+          <p role="alert" className="m-0 flex gap-2 text-sm text-accent-text">
+            <AlertIcon className="mt-0.5 size-4 shrink-0" />
+            {answerError}
+          </p>
+        )}
         {send.isError && (
           <p role="alert" className="m-0 flex gap-2 text-sm text-accent-text">
             <AlertIcon className="mt-0.5 size-4 shrink-0" />
@@ -167,6 +239,33 @@ export function ChatScreen() {
         </div>
       </form>
 
+      {asking && (sheetState === 'can_ask' || sheetState === 'they_asked') && (
+        <SwapSheet
+          card={asking}
+          nickname={profile.nickname}
+          mode={sheetState === 'they_asked' ? 'answer' : 'ask'}
+          pending={ask.isPending || answer.isPending}
+          error={
+            ask.isError ? chatErrorMessage(ask.error) : answer.isError ? chatErrorMessage(answer.error) : undefined
+          }
+          onSwap={() =>
+            sheetState === 'they_asked'
+              ? answer.mutate({ card: asking, yes: true }, { onSuccess: () => setAsking(null) })
+              : ask.mutate(asking, { onSuccess: () => setAsking(null) })
+          }
+          onNotYet={() =>
+            sheetState === 'they_asked'
+              ? answer.mutate({ card: asking, yes: false }, { onSuccess: () => setAsking(null) })
+              : setAsking(null)
+          }
+          onClose={closeSwap}
+        />
+      )}
+
+      {photoOpen && pieces.length > 0 && (
+        <TheirPhoto url={photoUrl} pieces={pieces} nickname={profile.nickname} onClose={closePhoto} />
+      )}
+
       {safetyOpen && (
         <SafetySheet
           nickname={profile.nickname}
@@ -188,26 +287,14 @@ function Shell({ children }: { children: ReactNode }) {
   )
 }
 
-/** Their shown cards, and how many are still hidden. Only what the server sent. */
-function ShownCards({ profile }: { profile: ChatProfile }) {
-  const shown = [
-    profile.branch && branchLine(profile.branch, profile.year),
-    profile.hometown,
-    profile.looking_for && lookingForLabels[profile.looking_for],
-  ].filter((value): value is string => Boolean(value))
-  return (
-    <ul aria-label="Their cards" className="m-0 flex list-none flex-wrap gap-1.5 p-0">
-      {shown.map((value) => (
-        <li key={value} className="rounded-full bg-open-bg px-2.5 py-1 text-xs text-open">
-          {value}
-        </li>
-      ))}
-      {profile.hidden_cards.length > 0 && (
-        <li className="flex items-center gap-1 rounded-full border border-dashed border-locked px-2.5 py-1 text-xs text-locked">
-          <LockIcon className="size-3" />
-          {profile.hidden_cards.length} hidden
-        </li>
-      )}
-    </ul>
+/** An object URL for a fetched file, released when it changes or the screen closes. */
+function useObjectUrl(blob: Blob | undefined) {
+  const url = useMemo(() => (blob ? URL.createObjectURL(blob) : null), [blob])
+  useEffect(
+    () => () => {
+      if (url) URL.revokeObjectURL(url)
+    },
+    [url],
   )
+  return url
 }
