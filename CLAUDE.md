@@ -29,10 +29,11 @@ src/
                 routes: `/` = public waitlist (pre-launch), `/app/*` = the app
   features/     now: waitlist (copy its shape: api → hook → screen → form/view), auth,
                      admin, profile, tonight (drop + Likes list), chats (list, chat, safety, swaps), settings,
-                     guess (guessing someone's cards; slotted into tonight and chats)
+                     guess (guessing someone's cards; slotted into tonight and chats),
+                     hide (hide list at /app/you/hidden), notifications (push switch, 9 PM nudge, install steps)
     <feature>/  api/  components/  hooks/  types/  (only what it needs)
   components/   shared UI (Button, Sheet, CardStrip, Toggle)
-  lib/          api client, query client, push, watermark-safe image
+  lib/          api client, query client, push.ts (feature detection, subscribe), pwa.ts (install prompt, standalone, iOS, in-app browsers)
   hooks/  stores/  config/  utils/  testing/
   sw.ts         service worker
 ```
@@ -97,6 +98,9 @@ The frontend's version of MVCS. Calls go one way only: **component → hook → 
 - Detect in-app browsers (Instagram, WhatsApp) and show "Open in browser" before anything else.
 - Feature-detect (`'PushManager' in window`), never sniff user agents for push.
 - The service worker is only active in `pnpm build && pnpm preview`; test push and offline there.
+- `notifications/hooks/usePush` reduces everything to one `PushState` (disabled when the server has no VAPID key, unavailable, install, denied, off, on). The You tab's `NotificationsCard` and Tonight's `DropReminder` (once caught up, dismissible) render from it. An existing subscription is re-sent once per visit so a shared phone follows whoever is signed in.
+- Push payloads come from the server as `{title, body, url, tag}`; `sw.ts` shows them with the tag (one per chat) and focuses an open window on tap.
+- Hide list (`features/hide`): phone, email or Instagram, plus the Contact Picker where the browser has one (Android Chrome). The list shows only the server's masked hints.
 
 ## Conventions
 
