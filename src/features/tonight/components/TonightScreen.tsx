@@ -19,10 +19,12 @@ import { NextDrop } from './NextDrop'
 type Props = {
   /** Their guess cards, composed in from the guess feature. */
   guess?: GuessSlot
+  /** Shown once they're caught up: the notifications nudge, from its feature. */
+  reminder?: ReactNode
 }
 
 /** Tonight's drop: one profile at a time. Like a line or pass; guessing their cards is optional. */
-export function TonightScreen({ guess }: Props) {
+export function TonightScreen({ guess, reminder }: Props) {
   const drop = useTonight()
   const like = useLikeItem()
   const pass = usePassItem()
@@ -165,15 +167,18 @@ export function TonightScreen({ guess }: Props) {
           </p>
         </>
       ) : (
-        <NextDrop
-          nextDropAt={next_drop_at}
-          heading={items.length > 0 ? "That's everyone for tonight" : 'No one new right now'}
-          body={
-            items.length > 0
-              ? `${next}. People who like you show up in Chats.`
-              : 'Your drop fills up as more of your college finishes their profiles. Check back later, or bring your friends in.'
-          }
-        />
+        <>
+          <NextDrop
+            nextDropAt={next_drop_at}
+            heading={items.length > 0 ? "That's everyone for tonight" : 'No one new right now'}
+            body={
+              items.length > 0
+                ? `${next}. People who like you show up in Chats.`
+                : 'Your drop fills up as more of your college finishes their profiles. Check back later, or bring your friends in.'
+            }
+          />
+          {reminder}
+        </>
       )}
 
       {liking && (

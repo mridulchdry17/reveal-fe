@@ -16,9 +16,11 @@ type Props = {
   account?: ReactNode
   /** The profile summary, composed in from the profile feature. */
   profile?: ReactNode
+  /** Notifications and the hide list, composed in from their features. */
+  privacy?: ReactNode
 }
 
-export function YouScreen({ account, profile }: Props) {
+export function YouScreen({ account, profile, privacy }: Props) {
   const status = useServerStatus()
 
   return (
@@ -31,6 +33,13 @@ export function YouScreen({ account, profile }: Props) {
         subtitle="Make it sound like you. Your photo, voice and contact stay Hidden until you swap."
       />
       {profile && <div className="mt-3">{profile}</div>}
+
+      {privacy && (
+        <div className="mt-8 flex flex-col gap-3">
+          <p className="m-0 text-[11px] font-bold tracking-[0.16em] text-muted uppercase">Pings and privacy</p>
+          {privacy}
+        </div>
+      )}
 
       <div className="mt-8 flex flex-col gap-3">
         <p className="m-0 text-[11px] font-bold tracking-[0.16em] text-muted uppercase">The boring bits</p>
