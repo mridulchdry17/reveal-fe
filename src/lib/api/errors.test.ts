@@ -22,6 +22,20 @@ describe('toApiError', () => {
     expect(error.fieldErrors).toEqual({ enrollment_number: 'Enter your enrollment number' })
   })
 
+  it('keeps the full path of errors inside lists', () => {
+    const error = toApiError(422, {
+      detail: [
+        { loc: ['body', 'cards', 1, 'options', 2], msg: 'String should have at most 40 characters', type: 'x' },
+        { loc: ['body', 'cards', 0, 'options'], msg: 'Value error, Give three different options', type: 'x' },
+      ],
+    })
+
+    expect(error.fieldPaths).toEqual({
+      'cards.1.options.2': 'String should have at most 40 characters',
+      'cards.0.options': 'Give three different options',
+    })
+  })
+
   it('falls back to a generic error for unexpected bodies', () => {
     const error = toApiError(500, 'Internal Server Error')
 
