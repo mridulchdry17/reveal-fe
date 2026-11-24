@@ -429,6 +429,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/chats/{match_id}/swaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ask to swap a card (says yes if they already asked for it) */
+        post: operations["propose_v1_chats__match_id__swaps_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/chats/{match_id}/swaps/{card}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Swap: open this card for both of us */
+        post: operations["accept_v1_chats__match_id__swaps__card__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/chats/{match_id}/swaps/{card}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Not yet: nothing opens */
+        post: operations["decline_v1_chats__match_id__swaps__card__decline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/chats/{match_id}/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Their photo: only the open pieces, marked for me (JPEG, never cached) */
+        get: operations["their_photo_v1_chats__match_id__photo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/chats/{match_id}/voice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Their voice note, after we've swapped voice notes (never cached) */
+        get: operations["their_voice_v1_chats__match_id__voice_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/profile/options": {
         parameters: {
             query?: never;
@@ -742,6 +827,17 @@ export interface components {
          * @enum {string}
          */
         Card: "first_name" | "branch" | "hometown" | "looking_for" | "voice" | "photo" | "contact";
+        /**
+         * CardState
+         * @description One card of theirs, from where I stand.
+         * @enum {string}
+         */
+        CardState: "open" | "they_asked" | "you_asked" | "can_ask" | "locked" | "needs_yours" | "needs_theirs";
+        /** CardSwap */
+        CardSwap: {
+            card: components["schemas"]["Card"];
+            state: components["schemas"]["CardState"];
+        };
         /** CardsUpdate */
         CardsUpdate: {
             /** Branch */
@@ -796,6 +892,7 @@ export interface components {
              * @description Oldest first, up to the latest 200
              */
             messages: components["schemas"]["MessageOut"][];
+            swaps: components["schemas"]["SwapBoard"];
         };
         /**
          * CollegeEmailRequest
@@ -1085,12 +1182,16 @@ export interface components {
             /** Prompts */
             prompts: components["schemas"]["PromptIn"][];
         };
+        /** ProposeSwap */
+        ProposeSwap: {
+            card: components["schemas"]["Card"];
+        };
         /**
          * PublicProfile
          * @description Another student's profile as one viewer may see it.
          *
          *     Built only by profiles.service.public_profiles. A hidden card's value is null here,
-         *     never sent and hidden by the app.
+         *     never sent and hidden by the app. Cards open per pair through swaps.
          */
         PublicProfile: {
             /** Nickname */
@@ -1113,6 +1214,13 @@ export interface components {
             /** Hometown */
             hometown: string | null;
             looking_for: components["schemas"]["LookingFor"] | null;
+            /**
+             * Voice Seconds
+             * @description Set once the pair has swapped voice notes
+             */
+            voice_seconds: number | null;
+            /** @description Set once the pair has swapped contact cards */
+            contact: components["schemas"]["Contact"] | null;
             /** Shown Cards */
             shown_cards: components["schemas"]["Card"][];
             /** Hidden Cards */
@@ -1208,6 +1316,22 @@ export interface components {
              */
             token: string;
             user: components["schemas"]["Me"];
+        };
+        /**
+         * SwapBoard
+         * @description Where every swap stands in one match, from the viewer's side.
+         */
+        SwapBoard: {
+            /**
+             * Cards
+             * @description In card order. Voice is listed only when both have a voice note.
+             */
+            cards: components["schemas"]["CardSwap"][];
+            /**
+             * Photo Pieces
+             * @description Open pieces of their photo (0-8, row by row in a 3x3 grid). Empty unless both have a photo.
+             */
+            photo_pieces: number[];
         };
         /** Tonight */
         Tonight: {
@@ -2591,6 +2715,330 @@ export interface operations {
                 };
             };
             /** @description No such live match */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    propose_v1_chats__match_id__swaps_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposeSwap"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SwapBoard"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such live match, or no request to answer */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description That card can't be swapped right now */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    accept_v1_chats__match_id__swaps__card__accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: string;
+                card: components["schemas"]["Card"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SwapBoard"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such live match, or no request to answer */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description That card can't be swapped right now */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    decline_v1_chats__match_id__swaps__card__decline_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: string;
+                card: components["schemas"]["Card"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SwapBoard"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such live match, or no request to answer */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description That card can't be swapped right now */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    their_photo_v1_chats__match_id__photo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Photo */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": unknown;
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such live match, or nothing open yet */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    their_voice_v1_chats__match_id__voice_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Recording */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "audio/webm": unknown;
+                    "audio/mp4": unknown;
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such live match, or nothing open yet */
             404: {
                 headers: {
                     [name: string]: unknown;
