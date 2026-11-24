@@ -14,7 +14,7 @@ clientsClaim()
 cleanupOutdatedCaches()
 precacheAndRoute(self.__WB_MANIFEST)
 
-type PushPayload = { title?: string; body?: string; url?: string }
+type PushPayload = { title?: string; body?: string; url?: string; tag?: string }
 
 // The server only ever sends generic copy: never names, message text or photos.
 self.addEventListener('push', (event) => {
@@ -23,13 +23,27 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(data.title ?? 'Cards', {
       body: data.body ?? '',
       icon: '/icon.svg',
-      data: { url: data.url ?? '/' },
+      // Same tag replaces the last one: a chat shows one notification, not one per message.
+      tag: data.tag,
+      data: { url: data.url ?? '/app' },
     }),
   )
 })
 
+// Open the app where the notification points, reusing a window that's already open.
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
   const { url } = event.notification.data as { url: string }
-  event.waitUntil(self.clients.openWindow(url))
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      const open = windows.find((client) => new URL(client.url).origin === self.location.origin)
+      if (open) {
+        await open.focus()
+        await open.navigate(url)
+        return
+      }
+      await self.clients.openWindow(url)
+    })(),
+  )
 })
