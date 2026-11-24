@@ -66,13 +66,16 @@ export function ChatScreen() {
     return (
       <Shell>
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-          <h1 className="m-0 font-display text-2xl font-normal">
+          <h1 className="m-0 font-display text-[36px] leading-none font-normal">
             {ended ? 'This chat has ended' : "Couldn't open this chat"}
           </h1>
           <p className="m-0 text-sm text-muted">
             {ended ? 'It closed for both of you.' : chatErrorMessage(chat.error)}
           </p>
-          <Link to="/app/chats" className="mt-2 font-semibold text-text">
+          <Link
+            to="/app/chats"
+            className="mt-2 inline-flex h-11 items-center rounded-full bg-text px-5 text-sm font-bold text-bg no-underline"
+          >
             Back to Chats
           </Link>
         </div>
@@ -109,7 +112,7 @@ export function ChatScreen() {
 
   return (
     <Shell>
-      <header className="sticky top-0 z-10 flex flex-col gap-2.5 border-b border-border bg-bg px-4 pt-3 pb-3">
+      <header className="sticky top-0 z-10 flex flex-col gap-3 border-b border-border bg-bg/95 px-4 pt-3 pb-3 backdrop-blur">
         <div className="flex items-center gap-2.5">
           <Link
             to="/app/chats"
@@ -123,21 +126,22 @@ export function ChatScreen() {
               type="button"
               aria-label={`See ${profile.nickname}'s photo`}
               onClick={() => setPhotoOpen(true)}
-              className="size-9 shrink-0 overflow-hidden rounded-full border-0 bg-surface-2 p-0"
+              className="size-10 shrink-0 overflow-hidden rounded-full border-[1.5px] border-text bg-surface-2 p-0"
             >
               <img src={photoUrl} alt="" draggable={false} className="pointer-events-none size-full object-cover" />
             </button>
           ) : (
             <Initial name={profile.nickname} size="sm" />
           )}
-          <h1 className="m-0 min-w-0 flex-1 truncate font-display text-[24px] leading-none font-normal">
-            {profile.nickname}
-          </h1>
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <h1 className="m-0 truncate font-display text-[26px] leading-none font-normal">{profile.nickname}</h1>
+            <p className="m-0 truncate text-xs text-muted">{profile.vibe}</p>
+          </div>
           <button
             type="button"
             aria-label="Report, block or unmatch"
             onClick={() => setSafetyOpen(true)}
-            className="-mr-2 flex size-11 items-center justify-center bg-transparent text-muted"
+            className="flex size-11 shrink-0 items-center justify-center rounded-full border-[1.5px] border-border-strong bg-surface text-text"
           >
             <ShieldCheckIcon className="size-[22px]" />
           </button>
@@ -157,8 +161,13 @@ export function ChatScreen() {
 
       <ol aria-label="Messages" className="m-0 flex flex-1 list-none flex-col gap-2 px-4 py-4">
         {messages.length === 0 && (
-          <li className="m-auto max-w-[260px] text-center text-sm leading-6 text-muted">
-            You matched with {profile.nickname}. Either of you can say hi first.
+          <li className="m-auto flex max-w-[280px] flex-col items-center gap-2 text-center">
+            <span className="font-display text-[34px] leading-[0.95]">
+              Pehle baat, <em className="text-accent-text">phir photo.</em>
+            </span>
+            <span className="text-sm leading-6 text-muted">
+              You matched with {profile.nickname}. Either of you can say hi first.
+            </span>
           </li>
         )}
         {messages.map((m) => (
@@ -168,10 +177,10 @@ export function ChatScreen() {
           >
             <span className="sr-only">{m.mine ? 'You' : profile.nickname}:</span>
             <span
-              className={`rounded-[18px] px-3.5 py-2.5 text-[15px] leading-snug break-words whitespace-pre-wrap ${
+              className={`rounded-[20px] px-4 py-2.5 text-[15px] leading-snug break-words whitespace-pre-wrap ${
                 m.mine
                   ? 'rounded-br-md bg-forest text-white'
-                  : 'rounded-bl-md border border-border bg-surface text-text'
+                  : 'rounded-bl-md border border-border bg-surface text-text shadow-[0_8px_20px_-16px_rgb(40_20_10/0.5)]'
               }`}
             >
               {m.body}
@@ -218,7 +227,7 @@ export function ChatScreen() {
             rows={1}
             maxLength={MESSAGE_MAX}
             value={draft}
-            placeholder="Message"
+            placeholder="Say something real"
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) {
@@ -226,13 +235,13 @@ export function ChatScreen() {
                 submit()
               }
             }}
-            className="max-h-32 min-h-11 flex-1 resize-none rounded-[22px] border-[1.5px] border-field bg-surface px-4 py-2.5 text-base text-text focus:border-accent focus:outline-none"
+            className="max-h-32 min-h-12 flex-1 resize-none rounded-[24px] border-[1.5px] border-field bg-surface px-4 py-3 text-base text-text placeholder:text-muted focus:border-accent focus:outline-none"
           />
           <button
             type="submit"
             aria-label="Send"
             disabled={!draft.trim() || send.isPending}
-            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent disabled:opacity-40"
+            className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent transition-transform duration-150 active:scale-90 disabled:opacity-40"
           >
             <svg
               viewBox="0 0 16 16"
