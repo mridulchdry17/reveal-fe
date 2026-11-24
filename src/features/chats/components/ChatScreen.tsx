@@ -66,7 +66,7 @@ export function ChatScreen() {
     return (
       <Shell>
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-          <h1 className="m-0 font-display text-2xl font-bold">
+          <h1 className="m-0 font-display text-2xl font-normal">
             {ended ? 'This chat has ended' : "Couldn't open this chat"}
           </h1>
           <p className="m-0 text-sm text-muted">
@@ -130,7 +130,9 @@ export function ChatScreen() {
           ) : (
             <Initial name={profile.nickname} size="sm" />
           )}
-          <h1 className="m-0 min-w-0 flex-1 truncate text-[17px] font-bold">{profile.nickname}</h1>
+          <h1 className="m-0 min-w-0 flex-1 truncate font-display text-[24px] leading-none font-normal">
+            {profile.nickname}
+          </h1>
           <button
             type="button"
             aria-label="Report, block or unmatch"
@@ -168,7 +170,7 @@ export function ChatScreen() {
             <span
               className={`rounded-[18px] px-3.5 py-2.5 text-[15px] leading-snug break-words whitespace-pre-wrap ${
                 m.mine
-                  ? 'rounded-br-md bg-accent text-on-accent'
+                  ? 'rounded-br-md bg-forest text-white'
                   : 'rounded-bl-md border border-border bg-surface text-text'
               }`}
             >
@@ -232,7 +234,16 @@ export function ChatScreen() {
             disabled={!draft.trim() || send.isPending}
             className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent disabled:opacity-40"
           >
-            <svg viewBox="0 0 16 16" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 16 16"
+              className="size-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M2.5 8h10M8.5 4l4 4-4 4" />
             </svg>
           </button>
