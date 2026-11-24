@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 
 import { AlertIcon, ShieldCheckIcon } from '@/components/icons'
+import { useObjectUrl } from '@/hooks/useObjectUrl'
 import { ApiError } from '@/lib/api/errors'
 
 import type { Card } from '../api/chats'
@@ -305,16 +306,4 @@ function Shell({ children }: { children: ReactNode }) {
       <div className="mx-auto flex min-h-dvh max-w-md flex-col">{children}</div>
     </div>
   )
-}
-
-/** An object URL for a fetched file, released when it changes or the screen closes. */
-function useObjectUrl(blob: Blob | undefined) {
-  const url = useMemo(() => (blob ? URL.createObjectURL(blob) : null), [blob])
-  useEffect(
-    () => () => {
-      if (url) URL.revokeObjectURL(url)
-    },
-    [url],
-  )
-  return url
 }
