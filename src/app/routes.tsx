@@ -1,17 +1,19 @@
 import { Navigate, type RouteObject } from 'react-router'
 
 import { AdminScreen } from '@/features/admin/components/AdminScreen'
+import { BlockedListScreen } from '@/features/blocks/components/BlockedListScreen'
+import { BlockedRow } from '@/features/blocks/components/BlockedRow'
 import { AccountSection } from '@/features/auth/components/AccountSection'
 import { SignInScreen } from '@/features/auth/components/SignInScreen'
 import { IdCardScreen } from '@/features/auth/components/IdCardScreen'
 import { PendingScreen } from '@/features/auth/components/PendingScreen'
 import { VerifyScreen } from '@/features/auth/components/VerifyScreen'
-import { ContactSection } from '@/features/profile/components/ContactSection'
+import { CardEditorScreen } from '@/features/profile/components/CardEditorScreen'
 import { GuessCardsSection } from '@/features/profile/components/GuessCardsSection'
-import { VoiceSection } from '@/features/profile/components/VoiceSection'
-import { PhotoSection } from '@/features/profile/components/PhotoSection'
+import { ProfilePreviewScreen } from '@/features/profile/components/ProfilePreviewScreen'
 import { ProfileSetupScreen } from '@/features/profile/components/ProfileSetupScreen'
-import { ProfileSummary } from '@/features/profile/components/ProfileSummary'
+import { SwapCardsSection } from '@/features/profile/components/SwapCardsSection'
+import { YouHeader } from '@/features/profile/components/YouHeader'
 import { ChatScreen } from '@/features/chats/components/ChatScreen'
 import { ChatsScreen } from '@/features/chats/components/ChatsScreen'
 import { GuessCards, type GuessCardsProps } from '@/features/guess/components/GuessCards'
@@ -89,26 +91,28 @@ export const routes: RouteObject[] = [
                     path: 'you',
                     element: (
                       <YouScreen
-                        account={<AccountSection />}
-                        privacy={
+                        profile={
                           <>
-                            <NotificationsCard />
-                            <HideSection />
+                            <YouHeader />
+                            <GuessCardsSection />
+                            <SwapCardsSection />
                           </>
                         }
-                        profile={
-                          <div className="flex flex-col gap-3">
-                            <ProfileSummary />
-                            <GuessCardsSection />
-                            <PhotoSection />
-                            <VoiceSection />
-                            <ContactSection />
-                          </div>
+                        notifications={<NotificationsCard />}
+                        settings={
+                          <>
+                            <HideSection />
+                            <BlockedRow />
+                            <AccountSection />
+                          </>
                         }
                       />
                     ),
                   },
                   { path: 'you/hidden', element: <HideListScreen /> },
+                  { path: 'you/blocked', element: <BlockedListScreen /> },
+                  { path: 'you/preview', element: <ProfilePreviewScreen /> },
+                  { path: 'you/cards/:card', element: <CardEditorScreen /> },
                 ],
               },
             ],

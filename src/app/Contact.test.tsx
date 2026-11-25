@@ -12,13 +12,8 @@ import { routes } from './routes'
 
 const url = `${env.VITE_API_URL}/v1/profile/me/contact`
 
-function quietHealth() {
-  server.use(http.get(`${env.VITE_API_URL}/health`, () => HttpResponse.json({ status: 'ok', database: 'ok' })))
-}
-
 describe('Contact card in the You tab', () => {
   it('saves an Instagram handle and shows it back', async () => {
-    quietHealth()
     signInAs()
     let sent: unknown
     server.use(
@@ -27,7 +22,7 @@ describe('Contact card in the You tab', () => {
         return HttpResponse.json({ ...completeProfile, contact: { kind: 'instagram', value: 'aanya.reads' } })
       }),
     )
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/contact')
 
     const card = await screen.findByRole('region', { name: 'Your last card' })
     await userEvent.type(within(card).getByLabelText('Instagram username'), '@Aanya.Reads')
@@ -38,7 +33,6 @@ describe('Contact card in the You tab', () => {
   })
 
   it('shows the server error under the field', async () => {
-    quietHealth()
     signInAs()
     server.use(
       http.put(url, () =>
@@ -48,7 +42,7 @@ describe('Contact card in the You tab', () => {
         ),
       ),
     )
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/contact')
 
     const card = await screen.findByRole('region', { name: 'Your last card' })
     await userEvent.click(within(card).getByRole('radio', { name: 'Phone' }))
@@ -60,10 +54,9 @@ describe('Contact card in the You tab', () => {
   })
 
   it('removes a saved number', async () => {
-    quietHealth()
     signInAs(undefined, undefined, { ...completeProfile, contact: { kind: 'phone', value: '9876543210' } })
     server.use(http.delete(url, () => HttpResponse.json({ ...completeProfile, contact: null })))
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/contact')
 
     const card = await screen.findByRole('region', { name: 'Your last card' })
     expect(within(card).getByText('+91 98765 43210')).toBeInTheDocument()

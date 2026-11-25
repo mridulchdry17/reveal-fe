@@ -13,10 +13,6 @@ import { routes } from './routes'
 const url = `${env.VITE_API_URL}/v1/profile/me/photo`
 const photoFile = new File(['fake-jpeg'], 'me.jpg', { type: 'image/jpeg' })
 
-function quietHealth() {
-  server.use(http.get(`${env.VITE_API_URL}/health`, () => HttpResponse.json({ status: 'ok', database: 'ok' })))
-}
-
 function servePhoto() {
   server.use(
     http.get(url, () => new HttpResponse(new Blob(['jpeg']), { headers: { 'Content-Type': 'image/jpeg' } })),
@@ -31,7 +27,6 @@ function fileInput(): HTMLInputElement {
 
 describe('Photo card in the You tab', () => {
   it('uploads a photo and shows it back', async () => {
-    quietHealth()
     signInAs()
     servePhoto()
     let sent = ''
@@ -41,7 +36,7 @@ describe('Photo card in the You tab', () => {
         return HttpResponse.json({ ...completeProfile, has_photo: true })
       }),
     )
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/photo')
 
     const card = await screen.findByRole('region', { name: 'Your photo' })
     expect(within(card).getByRole('button', { name: 'Add a photo' })).toBeInTheDocument()
@@ -53,14 +48,13 @@ describe('Photo card in the You tab', () => {
   })
 
   it('says when the photo is too large', async () => {
-    quietHealth()
     signInAs()
     server.use(
       http.put(url, () =>
         HttpResponse.json({ code: 'photo_too_large', detail: 'That photo is too large' }, { status: 413 }),
       ),
     )
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/photo')
 
     await screen.findByRole('region', { name: 'Your photo' })
     await userEvent.upload(fileInput(), photoFile)
@@ -69,11 +63,10 @@ describe('Photo card in the You tab', () => {
   })
 
   it('removes the photo', async () => {
-    quietHealth()
     signInAs(undefined, undefined, { ...completeProfile, has_photo: true })
     servePhoto()
     server.use(http.delete(url, () => HttpResponse.json({ ...completeProfile, has_photo: false })))
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/photo')
 
     const card = await screen.findByRole('region', { name: 'Your photo' })
     expect(await within(card).findByRole('img', { name: 'Your photo' })).toBeInTheDocument()

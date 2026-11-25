@@ -57,10 +57,7 @@ const options = {
 }
 
 function withOptions() {
-  server.use(
-    http.get(`${api}/options`, () => HttpResponse.json(options)),
-    http.get(`${env.VITE_API_URL}/health`, () => HttpResponse.json({ status: 'ok', database: 'ok' })),
-  )
+  server.use(http.get(`${api}/options`, () => HttpResponse.json(options)))
 }
 
 describe('profile setup', () => {
@@ -390,7 +387,9 @@ describe('profile setup', () => {
 
     const list = await screen.findByRole('list', { name: 'Your guess cards' })
     const card = within(list).getByText('Pineapple on pizza?').closest('li')
-    expect(card).toHaveTextContent('Only at 2am · True')
+    expect(card).toHaveTextContent('02 · Hot take')
+    // Question only: the answer isn't repeated on the You tab.
+    expect(card).not.toHaveTextContent('Only at 2am')
     await userEvent.click(screen.getByRole('link', { name: 'Edit guess cards' }))
 
     expect(await screen.findByRole('heading', { name: 'Make them guess you.' })).toBeInTheDocument()

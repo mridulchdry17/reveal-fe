@@ -50,7 +50,6 @@ describe('signed-in app', () => {
     signInAs()
     let signedOutWith = ''
     server.use(
-      http.get(`${api}/health`, () => HttpResponse.json({ status: 'ok', database: 'ok' })),
       http.post(`${api}/v1/auth/sign-out`, ({ request }) => {
         signedOutWith = request.headers.get('Authorization') ?? ''
         return new HttpResponse(null, { status: 204 })
@@ -75,7 +74,6 @@ describe('signed-in app', () => {
       verified: true,
       verified_via: 'college_email',
     })
-    server.use(http.get(`${api}/health`, () => HttpResponse.json({ status: 'ok', database: 'ok' })))
     renderRoutes(routes, '/app/you')
 
     expect(await screen.findByText('Admin')).toBeInTheDocument()
