@@ -2,7 +2,7 @@ import { useMe } from '../hooks/useMe'
 import { useSignOut } from '../hooks/useSignOut'
 import { AccountCard } from './AccountCard'
 
-/** The signed-in account with a sign-out button. Rendered inside the You tab. */
+/** The signed-in account with a sign-out row. Rendered in the You tab's settings list. */
 export function AccountSection() {
   const me = useMe()
   const signOut = useSignOut()
