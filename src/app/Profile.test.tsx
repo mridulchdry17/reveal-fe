@@ -159,48 +159,79 @@ describe('profile setup', () => {
     expect(screen.getByText('Step 4 of 7')).toBeInTheDocument()
   })
 
-  it('saves three guess cards, then moves to the cards', async () => {
+  it('writes the guess cards one at a time and saves all three once, from the last', async () => {
     withOptions()
     signInAs(undefined, none, { ...empty, basics_done: true, prompts_done: true })
-    let sent: unknown = null
+    const sent: unknown[] = []
     server.use(
       http.put(`${api}/me/guesses`, async ({ request }) => {
-        sent = await request.json()
+        sent.push(await request.json())
         return HttpResponse.json({ ...empty, basics_done: true, prompts_done: true, guesses_done: true })
       }),
     )
     renderRoutes(routes, '/profile/setup/guesses')
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Chai or coffee?' }))
     const answers = [
       ['Chai', 'Coffee', 'Neither'],
       ['Yes', 'Never', 'Only at 2am'],
       ['Friends', 'Panchayat', 'The Office'],
     ]
-    await userEvent.type(screen.getByLabelText('Question 2'), 'Pineapple on pizza?')
-    await userEvent.type(screen.getByLabelText('Question 3'), 'My comfort show')
-    for (const [i, options] of answers.entries()) {
-      for (const [j, option] of options.entries()) {
-        await userEvent.type(screen.getByLabelText(`Answer ${j + 1} to question ${i + 1}`), option)
+    const truths = [0, 2, 1]
+    const fill = async (i: number, question: string | null) => {
+      if (question) await userEvent.type(screen.getByLabelText(`Question ${i + 1}`), question)
+      for (const [j, option] of (answers[i] ?? []).entries()) {
+        await userEvent.type(screen.getByLabelText(`Answer ${'ABC'[j]}`), option)
       }
+      const row = within(screen.getByRole('group', { name: `Option ${'ABC'[truths[i] ?? 0]}` }))
+      await userEvent.click(row.getByRole('radio', { name: 'Mark true' }))
+      expect(row.getByRole('radio', { name: 'True' })).toBeChecked()
     }
-    const marks = (i: number) => within(screen.getByRole('group', { name: `Answers to question ${i}` }))
-    await userEvent.click(marks(1).getByRole('radio', { name: 'Answer 1 is true' }))
-    await userEvent.click(marks(2).getByRole('radio', { name: 'Answer 3 is true' }))
-    await userEvent.click(marks(3).getByRole('radio', { name: 'Answer 2 is true' }))
+
+    expect(await screen.findByText('01 · Everyday')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Chai or coffee?' }))
+    await fill(0, null)
+    await userEvent.click(screen.getByRole('button', { name: 'Next card' }))
+
+    expect(await screen.findByText('02 · Hot take')).toBeInTheDocument()
+    expect(screen.getByRole('listitem', { current: 'step' })).toHaveTextContent('Hot take')
+    expect(screen.queryByLabelText('Question 1')).not.toBeInTheDocument()
+    await fill(1, 'Pineapple on pizza?')
+    await userEvent.click(screen.getByRole('button', { name: 'Next card' }))
+
+    expect(await screen.findByText('03 · Little thing')).toBeInTheDocument()
+    await fill(2, 'My comfort show')
+    expect(sent).toHaveLength(0)
     await userEvent.click(screen.getByRole('button', { name: 'Next' }))
 
     expect(await screen.findByRole('heading', { name: 'Your 7 cards' })).toBeInTheDocument()
-    expect(sent).toEqual({
-      cards: [
-        { kind: 'everyday', question: 'Chai or coffee?', options: answers[0], answer: 0 },
-        { kind: 'hot_take', question: 'Pineapple on pizza?', options: answers[1], answer: 2 },
-        { kind: 'little_thing', question: 'My comfort show', options: answers[2], answer: 1 },
-      ],
-    })
+    expect(sent).toEqual([
+      {
+        cards: [
+          { kind: 'everyday', question: 'Chai or coffee?', options: answers[0], answer: 0 },
+          { kind: 'hot_take', question: 'Pineapple on pizza?', options: answers[1], answer: 2 },
+          { kind: 'little_thing', question: 'My comfort show', options: answers[2], answer: 1 },
+        ],
+      },
+    ])
   })
 
-  it('asks for a true answer on each guess card before saving', async () => {
+  it('keeps earlier cards when going back a card', async () => {
+    withOptions()
+    signInAs(undefined, none, { ...completeProfile, guesses_done: false })
+    renderRoutes(routes, '/profile/setup/guesses')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Next card' }))
+    expect(await screen.findByLabelText('Question 2')).toHaveValue('Pineapple on pizza?')
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }))
+
+    expect(await screen.findByLabelText('Question 1')).toHaveValue('Chai or coffee?')
+    expect(screen.getByLabelText('Answer A')).toHaveValue('Chai')
+    expect(
+      within(screen.getByRole('group', { name: 'Option A' })).getByRole('radio', { name: 'True' }),
+    ).toBeChecked()
+  })
+
+  it('stays on a card until it is filled in', async () => {
     withOptions()
     signInAs(undefined, none, { ...completeProfile, guesses_done: false })
     let saved = false
@@ -212,15 +243,15 @@ describe('profile setup', () => {
     )
     renderRoutes(routes, '/profile/setup/guesses')
 
-    const group = within(await screen.findByRole('group', { name: 'Answers to question 2' }))
-    await userEvent.clear(group.getByLabelText('Answer 3 to question 2'))
-    await userEvent.click(screen.getByRole('button', { name: 'Next' }))
+    await userEvent.clear(await screen.findByLabelText('Answer C'))
+    await userEvent.click(screen.getByRole('button', { name: 'Next card' }))
 
-    expect(await group.findByText('Fill this one in.')).toBeInTheDocument()
+    expect(await screen.findByText('Fill this one in.')).toBeInTheDocument()
+    expect(screen.getByText('01 · Everyday')).toBeInTheDocument()
     expect(saved).toBe(false)
   })
 
-  it("puts the server's reason under the answer it's about", async () => {
+  it("shows the card the server's reason is about, under the answer", async () => {
     withOptions()
     signInAs(undefined, none, { ...completeProfile, guesses_done: false })
     server.use(
@@ -229,7 +260,7 @@ describe('profile setup', () => {
           {
             detail: [
               {
-                loc: ['body', 'cards', 2, 'options', 0],
+                loc: ['body', 'cards', 0, 'options', 0],
                 msg: 'Value error, No numbers, handles or links here. Those go on your last card.',
               },
             ],
@@ -240,10 +271,13 @@ describe('profile setup', () => {
     )
     renderRoutes(routes, '/profile/setup/guesses')
 
+    await userEvent.click(await screen.findByRole('button', { name: 'Next card' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Next card' }))
     await userEvent.click(await screen.findByRole('button', { name: 'Next' }))
 
-    const group = within(screen.getByRole('group', { name: 'Answers to question 3' }))
-    expect(await group.findByText(/No numbers, handles or links here/)).toBeInTheDocument()
+    expect(await screen.findByText('01 · Everyday')).toBeInTheDocument()
+    const answerA = within(screen.getByRole('group', { name: 'Option A' }))
+    expect(await answerA.findByText(/No numbers, handles or links here/)).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent('Fix the marked bits')
   })
 
@@ -314,6 +348,6 @@ describe('profile setup', () => {
     await userEvent.click(screen.getByRole('link', { name: 'Edit guess cards' }))
 
     expect(await screen.findByRole('heading', { name: 'Make them guess you.' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Question 2')).toHaveValue('Pineapple on pizza?')
+    expect(screen.getByLabelText('Question 1')).toHaveValue('Chai or coffee?')
   })
 })
