@@ -23,7 +23,7 @@ function Waveform({ filled, tone }: { filled: number; tone: 'accent' | 'ink' }) 
   const lit = Math.round(filled * bars.length)
   const on = tone === 'accent' ? 'bg-accent' : 'bg-text'
   return (
-    <span aria-hidden="true" className="flex h-9 flex-1 items-center gap-[3px]">
+    <span aria-hidden="true" className="flex h-9 flex-auto items-center gap-[3px]">
       {bars.map((height, i) => (
         <span
           key={i}
