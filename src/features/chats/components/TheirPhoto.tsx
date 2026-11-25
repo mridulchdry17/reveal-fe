@@ -1,6 +1,7 @@
 import { useEffect, useId } from 'react'
 
-import { CloseIcon, LockIcon } from '@/components/icons'
+import { CloseIcon } from '@/components/icons'
+import { PhotoPieces } from '@/components/PhotoPieces'
 
 type Props = {
   url: string | null
@@ -8,8 +9,6 @@ type Props = {
   nickname: string
   onClose: () => void
 }
-
-const CELLS = Array.from({ length: 9 }, (_, i) => i)
 
 /**
  * Their photo, full screen. The server already painted over closed pieces; here they're
@@ -65,18 +64,7 @@ export function TheirPhoto({ url, pieces, nickname, onClose }: Props) {
         ) : (
           <div className="aspect-[3/4] w-full bg-white/10" />
         )}
-        {/* Covers the image so a long press hits this layer, not the picture. */}
-        <div aria-hidden="true" className="absolute inset-0 grid grid-cols-3 grid-rows-3">
-          {CELLS.map((n) =>
-            pieces.includes(n) ? (
-              <span key={n} />
-            ) : (
-              <span key={n} className="hatch flex items-center justify-center border border-dashed border-locked/60 text-locked">
-                <LockIcon className="size-5" />
-              </span>
-            ),
-          )}
-        </div>
+        <PhotoPieces open={pieces} />
       </div>
       <p className="m-0 max-w-md text-center text-sm leading-6 text-white/80">
         {all
