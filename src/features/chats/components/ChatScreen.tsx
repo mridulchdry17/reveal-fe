@@ -7,13 +7,25 @@ import { ApiError } from '@/lib/api/errors'
 
 import type { Card } from '../api/chats'
 import { useChat, useEndChat, useMarkRead, useSendMessage, type SafetyAction } from '../hooks/useChats'
-import { useAnswerSwap, useAskSwap, useRefreshThread, useTheirPhoto, useTheirVoice } from '../hooks/useSwaps'
-import type { GuessSlot } from '../types/guessSlot'
+import { useRevealedOnce } from '../hooks/useRevealedOnce'
+import {
+  useAnswerSwap,
+  useAskSwap,
+  useGuessCard,
+  useTheirPhoto,
+  useTheirVoice,
+  useWithdrawSwap,
+} from '../hooks/useSwaps'
 import { chatErrorMessage } from '../utils/errorMessage'
-import { shortTime } from '../utils/time'
+import { revealedChips, revealedLine } from '../utils/revealed'
+import { displayName } from '../utils/swapCopy'
+import { clockTime } from '../utils/time'
+import { buildTimeline, cardProgress } from '../utils/timeline'
 import { CardStrip } from './CardStrip'
 import { Initial } from './ChatRow'
-import { GuessSheet } from './GuessSheet'
+import { FullPictureSheet } from './FullPictureSheet'
+import { GuessPanel } from './GuessPanel'
+import { Revealed } from './Revealed'
 import { SafetySheet } from './SafetySheet'
 import { SwapRequest } from './SwapRequest'
 import { SwapSheet } from './SwapSheet'
@@ -22,12 +34,12 @@ import { TheirPhoto } from './TheirPhoto'
 const MESSAGE_MAX = 1000
 
 type Props = {
-  /** Their guess cards, composed in from the guess feature. */
-  guess?: GuessSlot
+  /** My own photo as a small round picture, composed in from the profile feature. */
+  me?: ReactNode
 }
 
 /** One chat. New messages arrive by polling every few seconds while it's open. */
-export function ChatScreen({ guess }: Props) {
+export function ChatScreen({ me }: Props) {
   const { matchId = '' } = useParams()
   const navigate = useNavigate()
   const chat = useChat(matchId)
@@ -38,8 +50,10 @@ export function ChatScreen({ guess }: Props) {
   const [safetyOpen, setSafetyOpen] = useState(false)
   const [asking, setAsking] = useState<Card | null>(null)
   const [photoOpen, setPhotoOpen] = useState(false)
-  const [guessOpen, setGuessOpen] = useState(false)
-  const refreshThread = useRefreshThread(matchId)
+  const [guessing, setGuessing] = useState<string | null>(null)
+  const [fullPicture, setFullPicture] = useState(false)
+  const guessCard = useGuessCard(matchId)
+  const withdraw = useWithdrawSwap(matchId)
   const [playing, setPlaying] = useState(false)
   const ask = useAskSwap(matchId)
   const answer = useAnswerSwap(matchId)
@@ -49,6 +63,8 @@ export function ChatScreen({ guess }: Props) {
   const board = chat.data?.swaps
   const pieces = board?.photo_pieces ?? []
   const voiceOpen = board?.cards.some((c) => c.card === 'voice' && c.state === 'open') ?? false
+  const photoState = board?.cards.find((c) => c.card === 'photo')?.state
+  const revealed = useRevealedOnce(matchId, photoState === 'open')
   const photo = useTheirPhoto(matchId, pieces)
   const voice = useTheirVoice(matchId, voiceOpen)
   const photoUrl = useObjectUrl(photo.data)
@@ -64,7 +80,8 @@ export function ChatScreen({ guess }: Props) {
 
   const closeSwap = useCallback(() => setAsking(null), [])
   const closePhoto = useCallback(() => setPhotoOpen(false), [])
-  const closeGuess = useCallback(() => setGuessOpen(false), [])
+  const closeGuess = useCallback(() => setGuessing(null), [])
+  const closeFullPicture = useCallback(() => setFullPicture(false), [])
 
   const closeSafety = useCallback(() => {
     setSafetyOpen(false)
@@ -95,21 +112,36 @@ export function ChatScreen({ guess }: Props) {
   }
 
   const { profile, swaps } = chat.data
+  const name = displayName(profile)
+  const progress = cardProgress(profile)
+  const timeline = buildTimeline(messages, swaps, profile)
   const request = swaps.cards.find((c) => c.state === 'they_asked')
-  const unguessed = profile.guess_cards.filter((c) => c.answer === null).length
+  const guessed = guessing ? profile.guess_cards.find((c) => c.id === guessing) : undefined
   const answerError = answer.isError ? chatErrorMessage(answer.error) : undefined
+  const contact = swaps.cards.find((c) => c.card === 'contact')
+  const toggleVoice = () => {
+    const player = audio.current
+    if (player?.paused) void player.play()
+    else player?.pause()
+  }
   const select = (card: Card) => {
     const state = swaps.cards.find((c) => c.card === card)?.state
-    if (state === 'open' && card === 'photo') return setPhotoOpen(true)
-    if (state === 'open' && card === 'voice') {
-      const player = audio.current
-      if (player?.paused) void player.play()
-      else player?.pause()
-      return
-    }
+    if (state === 'open' && card === 'voice') return toggleVoice()
     ask.reset()
     answer.reset()
+    withdraw.reset()
     setAsking(card)
+  }
+  const openGuess = (cardId: string) => {
+    guessCard.reset()
+    setGuessing(cardId)
+  }
+  const openFinale = () => {
+    if (photoState === 'open') return revealed.open()
+    ask.reset()
+    answer.reset()
+    withdraw.reset()
+    setFullPicture(true)
   }
   const sheetState = asking ? swaps.cards.find((c) => c.card === asking)?.state : undefined
   const submit = () => {
@@ -136,18 +168,21 @@ export function ChatScreen({ guess }: Props) {
           {photoUrl ? (
             <button
               type="button"
-              aria-label={`See ${profile.nickname}'s photo`}
+              aria-label={`See ${name}'s photo`}
               onClick={() => setPhotoOpen(true)}
               className="size-10 shrink-0 overflow-hidden rounded-full border-[1.5px] border-text bg-surface-2 p-0"
             >
               <img src={photoUrl} alt="" draggable={false} className="pointer-events-none size-full object-cover" />
             </button>
           ) : (
-            <Initial name={profile.nickname} size="sm" />
+            <Initial name={name} size="sm" />
           )}
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <h1 className="m-0 truncate font-display text-[26px] leading-none font-normal">{profile.nickname}</h1>
-            <p className="m-0 truncate text-xs text-muted">{profile.vibe}</p>
+            <h1 className="m-0 truncate font-display text-[24px] leading-[1.1] font-normal">{name}</h1>
+            <p className="m-0 truncate text-xs text-muted">
+              {progress.open} of {progress.total} cards open
+              {profile.first_name && ` · was ${profile.nickname}`}
+            </p>
           </div>
           <button
             type="button"
@@ -158,17 +193,14 @@ export function ChatScreen({ guess }: Props) {
             <ShieldCheckIcon className="size-[22px]" />
           </button>
         </div>
-        <CardStrip profile={profile} cards={swaps.cards} playing={playing} onSelect={select} />
-        {guess && unguessed > 0 && (
-          <button
-            type="button"
-            onClick={() => setGuessOpen(true)}
-            className="flex min-h-11 w-fit items-center gap-2 rounded-full border-[1.5px] border-dashed border-border-strong bg-transparent px-4 text-[13px] font-semibold text-text"
-          >
-            Guess {profile.nickname}'s cards{' '}
-            <span className="font-normal text-muted">· {unguessed} left</span>
-          </button>
-        )}
+        <CardStrip
+          profile={profile}
+          cards={swaps.cards}
+          playing={playing}
+          onSelect={select}
+          onGuess={openGuess}
+          onFinale={openFinale}
+        />
         {voiceUrl && (
           <audio
             ref={audio}
@@ -182,7 +214,7 @@ export function ChatScreen({ guess }: Props) {
       </header>
 
       <ol aria-label="Messages" className="m-0 flex flex-1 list-none flex-col gap-2 px-4 py-4">
-        {messages.length === 0 && (
+        {timeline.length === 0 && (
           <li className="m-auto flex max-w-[280px] flex-col items-center gap-2 text-center">
             <span className="font-display text-[34px] leading-[0.95]">
               Pehle baat, <em className="text-accent-text">phir photo.</em>
@@ -192,24 +224,41 @@ export function ChatScreen({ guess }: Props) {
             </span>
           </li>
         )}
-        {messages.map((m) => (
-          <li
-            key={m.id}
-            className={`flex max-w-[80%] flex-col gap-0.5 ${m.mine ? 'self-end items-end' : 'self-start items-start'}`}
-          >
-            <span className="sr-only">{m.mine ? 'You' : profile.nickname}:</span>
-            <span
-              className={`rounded-[20px] px-4 py-2.5 text-[15px] leading-snug break-words whitespace-pre-wrap ${
-                m.mine
-                  ? 'rounded-br-md bg-forest text-white'
-                  : 'rounded-bl-md border border-border bg-surface text-text shadow-[0_8px_20px_-16px_rgb(40_20_10/0.5)]'
-              }`}
+        {timeline.map((item) => {
+          if (item.kind === 'day') {
+            return (
+              <li key={item.key} className="self-center pt-1 text-[11px] tracking-[0.14em] text-muted uppercase">
+                {item.label}
+              </li>
+            )
+          }
+          if (item.kind === 'swap') {
+            return (
+              <li key={item.key} className="self-center rounded-[12px] bg-open-bg px-3 py-1.5 text-center text-xs text-open">
+                {item.text}
+              </li>
+            )
+          }
+          const m = item.message
+          return (
+            <li
+              key={item.key}
+              className={`flex max-w-[78%] flex-col gap-0.5 ${m.mine ? 'self-end items-end' : 'self-start items-start'}`}
             >
-              {m.body}
-            </span>
-            <span className="px-1 text-[11px] text-muted">{shortTime(m.sent_at)}</span>
-          </li>
-        ))}
+              <span className="sr-only">{m.mine ? 'You' : name}:</span>
+              <span
+                className={`rounded-[18px] px-3.5 py-[11px] text-[15px] leading-[1.4] break-words whitespace-pre-wrap ${
+                  m.mine
+                    ? 'rounded-br-md bg-forest text-white'
+                    : 'rounded-bl-md border border-border bg-surface text-text'
+                }`}
+              >
+                {m.body}
+              </span>
+              <span className="px-1 text-[11px] text-muted">{clockTime(m.sent_at)}</span>
+            </li>
+          )
+        })}
       </ol>
       <div ref={bottom} />
 
@@ -220,10 +269,22 @@ export function ChatScreen({ guess }: Props) {
         }}
         className="sticky bottom-0 flex flex-col gap-2 border-t border-border bg-bg px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]"
       >
-        {request && (
+        {guessed && (
+          <GuessPanel
+            key={guessed.id}
+            card={guessed}
+            result={guessCard.data}
+            piecesReward={profile.has_blurred_photo}
+            pending={guessCard.isPending}
+            error={guessCard.isError ? chatErrorMessage(guessCard.error) : undefined}
+            onPick={(pick) => guessCard.mutate({ cardId: guessed.id, pick })}
+            onClose={closeGuess}
+          />
+        )}
+        {request && !guessed && (
           <SwapRequest
             card={request.card}
-            nickname={profile.nickname}
+            nickname={name}
             pending={answer.isPending}
             onAnswer={(yes) => answer.mutate({ card: request.card, yes })}
           />
@@ -249,7 +310,7 @@ export function ChatScreen({ guess }: Props) {
             rows={1}
             maxLength={MESSAGE_MAX}
             value={draft}
-            placeholder="Say something real"
+            placeholder="Say something"
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) {
@@ -281,14 +342,20 @@ export function ChatScreen({ guess }: Props) {
         </div>
       </form>
 
-      {asking && (sheetState === 'can_ask' || sheetState === 'they_asked') && (
+      {asking && (sheetState === 'can_ask' || sheetState === 'they_asked' || sheetState === 'you_asked') && (
         <SwapSheet
           card={asking}
-          nickname={profile.nickname}
-          mode={sheetState === 'they_asked' ? 'answer' : 'ask'}
-          pending={ask.isPending || answer.isPending}
+          nickname={name}
+          mode={sheetState === 'they_asked' ? 'answer' : sheetState === 'you_asked' ? 'withdraw' : 'ask'}
+          pending={ask.isPending || answer.isPending || withdraw.isPending}
           error={
-            ask.isError ? chatErrorMessage(ask.error) : answer.isError ? chatErrorMessage(answer.error) : undefined
+            ask.isError
+              ? chatErrorMessage(ask.error)
+              : answer.isError
+                ? chatErrorMessage(answer.error)
+                : withdraw.isError
+                  ? chatErrorMessage(withdraw.error)
+                  : undefined
           }
           onSwap={() =>
             sheetState === 'they_asked'
@@ -300,29 +367,62 @@ export function ChatScreen({ guess }: Props) {
               ? answer.mutate({ card: asking, yes: false }, { onSuccess: () => setAsking(null) })
               : setAsking(null)
           }
+          onWithdraw={() => withdraw.mutate(asking, { onSuccess: () => setAsking(null) })}
           onClose={closeSwap}
         />
       )}
 
-      {guessOpen && guess && (
-        <GuessSheet nickname={profile.nickname} onClose={closeGuess}>
-          {guess({
-            cards: profile.guess_cards,
-            rightGuesses: profile.right_guesses,
-            reward: profile.has_blurred_photo ? 'pieces' : null,
-            onGuessed: () => void refreshThread(),
-            onStale: () => void refreshThread(),
-          })}
-        </GuessSheet>
+      {fullPicture && photoState && (
+        <FullPictureSheet
+          name={name}
+          state={photoState}
+          me={me}
+          theirPhotoUrl={photoUrl}
+          pieces={pieces}
+          pending={ask.isPending || answer.isPending || withdraw.isPending}
+          error={
+            ask.isError
+              ? chatErrorMessage(ask.error)
+              : answer.isError
+                ? chatErrorMessage(answer.error)
+                : withdraw.isError
+                  ? chatErrorMessage(withdraw.error)
+                  : undefined
+          }
+          onReady={() =>
+            photoState === 'they_asked'
+              ? answer.mutate({ card: 'photo', yes: true }, { onSuccess: closeFullPicture })
+              : ask.mutate('photo')
+          }
+          onWithdraw={() => withdraw.mutate('photo')}
+          onSee={() => {
+            setFullPicture(false)
+            revealed.open()
+          }}
+          onClose={closeFullPicture}
+        />
+      )}
+
+      {revealed.show && (
+        <Revealed
+          name={name}
+          photoUrl={photoUrl}
+          line={revealedLine(chat.data)}
+          chips={revealedChips(chat.data)}
+          voice={voiceOpen ? { seconds: profile.voice_seconds, playing, onToggle: toggleVoice } : null}
+          contact={{ state: contact?.state ?? 'locked', value: profile.contact }}
+          onSwapContact={() => select('contact')}
+          onClose={revealed.close}
+        />
       )}
 
       {photoOpen && pieces.length > 0 && (
-        <TheirPhoto url={photoUrl} pieces={pieces} nickname={profile.nickname} onClose={closePhoto} />
+        <TheirPhoto url={photoUrl} pieces={pieces} nickname={name} onClose={closePhoto} />
       )}
 
       {safetyOpen && (
         <SafetySheet
-          nickname={profile.nickname}
+          nickname={name}
           pending={end.isPending}
           error={end.isError ? chatErrorMessage(end.error) : undefined}
           onAction={act}

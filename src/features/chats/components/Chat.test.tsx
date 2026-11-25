@@ -5,7 +5,8 @@ import { describe, expect, it } from 'vitest'
 
 import { env } from '@/config/env'
 import { signInAs } from '@/testing/auth'
-import { chatSummary, matchId, message, mockChats, mockThread } from '@/testing/chats'
+import { chatSummary, freshBoard, matchId, message, mockChats, mockThread } from '@/testing/chats'
+import { kabir } from '@/testing/drops'
 import { renderRoutes } from '@/testing/render'
 import { server } from '@/testing/server'
 
@@ -32,7 +33,7 @@ describe('Chats tab', () => {
 
     const row = await screen.findByRole('link', { name: /Sunset chaser/ })
     expect(row).toHaveTextContent('hey you')
-    expect(row).toHaveTextContent('New')
+    expect(row).toHaveTextContent('New message')
   })
 
   it('invites a new match to say hi', async () => {
@@ -40,9 +41,51 @@ describe('Chats tab', () => {
     mockChats([chatSummary()])
     renderRoutes(routes, '/app/chats')
 
-    expect(await screen.findByRole('link', { name: /Sunset chaser/ })).toHaveTextContent(
-      'New match. Say hi!',
-    )
+    const fresh = await screen.findByRole('region', { name: 'New matches' })
+    expect(within(fresh).getByRole('link', { name: /Sunset chaser/ })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Talking' })).not.toBeInTheDocument()
+  })
+
+  it('puts new matches in a row and the rest under Talking, with cards open and pending swaps', async () => {
+    signInAs()
+    mockChats([
+      chatSummary({ match_id: 'new1', profile: { ...kabir, nickname: 'Paper boats' } }),
+      chatSummary({
+        match_id: 't1',
+        profile: {
+          ...kabir,
+          first_name: 'Mira',
+          shown_cards: ['looking_for', 'first_name'],
+          hidden_cards: ['branch', 'hometown', 'photo', 'contact'],
+        },
+        last_message: message('x', 'Okay, fair', false),
+        pending_swap: { card: 'hometown', by: 'me' },
+        photo_pieces: 2,
+      }),
+      chatSummary({
+        match_id: 't2',
+        profile: { ...kabir, nickname: 'Rainy window' },
+        last_message: message('y', 'see you', true),
+        pending_swap: { card: 'first_name', by: 'them' },
+      }),
+      chatSummary({ match_id: 't3', profile: { ...kabir, nickname: 'Lost playlist' }, last_message: message('z', 'which route?', true) }),
+    ])
+    renderRoutes(routes, '/app/chats')
+
+    const fresh = await screen.findByRole('region', { name: 'New matches' })
+    expect(within(fresh).getAllByRole('link').map((l) => l.textContent)).toEqual(['PPaper boats'])
+
+    const talking = screen.getByRole('region', { name: 'Talking' })
+    const [mira, rainy, lost] = within(talking).getAllByRole('link')
+    // Their first name once it's open; the line says the waiting swap instead of the last message.
+    expect(mira).toHaveTextContent('Mira')
+    expect(mira).toHaveTextContent('You asked to swap hometowns')
+    expect(mira).toHaveTextContent('2 of 6 open')
+    expect(mira).not.toHaveTextContent('Okay, fair')
+    expect(mira).toHaveTextContent('2/9')
+    expect(rainy).toHaveTextContent('Wants to swap first names')
+    expect(rainy).toHaveTextContent('1 of 6 open')
+    expect(lost).toHaveTextContent('You: which route?')
   })
 
   it('explains how to get a match when there are none', async () => {
@@ -67,8 +110,40 @@ describe('Chat', () => {
     expect(messages).toHaveTextContent('obviously')
     const cards = screen.getByRole('list', { name: 'Their cards' })
     expect(cards).toHaveTextContent('Something serious')
-    expect(within(cards).getByRole('button', { name: 'Swap names' })).toBeInTheDocument()
-    expect(cards).toHaveTextContent('Photo · after a card swap')
+    expect(within(cards).getByRole('button', { name: 'Swap first names' })).toBeInTheDocument()
+    expect(within(cards).getByRole('button', { name: 'Full picture' })).toBeInTheDocument()
+  })
+
+  it('calls them by first name once it is open, and shows the swap in the timeline', async () => {
+    signInAs()
+    allowRead()
+    mockThread([{ ...message('1', 'hey Kabir', true), sent_at: new Date().toISOString() }], {
+      profile: {
+        ...kabir,
+        first_name: 'Kabir',
+        shown_cards: ['looking_for', 'first_name'],
+        hidden_cards: ['branch', 'hometown', 'photo', 'contact'],
+      },
+      swaps: {
+        ...freshBoard,
+        cards: freshBoard.cards.map((c) =>
+          c.card === 'first_name'
+            ? { ...c, state: 'open' as const, decided_at: new Date(Date.now() - 60_000).toISOString() }
+            : c,
+        ),
+      },
+    })
+    renderRoutes(routes, `/app/chats/${matchId}`)
+
+    expect(await screen.findByRole('heading', { name: 'Kabir' })).toBeInTheDocument()
+    expect(screen.getByText('2 of 6 cards open · was Sunset chaser')).toBeInTheDocument()
+    const items = within(screen.getByRole('list', { name: 'Messages' })).getAllByRole('listitem')
+    expect(items.map((i) => i.textContent)).toEqual([
+      'Today',
+      'You swapped first names',
+      expect.stringContaining('hey Kabir'),
+    ])
+    expect(screen.getByLabelText('Message')).toHaveAttribute('placeholder', 'Say something')
   })
 
   it('marks their latest message as seen', async () => {

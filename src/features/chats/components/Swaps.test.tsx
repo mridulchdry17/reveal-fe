@@ -36,12 +36,12 @@ describe('Swaps in a chat', () => {
     )
     renderRoutes(routes, `/app/chats/${matchId}`)
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Swap names' }))
-    const sheet = screen.getByRole('dialog', { name: 'Swap names?' })
+    await userEvent.click(await screen.findByRole('button', { name: 'Swap first names' }))
+    const sheet = screen.getByRole('dialog', { name: 'Swap first names?' })
     expect(sheet).toHaveTextContent("You each see the other's name, at the same moment. Can't be undone.")
     await userEvent.click(within(sheet).getByRole('button', { name: 'Swap' }))
 
-    expect(await screen.findByText('Name · waiting')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'You asked to swap first names' })).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(asked).toEqual({ card: 'first_name' })
   })
@@ -56,6 +56,28 @@ describe('Swaps in a chat', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Swap hometowns' })).toBeInTheDocument()
+  })
+
+  it('takes my own request back with "Changed my mind"', async () => {
+    signInAs()
+    mockThread([], { swaps: board({ hometown: 'you_asked' }) })
+    let withdrawn = false
+    server.use(
+      http.delete(`${api}/swaps/hometown`, () => {
+        withdrawn = true
+        mockThread()
+        return HttpResponse.json(freshBoard)
+      }),
+    )
+    renderRoutes(routes, `/app/chats/${matchId}`)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'You asked to swap hometowns' }))
+    const sheet = screen.getByRole('dialog', { name: 'You asked to swap hometowns' })
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Changed my mind' }))
+
+    expect(await screen.findByRole('button', { name: 'Swap hometowns' })).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(withdrawn).toBe(true)
   })
 
   it('answers their request with Swap, and their name shows', async () => {
@@ -73,7 +95,7 @@ describe('Swaps in a chat', () => {
     renderRoutes(routes, `/app/chats/${matchId}`)
 
     const request = await screen.findByRole('region', { name: 'Swap request' })
-    expect(request).toHaveTextContent('Sunset chaser wants to swap names.')
+    expect(request).toHaveTextContent('Sunset chaser wants to swap first names.')
     await userEvent.click(within(request).getByRole('button', { name: 'Swap' }))
 
     const cards = screen.getByRole('list', { name: 'Their cards' })
@@ -127,6 +149,7 @@ describe('Swaps in a chat', () => {
     )
     renderRoutes(routes, `/app/chats/${matchId}`)
 
-    expect(await screen.findByText('@kabir.k')).toBeInTheDocument()
+    const cards = await screen.findByRole('list', { name: 'Their cards' })
+    expect(await within(cards).findByText('@kabir.k')).toBeInTheDocument()
   })
 })

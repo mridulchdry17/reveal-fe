@@ -11,6 +11,7 @@ import { VerifyScreen } from '@/features/auth/components/VerifyScreen'
 import { CardEditorScreen } from '@/features/profile/components/CardEditorScreen'
 import { GuessCardsSection } from '@/features/profile/components/GuessCardsSection'
 import { ProfilePreviewScreen } from '@/features/profile/components/ProfilePreviewScreen'
+import { MyPhotoAvatar } from '@/features/profile/components/MyPhotoAvatar'
 import { ProfileSetupScreen } from '@/features/profile/components/ProfileSetupScreen'
 import { SwapCardsSection } from '@/features/profile/components/SwapCardsSection'
 import { YouHeader } from '@/features/profile/components/YouHeader'
@@ -33,7 +34,7 @@ import { RequireAuth } from './RequireAuth'
 import { RequireProfile } from './RequireProfile'
 import { RequireVerified } from './RequireVerified'
 
-// Their guess cards go into the drop, likes and chat; each screen says what a right guess earns.
+// Their guess cards go into the drop and likes (the chat has its own inline panel); each screen says what a right guess earns.
 const guessCards = (props: GuessCardsProps) => <GuessCards {...props} />
 
 // Before launch, `/` is the public waitlist and the app lives under `/app`.
@@ -79,7 +80,7 @@ export const routes: RouteObject[] = [
             element: <RequireProfile />,
             children: [
               // A chat fills the screen: no tab bar under the message box.
-              { path: 'chats/:matchId', element: <ChatScreen guess={guessCards} /> },
+              { path: 'chats/:matchId', element: <ChatScreen me={<MyPhotoAvatar />} /> },
               {
                 element: <AppShell />,
                 children: [

@@ -6,7 +6,6 @@ import { describe, expect, it } from 'vitest'
 import { env } from '@/config/env'
 import type { components } from '@/lib/api/schema'
 import { signInAs } from '@/testing/auth'
-import { freshBoard, matchId, mockThread } from '@/testing/chats'
 import { dropItem, kabir, mockDrop, mockLikes } from '@/testing/drops'
 import { renderRoutes } from '@/testing/render'
 import { server } from '@/testing/server'
@@ -162,54 +161,5 @@ describe('Guessing on likes', () => {
 
     expect(await within(guess).findByText('Not quite. It stays as it is.')).toBeInTheDocument()
     expect(calls).toEqual([{ pick: 2 }])
-  })
-})
-
-describe('Guessing in a chat', () => {
-  function allowRead() {
-    server.use(http.post(`${api}/v1/chats/${matchId}/read`, () => new HttpResponse(null, { status: 204 })))
-  }
-
-  it('opens their cards from the chat and reloads the thread after a right guess', async () => {
-    signInAs()
-    allowRead()
-    mockThread([], { profile: withPhoto })
-    server.use(http.get(`${api}/v1/chats/${matchId}/photo`, jpeg))
-    server.use(
-      http.post(`${api}/v1/guesses/kg1`, () => {
-        mockThread([], {
-          profile: {
-            ...withPhoto,
-            right_guesses: 1,
-            guess_cards: withPhoto.guess_cards.map((c, i) => (i === 0 ? { ...c, picked: 0, answer: 0 } : c)),
-          },
-          swaps: { ...freshBoard, photo_pieces: [6] },
-        })
-        return HttpResponse.json({ correct: true, answer: 0, picked: 0 })
-      }),
-    )
-    renderRoutes(routes, `/app/chats/${matchId}`)
-
-    await userEvent.click(await screen.findByRole('button', { name: "Guess Sunset chaser's cards · 3 left" }))
-    const sheet = screen.getByRole('dialog', { name: 'Guess Sunset chaser' })
-    await userEvent.click(within(sheet).getByRole('button', { name: 'Rajma chawal' }))
-
-    expect(await within(sheet).findByText('Right. One more piece of their photo (up to 6).')).toBeInTheDocument()
-    // The reloaded thread brings the new piece, so their photo appears in the header.
-    expect(await screen.findByRole('button', { name: "See Sunset chaser's photo" })).toBeInTheDocument()
-    await userEvent.click(within(sheet).getByRole('button', { name: 'Back to the chat' }))
-    expect(screen.getByRole('button', { name: "Guess Sunset chaser's cards · 2 left" })).toBeInTheDocument()
-  })
-
-  it('hides the guess row once every card is guessed', async () => {
-    signInAs()
-    allowRead()
-    mockThread([], {
-      profile: { ...kabir, guess_cards: kabir.guess_cards.map((c) => ({ ...c, picked: 0, answer: 1 })) },
-    })
-    renderRoutes(routes, `/app/chats/${matchId}`)
-
-    expect(await screen.findByRole('heading', { name: 'Sunset chaser' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Guess Sunset chaser's cards/ })).not.toBeInTheDocument()
   })
 })

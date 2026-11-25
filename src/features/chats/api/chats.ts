@@ -10,6 +10,9 @@ export type ReportReason = components['schemas']['ReportReason']
 export type SwapBoard = components['schemas']['SwapBoard']
 export type Card = components['schemas']['Card']
 export type CardState = components['schemas']['CardState']
+export type CardSwap = components['schemas']['CardSwap']
+export type GuessCard = components['schemas']['GuessCardOut']
+export type GuessResult = components['schemas']['GuessResult']
 
 const path = (matchId: string) => ({ params: { path: { match_id: matchId } } })
 
@@ -76,6 +79,28 @@ export async function answerSwap(matchId: string, card: Card, yes: boolean): Pro
   const { data, error, response } = yes
     ? await api.POST('/v1/chats/{match_id}/swaps/{card}/accept', params)
     : await api.POST('/v1/chats/{match_id}/swaps/{card}/decline', params)
+  if (data) return data
+  throw toApiError(response.status, error)
+}
+
+/** Take back my own request before they answer. */
+export async function withdrawSwap(matchId: string, card: Card): Promise<SwapBoard> {
+  const { data, error, response } = await api.DELETE('/v1/chats/{match_id}/swaps/{card}', {
+    params: { path: { match_id: matchId, card } },
+  })
+  if (data) return data
+  throw toApiError(response.status, error)
+}
+
+/**
+ * One try at one of their guess cards, from the chat's inline panel. The guess feature has its
+ * own call for the drop and likes; a feature can't import another, and this one panel is chat-only.
+ */
+export async function guessCard(cardId: string, pick: number): Promise<GuessResult> {
+  const { data, error, response } = await api.POST('/v1/guesses/{card_id}', {
+    params: { path: { card_id: cardId } },
+    body: { pick },
+  })
   if (data) return data
   throw toApiError(response.status, error)
 }
