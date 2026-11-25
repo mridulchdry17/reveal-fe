@@ -17,24 +17,28 @@ import { SwapCardsSection } from '@/features/profile/components/SwapCardsSection
 import { YouHeader } from '@/features/profile/components/YouHeader'
 import { ChatScreen } from '@/features/chats/components/ChatScreen'
 import { ChatsScreen } from '@/features/chats/components/ChatsScreen'
-import { GuessCards, type GuessCardsProps } from '@/features/guess/components/GuessCards'
+import { GuessGame, type GuessGameProps } from '@/features/guess/components/GuessGame'
 import { HideListScreen } from '@/features/hide/components/HideListScreen'
 import { HideSection } from '@/features/hide/components/HideSection'
 import { DropReminder } from '@/features/notifications/components/DropReminder'
 import { NotificationsCard } from '@/features/notifications/components/NotificationsCard'
 import { YouScreen } from '@/features/settings/components/YouScreen'
+import { DropGuessScreen } from '@/features/tonight/components/DropGuessScreen'
+import { LikeGuessScreen } from '@/features/tonight/components/LikeGuessScreen'
 import { LikesScreen } from '@/features/tonight/components/LikesScreen'
+import { SendLikeScreen } from '@/features/tonight/components/SendLikeScreen'
 import { TonightScreen } from '@/features/tonight/components/TonightScreen'
 import { WaitlistScreen } from '@/features/waitlist/components/WaitlistScreen'
 
 import { AppShell } from './AppShell'
+import { MyInterests } from './MyInterests'
 import { RequireAdmin } from './RequireAdmin'
 import { RequireAuth } from './RequireAuth'
 import { RequireProfile } from './RequireProfile'
 import { RequireVerified } from './RequireVerified'
 
-// Their guess cards go into the drop and likes (the chat has its own inline panel); each screen says what a right guess earns.
-const guessCards = (props: GuessCardsProps) => <GuessCards {...props} />
+// The one-card-at-a-time guess game, for a drop profile or someone who liked me.
+const guessGame = (props: GuessGameProps) => <GuessGame {...props} />
 
 // Before launch, `/` is the public waitlist and the app lives under `/app`.
 // At launch, `/` becomes the sign-in/landing page; the `/app` paths stay the same.
@@ -80,13 +84,17 @@ export const routes: RouteObject[] = [
             children: [
               // A chat fills the screen: no tab bar under the message box.
               { path: 'chats/:matchId', element: <ChatScreen me={<MyPhotoAvatar />} /> },
+              // Guessing and sending a like fill the screen too.
+              { path: 'tonight/:itemId', element: <DropGuessScreen game={guessGame} /> },
+              { path: 'tonight/:itemId/like', element: <SendLikeScreen /> },
+              { path: 'likes/:likeId', element: <LikeGuessScreen game={guessGame} /> },
               {
                 element: <AppShell />,
                 children: [
                   { index: true, element: <Navigate to="tonight" replace /> },
-                  { path: 'tonight', element: <TonightScreen guess={guessCards} reminder={<DropReminder />} /> },
+                  { path: 'tonight', element: <TonightScreen reminder={<DropReminder />} interests={<MyInterests />} /> },
                   { path: 'chats', element: <ChatsScreen /> },
-                  { path: 'likes', element: <LikesScreen guess={guessCards} /> },
+                  { path: 'likes', element: <LikesScreen /> },
                   {
                     path: 'you',
                     element: (
