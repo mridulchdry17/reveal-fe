@@ -8,6 +8,7 @@ import { Sticker } from '@/components/Sticker'
 import { useChats } from '../hooks/useChats'
 import { chatErrorMessage } from '../utils/errorMessage'
 import { ChatRow } from './ChatRow'
+import { NewMatches } from './NewMatches'
 
 type Props = {
   /** People who liked you, composed in from the tonight feature by the app routes. */
@@ -22,16 +23,13 @@ const endedMessages = {
 
 export function ChatsScreen({ likes }: Props) {
   const chats = useChats()
-  const count = chats.data?.length ?? 0
+  const fresh = chats.data?.filter((c) => c.last_message === null) ?? []
+  const talking = chats.data?.filter((c) => c.last_message !== null) ?? []
   const ended = (useLocation().state as { ended?: keyof typeof endedMessages } | null)?.ended
 
   return (
     <section className="flex flex-col gap-3 pb-6">
-      <ScreenHeader
-        kicker={count > 0 ? `${count} ${count === 1 ? 'match' : 'matches'}` : 'Your matches'}
-        title="Chats"
-        subtitle="Talk first. Swap cards when it feels right."
-      />
+      <ScreenHeader title="Chats" subtitle="Swap cards as you talk. Their photo opens piece by piece." />
       {ended && (
         <p role="status" className="m-0 rounded-[20px] border border-border bg-surface-2 p-4 text-sm leading-5">
           {endedMessages[ended]}
@@ -64,14 +62,20 @@ export function ChatsScreen({ likes }: Props) {
           </Link>
         </div>
       )}
-      {chats.data && chats.data.length > 0 && (
-        <ul aria-label="Matches" className="m-0 flex list-none flex-col gap-2.5 p-0">
-          {chats.data.map((chat) => (
-            <li key={chat.match_id}>
-              <ChatRow chat={chat} />
-            </li>
-          ))}
-        </ul>
+      {fresh.length > 0 && <NewMatches chats={fresh} />}
+      {talking.length > 0 && (
+        <section aria-labelledby="talking" className="-mx-3 mt-2 flex flex-col gap-1">
+          <h2 id="talking" className="m-0 px-3 text-[11px] font-semibold tracking-[0.14em] text-muted uppercase">
+            Talking
+          </h2>
+          <ul className="m-0 flex list-none flex-col p-0">
+            {talking.map((chat) => (
+              <li key={chat.match_id}>
+                <ChatRow chat={chat} />
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </section>
   )
