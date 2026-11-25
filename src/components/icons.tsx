@@ -122,3 +122,11 @@ export function EyeIcon(props: IconProps) {
     </Icon>
   )
 }
+
+export function SparkleIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M8 2l1.7 4.3L14 8l-4.3 1.7L8 14l-1.7-4.3L2 8l4.3-1.7z" />
+    </Icon>
+  )
+}

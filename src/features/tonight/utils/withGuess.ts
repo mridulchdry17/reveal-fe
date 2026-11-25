@@ -11,3 +11,11 @@ export function withGuess(profile: PublicProfile, cardId: string, result: GuessR
     right_guesses: profile.right_guesses + (result.correct ? 1 : 0),
   }
 }
+
+/** Their profile after my hint struck a wrong option off one card. */
+export function withStruck(profile: PublicProfile, cardId: string, struck: number): PublicProfile {
+  return {
+    ...profile,
+    guess_cards: profile.guess_cards.map((c) => (c.id === cardId ? { ...c, struck } : c)),
+  }
+}

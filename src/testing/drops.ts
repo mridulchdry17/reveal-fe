@@ -8,6 +8,7 @@ import { server } from './server'
 type PublicProfile = components['schemas']['PublicProfile']
 type DropItem = components['schemas']['DropItemOut']
 type ReceivedLike = components['schemas']['ReceivedLike']
+type SentLike = components['schemas']['SentLike']
 
 /** Kabir as everyone first sees him: what he's looking for; the rest hidden until swaps. */
 export const kabir: PublicProfile = {
@@ -56,15 +57,48 @@ export function dropItem(id: string, profile: PublicProfile, decision: DropItem[
 }
 
 /** Mock GET /v1/drops/tonight; the next drop is 20h 14m after the test's clock. */
-export function mockDrop(items: DropItem[]) {
+export function mockDrop(items: DropItem[], { hintUsed = false }: { hintUsed?: boolean } = {}) {
   const next = new Date(Date.now() + (20 * 60 + 14) * 60_000 - 30_000).toISOString()
   server.use(
     http.get(`${env.VITE_API_URL}/v1/drops/tonight`, () =>
-      HttpResponse.json({ drop_date: '2026-11-22', next_drop_at: next, items }),
+      HttpResponse.json({ drop_date: '2026-11-22', next_drop_at: next, hint_used: hintUsed, items }),
     ),
   )
 }
 
 export function mockLikes(likes: ReceivedLike[] = []) {
   server.use(http.get(`${env.VITE_API_URL}/v1/likes`, () => HttpResponse.json(likes)))
+}
+
+/** Kabir liked my hot take and said something about it. */
+export function sampleLike(id: string, overrides: Partial<ReceivedLike> = {}): ReceivedLike {
+  return {
+    id,
+    liked: { kind: 'guess', question: 'Pineapple on pizza?', answer: 'Only at 2am', guess_kind: 'hot_take' },
+    prompt_question: 'Pineapple on pizza?',
+    prompt_answer: 'Only at 2am',
+    comment: 'Finally someone said it',
+    created_at: '2026-11-22T15:44:00Z',
+    profile: kabir,
+    their_right_guesses: 2,
+    my_cards_total: 3,
+    ...overrides,
+  }
+}
+
+/** I liked Dev's prompt; still waiting (a pass looks the same). */
+export function sampleSent(id: string, overrides: Partial<SentLike> = {}): SentLike {
+  return {
+    id,
+    nickname: 'Lost playlist',
+    liked: { kind: 'prompt', question: 'Hot take', answer: 'Rain ruins plans, never moods', guess_kind: null },
+    comment: 'Monsoon walks though?',
+    created_at: '2026-11-22T15:38:00Z',
+    has_blurred_photo: false,
+    ...overrides,
+  }
+}
+
+export function mockSentLikes(sent: SentLike[] = []) {
+  server.use(http.get(`${env.VITE_API_URL}/v1/likes/sent`, () => HttpResponse.json(sent)))
 }

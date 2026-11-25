@@ -28,6 +28,10 @@ describe('TonightScreen', () => {
     expect(cards).toHaveTextContent('5 hidden')
     expect(within(card).getByText('Photo opens through swaps')).toBeInTheDocument()
     expect(within(card).getByText('Mess food is underrated')).toBeInTheDocument()
+    expect(within(card).getByRole('link', { name: "Guess Sunset chaser's cards" })).toHaveAttribute(
+      'href',
+      '/app/tonight/i1',
+    )
   })
 
   it('shows name and branch once they are open', async () => {
@@ -38,82 +42,6 @@ describe('TonightScreen', () => {
     const card = await screen.findByRole('article', { name: 'Lost playlist' })
     expect(within(card).getByText('Dev')).toBeInTheDocument()
     expect(within(card).getByText('ECE · 3rd year')).toBeInTheDocument()
-  })
-
-  it('likes a prompt with a comment', async () => {
-    signInAs()
-    mockDrop([dropItem('i1', kabir), dropItem('i2', dev)])
-    let sent: unknown
-    server.use(
-      http.post(`${api}/i1/like`, async ({ request }) => {
-        sent = await request.json()
-        return HttpResponse.json({ matched: false })
-      }),
-    )
-    renderWithQuery(<TonightScreen />)
-
-    await userEvent.click(await screen.findByRole('button', { name: 'Like "Unpopular opinion"' }))
-    const sheet = screen.getByRole('dialog', { name: 'Like Sunset chaser' })
-    expect(within(sheet).getByRole('radio', { name: /Mess food is underrated/ })).toBeChecked()
-    await userEvent.type(within(sheet).getByLabelText(/Add a comment/), 'Thursday rajma though')
-    await userEvent.click(within(sheet).getByRole('button', { name: 'Send like' }))
-
-    expect(await screen.findByRole('article', { name: 'Lost playlist' })).toBeInTheDocument()
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(sent).toEqual({ prompt_id: 'k2', comment: 'Thursday rajma though' })
-    expect(screen.getByRole('img', { name: '1 of 2 seen' })).toBeInTheDocument()
-  })
-
-  it('sends a like without a comment as null', async () => {
-    signInAs()
-    mockDrop([dropItem('i1', kabir)])
-    let sent: unknown
-    server.use(
-      http.post(`${api}/i1/like`, async ({ request }) => {
-        sent = await request.json()
-        return HttpResponse.json({ matched: false })
-      }),
-    )
-    renderWithQuery(<TonightScreen />)
-
-    await userEvent.click(await screen.findByRole('button', { name: 'Like Sunset chaser' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Send like' }))
-
-    expect(await screen.findByRole('heading', { name: "That's everyone for tonight" })).toBeInTheDocument()
-    expect(sent).toEqual({ prompt_id: 'k1', comment: null })
-  })
-
-  it('says when a like is a match', async () => {
-    signInAs()
-    mockDrop([dropItem('i1', kabir)])
-    server.use(http.post(`${api}/i1/like`, () => HttpResponse.json({ matched: true })))
-    renderWithQuery(<TonightScreen />)
-
-    await userEvent.click(await screen.findByRole('button', { name: 'Like Sunset chaser' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Send like' }))
-
-    expect(await screen.findByRole('status')).toHaveTextContent("It's a match with Sunset chaser")
-  })
-
-  it('explains a comment the server refuses, without closing the sheet', async () => {
-    signInAs()
-    mockDrop([dropItem('i1', kabir)])
-    server.use(
-      http.post(`${api}/i1/like`, () =>
-        HttpResponse.json(
-          { detail: [{ loc: ['body', 'comment'], msg: 'Value error, x', type: 'value_error' }] },
-          { status: 422 },
-        ),
-      ),
-    )
-    renderWithQuery(<TonightScreen />)
-
-    await userEvent.click(await screen.findByRole('button', { name: 'Like Sunset chaser' }))
-    await userEvent.type(screen.getByLabelText(/Add a comment/), 'insta me')
-    await userEvent.click(screen.getByRole('button', { name: 'Send like' }))
-
-    const sheet = screen.getByRole('dialog')
-    expect(await within(sheet).findByRole('alert')).toHaveTextContent('No numbers, handles or links')
   })
 
   it('passes and moves to the next person', async () => {
@@ -142,7 +70,9 @@ describe('TonightScreen', () => {
     expect(
       await screen.findByRole('heading', { name: "That's everyone for tonight" }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/Next drop in 20h 14m\./)).toBeInTheDocument()
+    expect(screen.getByText('Your next drop')).toBeInTheDocument()
+    expect(screen.getByRole('timer')).toHaveAccessibleName('20 hours 13 minutes left')
+    expect(screen.getByText(/No endless scroll, no swiping/)).toBeInTheDocument()
   })
 
   it('is honest when no one is in the drop yet', async () => {
@@ -151,5 +81,15 @@ describe('TonightScreen', () => {
     renderWithQuery(<TonightScreen />)
 
     expect(await screen.findByRole('heading', { name: 'No one new right now' })).toBeInTheDocument()
+    expect(screen.getByText(/Your drop fills up/)).toBeInTheDocument()
+  })
+
+  it('shows my interests and the reminder on the countdown', async () => {
+    signInAs()
+    mockDrop([])
+    renderWithQuery(<TonightScreen interests={<span>Films</span>} reminder={<aside aria-label="Ping" />} />)
+
+    expect(await screen.findByText('Films')).toBeInTheDocument()
+    expect(screen.getByRole('complementary', { name: 'Ping' })).toBeInTheDocument()
   })
 })
