@@ -4,6 +4,7 @@ const messages: Record<string, string> = {
   drop_item_closed: "Tonight's drop has moved on. Here's what's new.",
   drop_item_not_found: "Tonight's drop has moved on. Here's what's new.",
   prompt_not_found: 'They just changed that prompt. Pick another one.',
+  guess_card_not_guessed: 'Guess that card first, or like one of their prompts.',
   already_liked: "You've already liked them.",
   like_not_found: 'That like is no longer here.',
   like_already_answered: 'You already answered that one.',
