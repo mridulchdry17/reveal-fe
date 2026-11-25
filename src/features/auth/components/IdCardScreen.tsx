@@ -1,18 +1,16 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router'
+import { Navigate, useNavigate } from 'react-router'
 
 import { AlertIcon, CameraIcon, CheckIcon, IdCardIcon } from '@/components/icons'
 import { ScreenHeader } from '@/components/ScreenHeader'
+import { StepProgress } from '@/components/StepProgress'
 
 import { useMe } from '../hooks/useMe'
 import { useSubmitIdCard } from '../hooks/useSubmitIdCard'
 import { useVerificationStatus } from '../hooks/useVerificationStatus'
 import { uploadErrorMessage } from '../utils/errorMessage'
 import { PhotoPicker } from './PhotoPicker'
-import { StepHeader } from './StepHeader'
 
-const backClass =
-  '-ml-2 flex h-11 items-center rounded-full bg-transparent px-2 text-sm font-semibold text-muted'
 const primaryClass =
   'flex h-[54px] w-full items-center justify-center gap-2.5 rounded-full border-0 bg-accent text-base font-bold text-on-accent disabled:opacity-60'
 
@@ -39,14 +37,7 @@ export function IdCardScreen() {
       <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-5 px-5 pt-3 pb-8">
         {step === 'id' ? (
           <>
-            <StepHeader
-              step={1}
-              left={
-                <Link to="/verify" className={backClass}>
-                  Back
-                </Link>
-              }
-            />
+            <StepProgress step={1} back={{ to: '/verify' }} />
             <div className="rise">
               <ScreenHeader
                 kicker="ID card"
@@ -90,14 +81,7 @@ export function IdCardScreen() {
           </>
         ) : (
           <>
-            <StepHeader
-              step={2}
-              left={
-                <button type="button" onClick={() => setStep('id')} className={backClass}>
-                  Back
-                </button>
-              }
-            />
+            <StepProgress step={1} back={{ onClick: () => setStep('id') }} />
             <div className="rise">
               <ScreenHeader
                 kicker="Selfie"
