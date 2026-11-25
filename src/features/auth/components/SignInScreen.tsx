@@ -30,15 +30,15 @@ function BlurredStack() {
   return (
     <div aria-hidden="true" className="relative mx-auto h-[250px] w-full max-w-[330px]">
       <span className={`absolute top-8 left-[4%] h-[200px] w-[140px] -rotate-[9deg] overflow-hidden rounded-[22px] ${cardShadow}`}>
-        <BlurredFace blur={28} />
+        <BlurredFace blur={16} />
       </span>
       <span className={`absolute top-8 right-[4%] h-[200px] w-[140px] rotate-[9deg] overflow-hidden rounded-[22px] ${cardShadow}`}>
-        <BlurredFace blur={28} />
+        <BlurredFace blur={16} />
       </span>
       <span
         className="absolute top-0 left-1/2 flex h-[228px] w-[160px] -translate-x-1/2 items-center justify-center overflow-hidden rounded-[24px] shadow-[0_24px_50px_rgb(40_20_10/0.25)]"
       >
-        <BlurredFace blur={36} />
+        <BlurredFace blur={20} />
         <span className="relative font-display text-[72px] leading-none text-white/85">?</span>
       </span>
     </div>
