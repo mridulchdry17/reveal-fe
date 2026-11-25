@@ -1,39 +1,14 @@
-import { useEffect, useMemo, useRef, type ChangeEvent } from 'react'
-
 import { AlertIcon, LockIcon } from '@/components/icons'
 
-import { useMyPhoto, useMyProfile, useRemovePhoto, useUploadPhoto } from '../hooks/useProfile'
+import { usePhotoEditor } from '../hooks/usePhotoEditor'
 import { profileErrorMessage } from '../utils/errorMessage'
 
 /** Card 6 in the You tab: add, change or remove your photo. Only you see it here. */
 export function PhotoSection() {
-  const profile = useMyProfile()
-  const hasPhoto = profile.data?.has_photo ?? false
-  const photo = useMyPhoto(hasPhoto)
-  const upload = useUploadPhoto()
-  const remove = useRemovePhoto()
-  const input = useRef<HTMLInputElement>(null)
+  const { ready, hasPhoto, url, loading, input, onPick, openPicker, removePhoto, uploading, busy, error } =
+    usePhotoEditor()
 
-  const url = useMemo(() => (hasPhoto && photo.data ? URL.createObjectURL(photo.data) : null), [hasPhoto, photo.data])
-  useEffect(
-    () => () => {
-      if (url) URL.revokeObjectURL(url)
-    },
-    [url],
-  )
-
-  if (!profile.data) return null
-
-  const pick = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    event.target.value = '' // picking the same file again should still upload
-    if (file) {
-      remove.reset()
-      upload.mutate(file)
-    }
-  }
-  const error = upload.error ?? remove.error
-  const busy = upload.isPending || remove.isPending
+  if (!ready) return null
 
   return (
     <section
@@ -61,7 +36,7 @@ export function PhotoSection() {
             />
           ) : (
             <span className="hatch flex size-full flex-col items-center justify-center gap-1.5 rounded-[18px] border-[1.5px] border-dashed border-locked text-locked">
-              {hasPhoto && photo.isPending ? (
+              {loading ? (
                 <span className="text-xs font-semibold">Loading…</span>
               ) : (
                 <>
@@ -81,7 +56,7 @@ export function PhotoSection() {
             ref={input}
             type="file"
             accept="image/*"
-            onChange={pick}
+            onChange={onPick}
             className="sr-only"
             tabIndex={-1}
             aria-hidden="true"
@@ -89,19 +64,16 @@ export function PhotoSection() {
           <button
             type="button"
             disabled={busy}
-            onClick={() => input.current?.click()}
+            onClick={openPicker}
             className="h-11 rounded-full border-0 bg-text px-4 text-sm font-bold text-bg disabled:opacity-60"
           >
-            {upload.isPending ? 'Uploading…' : hasPhoto ? 'Change' : 'Add a photo'}
+            {uploading ? 'Uploading…' : hasPhoto ? 'Change' : 'Add a photo'}
           </button>
           {hasPhoto && (
             <button
               type="button"
               disabled={busy}
-              onClick={() => {
-                upload.reset()
-                remove.mutate()
-              }}
+              onClick={removePhoto}
               className="h-11 rounded-full border-[1.5px] border-border-strong bg-transparent px-4 text-sm font-semibold text-text disabled:opacity-60"
             >
               Remove
