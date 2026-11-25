@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { BlurredFace } from '@/components/BlurredFace'
 import { ChatIcon, CheckIcon } from '@/components/icons'
 
 import { describePlace } from '../utils/place'
 import { shareUrl, whatsappMessage } from '../utils/share'
-import { BlurredFace } from './BlurredFace'
 
 type Props = {
   position: number

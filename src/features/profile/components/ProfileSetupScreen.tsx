@@ -18,12 +18,13 @@ import { stepPath, steps, type Step } from '../utils/steps'
 import { BasicsForm } from './BasicsForm'
 import { CardsForm } from './CardsForm'
 import { GuessesForm } from './GuessesForm'
+import { PhotoStep } from './PhotoStep'
 import { PreferencesForm } from './PreferencesForm'
 import { PromptsForm } from './PromptsForm'
 
 const isStep = (value: string | undefined): value is Step => steps.some((s) => s === value)
 
-/** The five profile screens. Each saves on Next, so leaving halfway keeps what's done. */
+/** The six profile screens. Each saves on Next, so leaving halfway keeps what's done. */
 export function ProfileSetupScreen() {
   const { step } = useParams()
   const navigate = useNavigate()
@@ -127,6 +128,7 @@ export function ProfileSetupScreen() {
           error={preferences.error}
         />
       )}
+      {step === 'photo' && <PhotoStep onDone={() => next('photo')} />}
     </div>
   )
 }

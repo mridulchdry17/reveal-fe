@@ -1,27 +1,33 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router'
 
 import { AlertIcon } from '@/components/icons'
 import { ScreenHeader } from '@/components/ScreenHeader'
+import { StepProgress } from '@/components/StepProgress'
+
+import { previousStep, stepNumber, stepPath, type Step } from '../utils/steps'
 
 type Props = {
-  step: 1 | 2 | 3 | 4 | 5
-  backTo?: string
+  step: Step
+  /** Overrides the default back arrow (to the previous screen), e.g. to go back one guess card. */
+  onBack?: () => void
   /** The heading's plain words; with `accent` this is the heading's accessible name. */
   title: string
   /** Words after the title, in italic terracotta: "Give yourself a" + "nickname". */
   accent?: string
-  subtitle?: string
+  subtitle?: ReactNode
   children: ReactNode
-  submitLabel: string
+  /** The main button's words; leave out to show only `secondary`. */
+  submitLabel?: string
   submitting: boolean
   error?: string | null
+  /** A quieter action under the main button, like "Skip for now". */
+  secondary?: ReactNode
 }
 
-/** "Profile n of 5": header, progress, title, the form's fields, and the submit button. */
+/** "Step n of 7": header, progress, title, the form's fields, and the submit button. */
 export function StepLayout({
   step,
-  backTo,
+  onBack,
   title,
   accent,
   subtitle,
@@ -29,31 +35,13 @@ export function StepLayout({
   submitLabel,
   submitting,
   error,
+  secondary,
 }: Props) {
+  const previous = previousStep(step)
+  const back = onBack ? { onClick: onBack } : previous ? { to: stepPath(previous) } : undefined
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 overflow-x-clip px-5 pt-3 pb-8">
-      <div className="flex flex-col gap-2.5">
-        <header className="flex h-11 items-center justify-between">
-          {backTo ? (
-            <Link
-              to={backTo}
-              className="-ml-2 flex h-11 items-center px-2 text-sm font-semibold text-muted no-underline"
-            >
-              Back
-            </Link>
-          ) : (
-            <span />
-          )}
-          <span className="text-[11px] font-bold tracking-[0.16em] text-accent-text uppercase">
-            Profile {step} of 5
-          </span>
-        </header>
-        <div aria-hidden="true" className="flex gap-1.5">
-          {[1, 2, 3, 4, 5].map((n) => (
-            <span key={n} className={`h-1 flex-1 rounded-full ${n <= step ? 'bg-accent' : 'bg-border'}`} />
-          ))}
-        </div>
-      </div>
+      <StepProgress step={stepNumber(step)} back={back} />
       <div className="rise">
         <ScreenHeader title={title} accent={accent} subtitle={subtitle} />
       </div>
@@ -65,13 +53,16 @@ export function StepLayout({
             {error}
           </p>
         )}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="h-[54px] rounded-full border-0 bg-accent text-base font-bold text-on-accent transition-transform duration-150 active:scale-[0.97] disabled:opacity-60"
-        >
-          {submitting ? 'Saving…' : submitLabel}
-        </button>
+        {submitLabel && (
+          <button
+            type="submit"
+            disabled={submitting}
+            className="h-[54px] rounded-full border-0 bg-accent text-base font-bold text-on-accent transition-transform duration-150 active:scale-[0.97] disabled:opacity-60"
+          >
+            {submitting ? 'Saving…' : submitLabel}
+          </button>
+        )}
+        {secondary}
       </div>
     </div>
   )

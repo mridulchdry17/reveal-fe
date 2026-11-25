@@ -18,7 +18,7 @@ describe('signed-in app', () => {
     stubGoogleButton()
     renderRoutes(routes, '/app/chats')
 
-    expect(await screen.findByRole('heading', { name: 'Talk first. Photos later.' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Reveal' })).toBeInTheDocument()
   })
 
   it('treats an expired session as signed out', async () => {
@@ -31,7 +31,7 @@ describe('signed-in app', () => {
     )
     renderRoutes(routes, '/app')
 
-    expect(await screen.findByRole('heading', { name: 'Talk first. Photos later.' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Reveal' })).toBeInTheDocument()
     expect(getToken()).toBeNull()
   })
 
@@ -61,7 +61,7 @@ describe('signed-in app', () => {
     expect(await screen.findByText('aanya@gmail.com')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Sign out' }))
 
-    expect(await screen.findByRole('heading', { name: 'Talk first. Photos later.' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Reveal' })).toBeInTheDocument()
     expect(signedOutWith).toBe('Bearer test-session-token')
     expect(getToken()).toBeNull()
   })

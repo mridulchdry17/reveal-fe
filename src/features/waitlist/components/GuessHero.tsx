@@ -1,8 +1,9 @@
 import type { CSSProperties } from 'react'
 
+import { BlurredFace } from '@/components/BlurredFace'
+
 import { useGuessGame } from '../hooks/useGuessGame'
 import { demoClues } from '../utils/clues'
-import { BlurredFace } from './BlurredFace'
 
 const letters = ['A', 'B', 'C']
 

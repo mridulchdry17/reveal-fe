@@ -97,3 +97,19 @@ export function CloseIcon(props: IconProps) {
     </Icon>
   )
 }
+
+export function BackIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M10 3 5 8l5 5" />
+    </Icon>
+  )
+}
+
+export function ChevronRightIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m6 3 5 5-5 5" />
+    </Icon>
+  )
+}

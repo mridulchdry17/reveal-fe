@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
@@ -19,6 +19,24 @@ const routes = [
 ]
 
 describe('SignInScreen', () => {
+  it('says what Reveal is, how it works and what stays hidden', async () => {
+    stubGoogleButton()
+    renderRoutes(routes, '/sign-in')
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Reveal' })).toBeInTheDocument()
+    expect(
+      screen.getByText(`Campus dating, one guess at a time. For verified ${env.VITE_COLLEGE_NAME} students.`),
+    ).toBeInTheDocument()
+    const steps = screen.getByRole('list', { name: 'How Reveal works' })
+    expect(within(steps).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      '01A small drop, every night at 9',
+      '02Each right guess brings a face into focus',
+      '03Full photo only when you both say yes',
+    ])
+    expect(screen.getByText(/You go by a nickname\. Your name, photo and number stay hidden/)).toBeInTheDocument()
+    expect(screen.getByText(/18 or older/)).toBeInTheDocument()
+  })
+
   it('signs in with Google and goes to the app', async () => {
     stubGoogleButton('google-id-token')
     let sentCredential = ''

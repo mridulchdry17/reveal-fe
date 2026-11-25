@@ -27,7 +27,7 @@ export function PendingScreen() {
 
         <div className="rise">
           <ScreenHeader
-            kicker="Step 3 of 3 · almost there"
+            kicker="Almost there"
             title="We're checking"
             accent="your ID"
             subtitle="Usually within a few hours. Open Reveal again later and you'll go straight in once it's approved."
