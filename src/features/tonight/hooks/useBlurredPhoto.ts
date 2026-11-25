@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { getDropPhoto, getLikePhoto } from '../api/drops'
+import { getDropPhoto, getLikePhoto, getSentLikePhoto } from '../api/drops'
 import { tonightKeys } from '../api/keys'
 
 /**
@@ -30,6 +30,17 @@ export function useLikePhoto(likeId: string, enabled: boolean, rightGuesses: num
     queryFn: () => getLikePhoto(likeId),
     enabled,
     placeholderData: sameId(likeId),
+    staleTime: Infinity,
+    retry: false,
+  })
+}
+
+/** Their blurred photo on a like I sent. It never changes, so it's fetched once. */
+export function useSentLikePhoto(likeId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: tonightKeys.sentPhoto(likeId),
+    queryFn: () => getSentLikePhoto(likeId),
+    enabled,
     staleTime: Infinity,
     retry: false,
   })
