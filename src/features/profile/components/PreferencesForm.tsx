@@ -72,7 +72,7 @@ export function PreferencesForm({ profile, onSave, saving, error }: Props) {
         title="Who should we"
         accent="show you?"
         subtitle="Tell us who you are and who you'd like to meet. Tap one of each."
-        submitLabel="Finish profile"
+        submitLabel="Next"
         submitting={saving}
         error={hint ?? (error ? profileErrorMessage(error) : null)}
       >

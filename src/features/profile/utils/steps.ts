@@ -1,7 +1,7 @@
 import type { MyProfile } from '../api/profile'
 
-/** Setup screens in order. */
-export const steps = ['basics', 'prompts', 'guesses', 'cards', 'preferences'] as const
+/** Setup screens in order. Photo is last and never required, so nextStep doesn't send people back to it. */
+export const steps = ['basics', 'prompts', 'guesses', 'cards', 'preferences', 'photo'] as const
 export type Step = (typeof steps)[number]
 
 export const stepPath = (step: Step) => `/profile/setup/${step}`

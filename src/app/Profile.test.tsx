@@ -318,6 +318,52 @@ describe('profile setup', () => {
     await userEvent.click(await screen.findByRole('radio', { name: 'Woman' }))
     await userEvent.click(screen.getByRole('radio', { name: 'Men' }))
     expect(screen.queryByRole('switch')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Next' }))
+
+    expect(await screen.findByRole('heading', { name: 'Your face, earned slowly.' })).toBeInTheDocument()
+    expect(screen.getByText('Step 7 of 7')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Skip for now' }))
+
+    expect(await screen.findByRole('navigation', { name: 'Main' })).toBeInTheDocument()
+  })
+
+  it('shows how my photo looks to them at each stage, with a voice note card', async () => {
+    withOptions()
+    signInAs()
+    renderRoutes(routes, '/profile/setup/photo')
+
+    const stages = await screen.findByRole('list', { name: 'How your photo looks to them' })
+    expect(within(stages).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      'In the drop',
+      'After right guesses',
+      'After card swaps',
+      'Both said yes',
+    ])
+    expect(screen.getByRole('button', { name: 'Add a photo' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Finish profile' })).not.toBeInTheDocument()
+    const voice = screen.getByRole('region', { name: 'Voice note' })
+    expect(voice).toHaveTextContent('Optional · up to 30s')
+    expect(voice).toHaveTextContent("Say hi the way you'd say it in the canteen.")
+  })
+
+  it('adds a photo on the last step, then finishes', async () => {
+    withOptions()
+    signInAs()
+    server.use(
+      http.put(`${api}/me/photo`, () => HttpResponse.json({ ...completeProfile, has_photo: true })),
+      http.get(`${api}/me/photo`, () =>
+        new HttpResponse(new Blob(['jpeg']), { headers: { 'Content-Type': 'image/jpeg' } }),
+      ),
+    )
+    renderRoutes(routes, '/profile/setup/photo')
+
+    await screen.findByRole('button', { name: 'Add a photo' })
+    const input = document.querySelector<HTMLInputElement>('input[type="file"]')
+    if (!input) throw new Error('no file input')
+    await userEvent.upload(input, new File(['fake-jpeg'], 'me.jpg', { type: 'image/jpeg' }))
+
+    expect(await screen.findByRole('button', { name: 'Change photo' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Skip for now' })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Finish profile' }))
 
     expect(await screen.findByRole('navigation', { name: 'Main' })).toBeInTheDocument()
