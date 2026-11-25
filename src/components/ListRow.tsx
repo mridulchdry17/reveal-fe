@@ -36,13 +36,9 @@ export function ListRow({ to, title, detail, value, todo, 'aria-label': label }:
 }
 
 /** The rounded card that groups ListRows, with a hairline between rows. */
-export function ListCard({ children, label }: { children: ReactNode; label?: string }) {
+export function ListCard({ children }: { children: ReactNode }) {
   return (
-    <div
-      role={label ? 'group' : undefined}
-      aria-label={label}
-      className="flex flex-col divide-y divide-border overflow-hidden rounded-[18px] border border-border bg-surface"
-    >
+    <div className="flex flex-col divide-y divide-border overflow-hidden rounded-[18px] border border-border bg-surface">
       {children}
     </div>
   )
