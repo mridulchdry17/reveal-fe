@@ -57,10 +57,7 @@ const options = {
 }
 
 function withOptions() {
-  server.use(
-    http.get(`${api}/options`, () => HttpResponse.json(options)),
-    http.get(`${env.VITE_API_URL}/health`, () => HttpResponse.json({ status: 'ok', database: 'ok' })),
-  )
+  server.use(http.get(`${api}/options`, () => HttpResponse.json(options)))
 }
 
 describe('profile setup', () => {

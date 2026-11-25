@@ -40,10 +40,6 @@ function withMicrophone(allowed = true) {
   })
 }
 
-function quietHealth() {
-  server.use(http.get(`${env.VITE_API_URL}/health`, () => HttpResponse.json({ status: 'ok', database: 'ok' })))
-}
-
 afterEach(() => {
   Reflect.deleteProperty(window, 'MediaRecorder')
   Reflect.deleteProperty(navigator, 'mediaDevices')
@@ -51,7 +47,6 @@ afterEach(() => {
 
 describe('Voice note in the You tab', () => {
   it('records, previews and saves a voice note', async () => {
-    quietHealth()
     withMicrophone()
     signInAs()
     let sent = ''
@@ -77,7 +72,6 @@ describe('Voice note in the You tab', () => {
   })
 
   it('removes a saved voice note', async () => {
-    quietHealth()
     withMicrophone()
     signInAs(undefined, undefined, { ...completeProfile, voice_seconds: 12 })
     server.use(
@@ -94,7 +88,6 @@ describe('Voice note in the You tab', () => {
   })
 
   it('explains when the microphone is blocked', async () => {
-    quietHealth()
     withMicrophone(false)
     signInAs()
     renderRoutes(routes, '/app/you/cards/voice')
@@ -106,7 +99,6 @@ describe('Voice note in the You tab', () => {
   })
 
   it('says so when the browser cannot record', async () => {
-    quietHealth()
     signInAs()
     renderRoutes(routes, '/app/you/cards/voice')
 
