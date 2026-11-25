@@ -29,9 +29,9 @@ export const kabir: PublicProfile = {
   shown_cards: ['looking_for'],
   hidden_cards: ['first_name', 'branch', 'hometown', 'photo', 'contact'],
   guess_cards: [
-    { id: 'kg1', kind: 'everyday', question: 'My go-to canteen order', options: ['Rajma chawal', 'Maggi', 'Cold coffee'], picked: null, answer: null },
-    { id: 'kg2', kind: 'hot_take', question: 'Movies: theatre or laptop?', options: ['Theatre', 'Laptop', 'Depends who asks'], picked: null, answer: null },
-    { id: 'kg3', kind: 'little_thing', question: 'What I always carry in my bag', options: ['Earphones', 'A book', 'Snacks'], picked: null, answer: null },
+    { id: 'kg1', kind: 'everyday', question: 'My go-to canteen order', options: ['Rajma chawal', 'Maggi', 'Cold coffee'], picked: null, answer: null, struck: null },
+    { id: 'kg2', kind: 'hot_take', question: 'Movies: theatre or laptop?', options: ['Theatre', 'Laptop', 'Depends who asks'], picked: null, answer: null, struck: null },
+    { id: 'kg3', kind: 'little_thing', question: 'What I always carry in my bag', options: ['Earphones', 'A book', 'Snacks'], picked: null, answer: null, struck: null },
   ],
   right_guesses: 0,
   has_blurred_photo: false,

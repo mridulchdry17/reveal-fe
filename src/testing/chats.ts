@@ -24,6 +24,8 @@ export function chatSummary(overrides: Partial<ChatSummary> = {}): ChatSummary {
     matched_at: '2026-11-22T16:35:00Z',
     last_message: null,
     unread: false,
+    photo_pieces: 0,
+    pending_swap: null,
     ...overrides,
   }
 }
@@ -35,11 +37,11 @@ export function mockChats(chats: ChatSummary[] = []) {
 /** A new match: every card can be asked for, photo waits for a card swap, no pieces open. */
 export const freshBoard: SwapBoard = {
   cards: [
-    { card: 'first_name', state: 'can_ask' },
-    { card: 'branch', state: 'can_ask' },
-    { card: 'hometown', state: 'can_ask' },
-    { card: 'photo', state: 'locked' },
-    { card: 'contact', state: 'locked' },
+    { card: 'first_name', state: 'can_ask', asked_at: null, decided_at: null },
+    { card: 'branch', state: 'can_ask', asked_at: null, decided_at: null },
+    { card: 'hometown', state: 'can_ask', asked_at: null, decided_at: null },
+    { card: 'photo', state: 'locked', asked_at: null, decided_at: null },
+    { card: 'contact', state: 'locked', asked_at: null, decided_at: null },
   ],
   photo_pieces: [],
 }

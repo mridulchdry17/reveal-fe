@@ -14,8 +14,11 @@ import { LikesBanner } from './LikesBanner'
 
 const like = {
   id: 'l1',
+  liked: { kind: 'prompt' as const, question: 'Hot take', answer: 'Maggi is a full meal', guess_kind: null },
   prompt_question: 'Hot take',
   prompt_answer: 'Maggi is a full meal',
+  their_right_guesses: 0,
+  my_cards_total: 3,
   comment: 'Only with extra masala',
   created_at: '2026-11-22T16:40:00Z',
   profile: kabir,

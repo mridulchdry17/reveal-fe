@@ -31,9 +31,9 @@ export const completeProfile: MyProfile = {
     { id: 'p3', question: 'Green flag in people', answer: 'They remember small things' },
   ],
   guess_cards: [
-    { id: 'g1', kind: 'everyday', question: 'Chai or coffee?', options: ['Chai', 'Coffee', 'Neither'], answer: 0 },
-    { id: 'g2', kind: 'hot_take', question: 'Pineapple on pizza?', options: ['Yes', 'Never', 'Only at 2am'], answer: 2 },
-    { id: 'g3', kind: 'little_thing', question: 'My comfort show', options: ['Friends', 'Panchayat', 'The Office'], answer: 1 },
+    { id: 'g1', kind: 'everyday', question: 'Chai or coffee?', options: ['Chai', 'Coffee', 'Neither'], answer: 0, guessed_count: 0, right_count: 0 },
+    { id: 'g2', kind: 'hot_take', question: 'Pineapple on pizza?', options: ['Yes', 'Never', 'Only at 2am'], answer: 2, guessed_count: 0, right_count: 0 },
+    { id: 'g3', kind: 'little_thing', question: 'My comfort show', options: ['Friends', 'Panchayat', 'The Office'], answer: 1, guessed_count: 0, right_count: 0 },
   ],
   branch: 'CSE',
   year: 2,
