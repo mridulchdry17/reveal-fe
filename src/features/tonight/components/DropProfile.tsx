@@ -74,7 +74,7 @@ export function DropProfile({ profile, onLikePrompt, photoUrl, guess }: Props) {
           </h2>
           <p className="m-0 text-[15px] text-white/80">{profile.vibe}</p>
           {photoUrl && (
-            <p className="m-0 text-[12px] text-white/80">Blurred on purpose. It stays this way until you match and swap.</p>
+            <p className="m-0 text-[12px] text-white/80">Blurred on purpose. Right guesses make it sharper.</p>
           )}
         </div>
       </div>
