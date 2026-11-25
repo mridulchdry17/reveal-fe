@@ -8,7 +8,6 @@ import { ApiError } from '@/lib/api/errors'
 
 import type { GuessCardsUpdate, GuessKind, MyProfile, ProfileOptions } from '../api/profile'
 import { profileErrorMessage } from '../utils/errorMessage'
-import { stepPath } from '../utils/steps'
 import { Chip } from './Chip'
 import { StepLayout } from './StepLayout'
 
@@ -101,8 +100,7 @@ export function GuessesForm({ profile, options, onSave, saving, error }: Props) 
   return (
     <form onSubmit={submit} noValidate>
       <StepLayout
-        step={3}
-        backTo={stepPath('prompts')}
+        step="guesses"
         title="Make them"
         accent="guess you."
         subtitle="Ask three things about you and mark the true answer. Each right guess sharpens your blurred photo for them, a little. It never gets clear before you both swap."

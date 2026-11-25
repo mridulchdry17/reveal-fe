@@ -156,7 +156,7 @@ describe('profile setup', () => {
     renderRoutes(routes, '/app/tonight')
 
     expect(await screen.findByRole('heading', { name: 'Make them guess you.' })).toBeInTheDocument()
-    expect(screen.getByText('Profile 3 of 5')).toBeInTheDocument()
+    expect(screen.getByText('Step 4 of 7')).toBeInTheDocument()
   })
 
   it('saves three guess cards, then moves to the cards', async () => {

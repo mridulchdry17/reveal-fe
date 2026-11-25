@@ -54,7 +54,7 @@ export function BasicsForm({ profile, options, onSave, saving, error }: Props) {
   return (
     <form onSubmit={submit} noValidate>
       <StepLayout
-        step={1}
+        step="basics"
         title="Give yourself a"
         accent="nickname"
         subtitle="Something that sounds like you. It's your name here until you swap first names."

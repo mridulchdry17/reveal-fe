@@ -3,7 +3,6 @@ import { useForm, useWatch } from 'react-hook-form'
 
 import type { MyProfile, ProfileOptions, PromptsUpdate } from '../api/profile'
 import { profileErrorMessage } from '../utils/errorMessage'
-import { stepPath } from '../utils/steps'
 import { StepLayout } from './StepLayout'
 
 type Props = {
@@ -49,8 +48,7 @@ export function PromptsForm({ profile, options, onSave, saving, error }: Props) 
   return (
     <form onSubmit={submit} noValidate>
       <StepLayout
-        step={2}
-        backTo={stepPath('basics')}
+        step="prompts"
         title="Answer 3"
         accent="prompts"
         subtitle="This is what people fall for first. Be specific, be a little weird. Names, numbers and handles are blocked."

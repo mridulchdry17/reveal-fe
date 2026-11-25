@@ -6,7 +6,6 @@ import { CheckIcon, LockIcon } from '@/components/icons'
 import type { Card, CardsUpdate, LookingFor, MyProfile, ProfileOptions } from '../api/profile'
 import { profileErrorMessage } from '../utils/errorMessage'
 import { branchSuggestions, yearLabels } from '../utils/labels'
-import { stepPath } from '../utils/steps'
 import { StepLayout } from './StepLayout'
 
 type CardState = 'shown' | 'hidden' | 'optional' | 'sealed'
@@ -79,8 +78,7 @@ export function CardsForm({ profile, options, onSave, saving, error }: Props) {
   return (
     <form onSubmit={submit} noValidate>
       <StepLayout
-        step={4}
-        backTo={stepPath('guesses')}
+        step="cards"
         title="Your 7"
         accent="cards"
         subtitle="Same layout for everyone, nothing to decide. What you're looking for is shown; the rest open only when you both swap."

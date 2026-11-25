@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import type { Gender, InterestedIn, MatchOn, MyProfile, PreferencesUpdate } from '../api/profile'
 import { profileErrorMessage } from '../utils/errorMessage'
 import { genderLabels, interestedInLabels, matchOnLabels } from '../utils/labels'
-import { stepPath } from '../utils/steps'
 import { Chip } from './Chip'
 import { StepLayout } from './StepLayout'
 
@@ -69,8 +68,7 @@ export function PreferencesForm({ profile, onSave, saving, error }: Props) {
   return (
     <form onSubmit={submit} noValidate>
       <StepLayout
-        step={5}
-        backTo={stepPath('cards')}
+        step="preferences"
         title="Who should we"
         accent="show you?"
         subtitle="Tell us who you are and who you'd like to meet. Tap one of each."
