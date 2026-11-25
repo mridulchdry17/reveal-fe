@@ -1,6 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import { answerSwap, askSwap, getTheirPhoto, getTheirVoice, type Card, type ChatThread } from '../api/chats'
+import {
+  answerSwap,
+  askSwap,
+  getTheirPhoto,
+  getTheirVoice,
+  guessCard,
+  withdrawSwap,
+  type Card,
+  type ChatThread,
+} from '../api/chats'
 import { chatKeys } from '../api/keys'
 
 function useBoardUpdate(matchId: string) {
@@ -50,5 +59,19 @@ export function useTheirVoice(matchId: string, open: boolean) {
     enabled: open,
     staleTime: Infinity,
     retry: false,
+  })
+}
+
+export function useWithdrawSwap(matchId: string) {
+  const update = useBoardUpdate(matchId)
+  return useMutation({ mutationFn: (card: Card) => withdrawSwap(matchId, card), onSuccess: update })
+}
+
+/** A guess from the chat: the reloaded thread brings the answer and any new photo piece. */
+export function useGuessCard(matchId: string) {
+  const refresh = useRefreshThread(matchId)
+  return useMutation({
+    mutationFn: ({ cardId, pick }: { cardId: string; pick: number }) => guessCard(cardId, pick),
+    onSettled: () => void refresh(),
   })
 }
