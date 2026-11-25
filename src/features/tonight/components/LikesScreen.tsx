@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router'
 
 import { AlertIcon } from '@/components/icons'
 import { ScreenHeader } from '@/components/ScreenHeader'
@@ -29,12 +28,6 @@ export function LikesScreen({ guess }: Props) {
 
   return (
     <section className="flex flex-col gap-4 pb-6">
-      <Link
-        to="/app/chats"
-        className="-ml-1 flex h-11 w-fit items-center px-1 text-sm font-semibold text-muted no-underline"
-      >
-        ← Chats
-      </Link>
       <ScreenHeader
         kicker={count > 0 ? `${count} waiting` : 'Your likes'}
         title="Liked"

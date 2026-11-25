@@ -23,7 +23,6 @@ import { HideSection } from '@/features/hide/components/HideSection'
 import { DropReminder } from '@/features/notifications/components/DropReminder'
 import { NotificationsCard } from '@/features/notifications/components/NotificationsCard'
 import { YouScreen } from '@/features/settings/components/YouScreen'
-import { LikesBanner } from '@/features/tonight/components/LikesBanner'
 import { LikesScreen } from '@/features/tonight/components/LikesScreen'
 import { TonightScreen } from '@/features/tonight/components/TonightScreen'
 import { WaitlistScreen } from '@/features/waitlist/components/WaitlistScreen'
@@ -86,7 +85,7 @@ export const routes: RouteObject[] = [
                 children: [
                   { index: true, element: <Navigate to="tonight" replace /> },
                   { path: 'tonight', element: <TonightScreen guess={guessCards} reminder={<DropReminder />} /> },
-                  { path: 'chats', element: <ChatsScreen likes={<LikesBanner />} /> },
+                  { path: 'chats', element: <ChatsScreen /> },
                   { path: 'likes', element: <LikesScreen guess={guessCards} /> },
                   {
                     path: 'you',

@@ -10,7 +10,6 @@ import { renderRoutes } from '@/testing/render'
 import { server } from '@/testing/server'
 
 import { LikesScreen } from './LikesScreen'
-import { LikesBanner } from './LikesBanner'
 
 const like = {
   id: 'l1',
@@ -26,7 +25,6 @@ const like = {
 
 const routes = [
   { path: '/app/likes', element: <LikesScreen /> },
-  { path: '/app/chats', element: <LikesBanner /> },
 ]
 
 describe('Likes', () => {
@@ -76,24 +74,5 @@ describe('Likes', () => {
     expect(await screen.findByRole('heading', { name: 'No likes waiting' })).toBeInTheDocument()
     expect(passed).toBe(true)
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
-  })
-
-  it('counts waiting likes on the Chats tab and opens them', async () => {
-    signInAs()
-    mockLikes([like, { ...like, id: 'l2' }])
-    renderRoutes(routes, '/app/chats')
-
-    await userEvent.click(await screen.findByRole('link', { name: /2 people liked you/ }))
-
-    expect(await screen.findByRole('heading', { name: 'Liked you' })).toBeInTheDocument()
-  })
-
-  it('shows nothing on the Chats tab when no one is waiting', async () => {
-    signInAs()
-    mockLikes([])
-    const { container } = renderRoutes(routes, '/app/chats')
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-    expect(container).toBeEmptyDOMElement()
   })
 })
