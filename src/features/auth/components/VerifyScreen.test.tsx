@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
@@ -74,14 +74,30 @@ describe('VerifyScreen', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('already linked')
   })
 
-  it('starts the ID card flow from the ID card option', async () => {
+  it('offers college email first, then the ID card, then an admin', async () => {
     stubGoogleButton()
     signInAs(unverifiedUser)
     renderRoutes(routes, '/verify')
 
-    await userEvent.click(await screen.findByRole('radio', { name: /College ID card/ }))
-    expect(screen.queryByRole('button', { name: 'Continue with Google' })).not.toBeInTheDocument()
-    await userEvent.click(screen.getByRole('link', { name: 'Continue with ID card' }))
+    expect(
+      await screen.findByText('Everyone on Reveal is checked. Pick whichever is quicker for you.'),
+    ).toBeInTheDocument()
+    const email = screen.getByRole('region', { name: 'College email' })
+    expect(email).toHaveTextContent('Instant')
+    expect(within(email).getByRole('button', { name: 'Continue with Google' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Upload your college ID/ })).toHaveTextContent(
+      'A person checks it, usually within a few hours',
+    )
+    expect(screen.getByRole('button', { name: /Ask an admin/ })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByText(/Nobody on Reveal ever sees it/)).toBeInTheDocument()
+  })
+
+  it('starts the ID card flow from the ID row', async () => {
+    stubGoogleButton()
+    signInAs(unverifiedUser)
+    renderRoutes(routes, '/verify')
+
+    await userEvent.click(await screen.findByRole('link', { name: /Upload your college ID/ }))
 
     expect(await screen.findByRole('heading', { name: 'ID card photo' })).toBeInTheDocument()
   })
@@ -91,7 +107,8 @@ describe('VerifyScreen', () => {
     signInAs(unverifiedUser)
     renderRoutes(routes, '/verify')
 
-    await userEvent.click(await screen.findByRole('radio', { name: /No email or ID yet/ }))
+    expect(screen.queryByText(unverifiedUser.email)).not.toBeInTheDocument()
+    await userEvent.click(await screen.findByRole('button', { name: /Ask an admin/ }))
     expect(screen.getByText(unverifiedUser.email)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: "I've been let in" })).toBeInTheDocument()
   })

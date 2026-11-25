@@ -1,9 +1,9 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useId, useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router'
 
-import { AlertIcon, LockIcon } from '@/components/icons'
+import { AlertIcon, ChevronRightIcon, IdCardIcon, LockIcon } from '@/components/icons'
 import { ScreenHeader } from '@/components/ScreenHeader'
-import { Sticker } from '@/components/Sticker'
+import { StepProgress } from '@/components/StepProgress'
 import { env } from '@/config/env'
 
 import { useMe } from '../hooks/useMe'
@@ -12,28 +12,6 @@ import { useVerificationStatus } from '../hooks/useVerificationStatus'
 import { useVerifyCollegeEmail } from '../hooks/useVerifyCollegeEmail'
 import { verifyErrorMessage } from '../utils/errorMessage'
 import { GoogleSignInButton } from './GoogleSignInButton'
-import { StepHeader } from './StepHeader'
-
-type Method = 'college_email' | 'id_card' | 'admin'
-
-const methods: { value: Method; title: string; detail: string; badge?: string }[] = [
-  {
-    value: 'college_email',
-    title: 'College email',
-    detail: `One tap with your @${env.VITE_COLLEGE_DOMAIN} Google account`,
-    badge: 'Instant',
-  },
-  {
-    value: 'id_card',
-    title: 'College ID card',
-    detail: 'Upload a photo of the front. A person checks it, usually within a few hours',
-  },
-  {
-    value: 'admin',
-    title: 'No email or ID yet',
-    detail: 'Just joined and nothing official yet? Ask an admin to let you in',
-  },
-]
 
 /** Signed in, not yet a verified student: pick how to prove you're at the college. */
 export function VerifyScreen() {
@@ -42,7 +20,8 @@ export function VerifyScreen() {
   const verify = useVerifyCollegeEmail()
   const { mutate } = verify
   const onCredential = useCallback((credential: string) => mutate(credential), [mutate])
-  const [method, setMethod] = useState<Method>('college_email')
+  const [askAdmin, setAskAdmin] = useState(false)
+  const adminId = useId()
   const status = useVerificationStatus()
   // The waiting screen links back here to switch to college email; don't bounce them.
   const choosing = (useLocation().state as { choose?: boolean } | null)?.choose === true
@@ -54,30 +33,28 @@ export function VerifyScreen() {
   return (
     <div className="min-h-dvh bg-bg text-text">
       <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-5 px-5 pt-3 pb-8">
-        <StepHeader
+        <StepProgress
           step={1}
-          left={
-            <button
-              type="button"
-              onClick={() => signOut.mutate()}
-              disabled={signOut.isPending}
-              className="-ml-2 h-11 rounded-full bg-transparent px-2 text-sm font-semibold text-muted"
-            >
-              Sign out
-            </button>
-          }
+          back={{
+            node: (
+              <button
+                type="button"
+                onClick={() => signOut.mutate()}
+                disabled={signOut.isPending}
+                className="-ml-2 h-11 rounded-full bg-transparent px-2 text-sm font-semibold text-muted"
+              >
+                Sign out
+              </button>
+            ),
+          }}
         />
 
-        <div className="rise relative">
+        <div className="rise pt-2">
           <ScreenHeader
-            kicker="Verify"
             title="Only students."
             accent="That's the point."
-            subtitle={`Prove you're from ${env.VITE_COLLEGE_NAME}. Pick whichever is easier.`}
+            subtitle="Everyone on Reveal is checked. Pick whichever is quicker for you."
           />
-          <Sticker tone="forest" tilt={7} className="absolute top-0 right-1">
-            No randoms
-          </Sticker>
         </div>
 
         {(idStatus === 'rejected' || idStatus === 'expired') && (
@@ -95,111 +72,109 @@ export function VerifyScreen() {
           </p>
         )}
 
-        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-          <legend className="sr-only">How do you want to verify?</legend>
-          {methods.map((m) => (
-            <label
-              key={m.value}
-              className="flex cursor-pointer items-center gap-3.5 rounded-[24px] border-2 border-border bg-surface p-4 shadow-[0_10px_24px_rgb(40_20_10/0.06)] has-checked:border-accent has-checked:bg-accent-bg has-checked:shadow-none"
+        <section
+          aria-labelledby="college-email"
+          className="flex flex-col gap-3 rounded-[24px] border border-border bg-surface p-5 shadow-[0_10px_24px_rgb(40_20_10/0.06)]"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <h2
+              id="college-email"
+              className="m-0 text-[11px] font-bold tracking-[0.16em] text-muted uppercase"
             >
-              <input
-                type="radio"
-                name="method"
-                value={m.value}
-                checked={method === m.value}
-                onChange={() => setMethod(m.value)}
-                className="size-[22px] shrink-0 cursor-pointer appearance-none rounded-full border-2 border-border-strong checked:border-[7px] checked:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-              />
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="flex items-center justify-between gap-2">
-                  <span className="font-display text-[22px] leading-tight font-normal">{m.title}</span>
-                  {m.badge && (
-                    <span className="rounded-full bg-open-bg px-2.5 py-1 text-[11px] font-bold tracking-[0.08em] text-open uppercase">
-                      {m.badge}
-                    </span>
-                  )}
-                </span>
-                <span className="text-[13px] leading-5 text-muted">{m.detail}</span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
-
-        {method === 'college_email' && (
-          <section aria-label="Verify with college email" className="flex flex-col gap-4">
-            <p className="m-0 flex gap-2.5 rounded-[20px] bg-surface-2 p-3.5 text-[13px] leading-5 text-muted">
-              <LockIcon className="mt-0.5 size-[18px] shrink-0 text-locked" />
-              Only @{env.VITE_COLLEGE_DOMAIN} accounts work here. Your college email is never shown
-              on your profile, and one email verifies one account.
-            </p>
-            {verify.isPending ? (
-              <p className="m-0 flex min-h-11 items-center justify-center text-sm font-semibold">
-                Checking your college account…
-              </p>
-            ) : (
-              <GoogleSignInButton
-                onCredential={onCredential}
-                hostedDomain={env.VITE_COLLEGE_DOMAIN}
-              />
-            )}
-            {verify.isError && (
-              <p role="alert" className="m-0 flex gap-2 text-sm text-accent-text">
-                <AlertIcon className="mt-0.5 size-4 shrink-0" />
-                {verifyErrorMessage(verify.error)}
-              </p>
-            )}
-            <p className="m-0 text-center text-[13px] text-muted">
-              Pick your college account in the Google window.
-            </p>
-          </section>
-        )}
-
-        {method === 'id_card' &&
-          (idStatus === 'pending' ? (
-            <p className="m-0 rounded-[20px] bg-surface-2 p-4 text-sm leading-6">
-              Your ID is already being checked.{' '}
-              <Link to="/verify/pending" className="font-bold text-text">
-                See where it is
-              </Link>
+              College email
+            </h2>
+            <span className="rounded-full bg-open-bg px-2.5 py-1 text-[11px] font-bold tracking-[0.08em] text-open uppercase">
+              Instant
+            </span>
+          </div>
+          <p className="m-0 font-display text-[24px] leading-tight font-normal">
+            Your @{env.VITE_COLLEGE_DOMAIN} account
+          </p>
+          <p className="m-0 text-[13px] leading-5 text-muted">
+            One tap: pick it in Google's window. It's never shown on your profile, and one email
+            verifies one account.
+          </p>
+          {verify.isPending ? (
+            <p className="m-0 flex min-h-11 items-center justify-center text-sm font-semibold">
+              Checking your college account…
             </p>
           ) : (
-            <section aria-label="Verify with ID card" className="mt-auto flex flex-col gap-3">
-              <p className="m-0 text-[13px] leading-5 text-muted">
-                You'll take a photo of your ID, then a selfie. A person checks they match. Both
-                photos are deleted after review.
-              </p>
-              <Link
-                to="/verify/id-card"
-                className="flex h-[54px] items-center justify-center rounded-full bg-accent text-base font-bold text-on-accent no-underline"
-              >
-                Continue with ID card
-              </Link>
-            </section>
-          ))}
+            <GoogleSignInButton onCredential={onCredential} hostedDomain={env.VITE_COLLEGE_DOMAIN} />
+          )}
+          {verify.isError && (
+            <p role="alert" className="m-0 flex gap-2 text-sm text-accent-text">
+              <AlertIcon className="mt-0.5 size-4 shrink-0" />
+              {verifyErrorMessage(verify.error)}
+            </p>
+          )}
+        </section>
 
-        {method === 'admin' && (
-          <section
-            aria-label="Ask an admin"
-            className="flex flex-col gap-3 rounded-[24px] border border-border bg-surface p-5 text-sm leading-6"
+        <div aria-hidden="true" className="flex items-center gap-3 text-xs text-muted">
+          <span className="h-px flex-1 bg-border" />
+          no college email?
+          <span className="h-px flex-1 bg-border" />
+        </div>
+
+        <Link
+          to={idStatus === 'pending' ? '/verify/pending' : '/verify/id-card'}
+          className="flex items-center gap-3.5 rounded-[24px] border border-border bg-surface px-4 py-4 text-text no-underline"
+        >
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-surface-2">
+            <IdCardIcon className="size-[22px]" />
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="text-[15px] font-semibold">
+              {idStatus === 'pending' ? 'Your ID is being checked' : 'Upload your college ID'}
+            </span>
+            <span className="text-[13px] leading-5 text-muted">
+              {idStatus === 'pending'
+                ? 'See where it is'
+                : 'A person checks it, usually within a few hours'}
+            </span>
+          </span>
+          <ChevronRightIcon className="size-[18px] shrink-0 text-muted" />
+        </Link>
+
+        <div className="flex flex-col gap-3">
+          <button
+            type="button"
+            aria-expanded={askAdmin}
+            aria-controls={adminId}
+            onClick={() => setAskAdmin((open) => !open)}
+            className="min-h-11 self-center rounded-full border-0 bg-transparent px-3 text-sm font-semibold text-muted underline underline-offset-4"
           >
-            <p className="m-0">
-              Message a Reveal admin (whoever shared Reveal with you) with your name, year and the
-              email you signed in with:
-            </p>
-            <p className="m-0 rounded-2xl bg-surface-2 px-3.5 py-3 font-bold break-all">
-              {me.data?.email}
-            </p>
-            <p className="m-0 text-muted">Once they let you in, come back and tap below.</p>
-            <button
-              type="button"
-              onClick={() => void me.refetch()}
-              disabled={me.isFetching}
-              className="h-12 rounded-full border-0 bg-text text-sm font-bold text-bg disabled:opacity-60"
+            No email or ID yet? Ask an admin
+          </button>
+          {askAdmin && (
+            <section
+              id={adminId}
+              aria-label="Ask an admin"
+              className="flex flex-col gap-3 rounded-[24px] border border-border bg-surface p-5 text-sm leading-6"
             >
-              {me.isFetching ? 'Checking…' : "I've been let in"}
-            </button>
-          </section>
-        )}
+              <p className="m-0">
+                Just joined and nothing official yet? Message a Reveal admin (whoever shared Reveal
+                with you) with your name, year and the email you signed in with:
+              </p>
+              <p className="m-0 rounded-2xl bg-surface-2 px-3.5 py-3 font-bold break-all">
+                {me.data?.email}
+              </p>
+              <p className="m-0 text-muted">Once they let you in, come back and tap below.</p>
+              <button
+                type="button"
+                onClick={() => void me.refetch()}
+                disabled={me.isFetching}
+                className="h-12 rounded-full border-0 bg-text text-sm font-bold text-bg disabled:opacity-60"
+              >
+                {me.isFetching ? 'Checking…' : "I've been let in"}
+              </button>
+            </section>
+          )}
+        </div>
+
+        <p className="mt-auto mb-0 flex gap-2 text-xs leading-5 text-muted">
+          <LockIcon className="mt-0.5 size-4 shrink-0" />
+          Your ID is only used to check you're a student. Nobody on Reveal ever sees it.
+        </p>
       </div>
     </div>
   )
