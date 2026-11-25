@@ -293,6 +293,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/likes/sent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Likes I sent that are still waiting for an answer */
+        get: operations["sent_likes_v1_likes_sent_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/likes/sent/{like_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Take back a like that's still waiting. They're never told */
+        delete: operations["take_back_v1_likes_sent__like_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/likes/sent/{like_id}/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Their photo, heavily blurred; clearer with each right guess (JPEG, never cached) */
+        get: operations["sent_photo_v1_likes_sent__like_id__photo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/likes/{like_id}/match": {
         parameters: {
             query?: never;
@@ -463,6 +514,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/blocks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** People I blocked, latest first */
+        get: operations["my_blocks_v1_blocks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/hides": {
         parameters: {
             query?: never;
@@ -600,6 +668,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/chats/{match_id}/swaps/{card}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Take back my request before they answer (no notification) */
+        delete: operations["withdraw_v1_chats__match_id__swaps__card__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/chats/{match_id}/photo": {
         parameters: {
             query?: never;
@@ -645,6 +730,23 @@ export interface paths {
         put?: never;
         /** Guess one of their cards (one try) */
         post: operations["guess_v1_guesses__card_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/guesses/{card_id}/hint": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Use tonight's hint: strike one wrong option off a card (one a night) */
+        post: operations["hint_v1_guesses__card_id__hint_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -941,6 +1043,24 @@ export interface components {
             /** Interests */
             interests: string[];
         };
+        /**
+         * BlockedOut
+         * @description Someone I blocked.
+         */
+        BlockedOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nickname */
+            nickname: string;
+            /**
+             * Blocked At
+             * Format: date-time
+             */
+            blocked_at: string;
+        };
         /** Body_submit_id_card_v1_verification_id_card_post */
         Body_submit_id_card_v1_verification_id_card_post: {
             /**
@@ -991,6 +1111,16 @@ export interface components {
         CardSwap: {
             card: components["schemas"]["Card"];
             state: components["schemas"]["CardState"];
+            /**
+             * Asked At
+             * @description When the current request (pending or accepted) was made
+             */
+            asked_at: string | null;
+            /**
+             * Decided At
+             * @description When it opened; null unless open
+             */
+            decided_at: string | null;
         };
         /** CardsUpdate */
         CardsUpdate: {
@@ -1027,6 +1157,13 @@ export interface components {
              * @description Their latest message is newer than what I've seen
              */
             unread: boolean;
+            /**
+             * Photo Pieces
+             * @description How many of their 9 photo pieces are open for me
+             */
+            photo_pieces: number;
+            /** @description The most recent request waiting */
+            pending_swap: components["schemas"]["PendingSwap"] | null;
         };
         /** ChatThread */
         ChatThread: {
@@ -1151,6 +1288,11 @@ export interface components {
              * @description The true option; null until I've guessed
              */
             answer: number | null;
+            /**
+             * Struck
+             * @description A wrong option my hint struck off this card, or null if I used no hint here
+             */
+            struck: number | null;
         };
         /** GuessCardsUpdate */
         GuessCardsUpdate: {
@@ -1235,6 +1377,19 @@ export interface components {
             /** Value */
             value: string;
         };
+        /** HintResult */
+        HintResult: {
+            /**
+             * Card Id
+             * Format: uuid
+             */
+            card_id: string;
+            /**
+             * Struck
+             * @description Index of one wrong option; never the true one
+             */
+            struck: number;
+        };
         /**
          * IdentityKind
          * @enum {string}
@@ -1270,14 +1425,21 @@ export interface components {
             /** Email */
             email: string;
         };
-        /** LikeRequest */
+        /**
+         * LikeRequest
+         * @description Like one of their prompts, or one of their guess cards you've already guessed.
+         */
         LikeRequest: {
             /**
              * Prompt Id
-             * Format: uuid
-             * @description Which of their prompts you're liking
+             * @description Which of their prompts
              */
-            prompt_id: string;
+            prompt_id?: string | null;
+            /**
+             * Guess Card Id
+             * @description Or which of their guess cards (guess it first)
+             */
+            guess_card_id?: string | null;
             /** Comment */
             comment?: string | null;
         };
@@ -1288,7 +1450,33 @@ export interface components {
              * @description They had already liked you: it's a match
              */
             matched: boolean;
+            /**
+             * Match Id
+             * @description The new chat when matched: GET /v1/chats/{match_id}
+             */
+            match_id?: string | null;
         };
+        /**
+         * Liked
+         * @description What a like was about, copied when it was sent.
+         */
+        Liked: {
+            kind: components["schemas"]["LikedKind"];
+            /** Question */
+            question: string;
+            /**
+             * Answer
+             * @description The prompt's answer, or the guess card's true option
+             */
+            answer: string;
+            /** @description Null for a prompt */
+            guess_kind: components["schemas"]["GuessKind"] | null;
+        };
+        /**
+         * LikedKind
+         * @enum {string}
+         */
+        LikedKind: "prompt" | "guess";
         /**
          * LookingFor
          * @enum {string}
@@ -1299,6 +1487,15 @@ export interface components {
          * @enum {string}
          */
         MatchOn: "shared_interests" | "same_hometown" | "same_vibe" | "nearby_years";
+        /** MatchResult */
+        MatchResult: {
+            /**
+             * Match Id
+             * Format: uuid
+             * @description The new chat: GET /v1/chats/{match_id}
+             */
+            match_id: string;
+        };
         /** Me */
         Me: {
             /**
@@ -1350,6 +1547,16 @@ export interface components {
             options: string[];
             /** Answer */
             answer: number;
+            /**
+             * Guessed Count
+             * @description How many people have guessed this card
+             */
+            guessed_count: number;
+            /**
+             * Right Count
+             * @description How many of them got it right
+             */
+            right_count: number;
         };
         /**
          * MyProfile
@@ -1413,6 +1620,12 @@ export interface components {
             value: string;
             /** Label */
             label: string;
+        };
+        /** PendingSwap */
+        PendingSwap: {
+            card: components["schemas"]["Card"];
+            /** @description Who asked */
+            by: components["schemas"]["SwapSide"];
         };
         /** PreferencesUpdate */
         PreferencesUpdate: {
@@ -1558,9 +1771,16 @@ export interface components {
              * Format: uuid
              */
             id: string;
-            /** Prompt Question */
+            liked: components["schemas"]["Liked"];
+            /**
+             * Prompt Question
+             * @description Deprecated: use liked.question
+             */
             prompt_question: string;
-            /** Prompt Answer */
+            /**
+             * Prompt Answer
+             * @description Deprecated: use liked.answer
+             */
             prompt_answer: string;
             /** Comment */
             comment: string | null;
@@ -1570,6 +1790,16 @@ export interface components {
              */
             created_at: string;
             profile: components["schemas"]["PublicProfile"];
+            /**
+             * Their Right Guesses
+             * @description How many of my guess cards they got right
+             */
+            their_right_guesses: number;
+            /**
+             * My Cards Total
+             * @description How many guess cards I have
+             */
+            my_cards_total: number;
         };
         /** RejectRequest */
         RejectRequest: {
@@ -1630,6 +1860,32 @@ export interface components {
             /** Body */
             body: string;
         };
+        /**
+         * SentLike
+         * @description A like I sent that's still waiting for an answer, as far as I can tell.
+         */
+        SentLike: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nickname */
+            nickname: string;
+            liked: components["schemas"]["Liked"];
+            /** Comment */
+            comment: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Has Blurred Photo
+             * @description We both have a photo: GET /v1/likes/sent/{id}/photo shows theirs, blurred
+             */
+            has_blurred_photo: boolean;
+        };
         /** SignInResponse */
         SignInResponse: {
             /**
@@ -1664,6 +1920,11 @@ export interface components {
              */
             photo_pieces: number[];
         };
+        /**
+         * SwapSide
+         * @enum {string}
+         */
+        SwapSide: "me" | "them";
         /** Tonight */
         Tonight: {
             /**
@@ -1677,6 +1938,11 @@ export interface components {
              * Format: date-time
              */
             next_drop_at: string;
+            /**
+             * Hint Used
+             * @description I've used tonight's guess-card hint
+             */
+            hint_used: boolean;
             /** Items */
             items: components["schemas"]["DropItemOut"][];
         };
@@ -2422,7 +2688,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Not in your drop, or the prompt is gone */
+            /** @description Not in your drop, or the prompt or card is gone */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2431,7 +2697,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Already answered, or the drop has moved on */
+            /** @description Already answered, the drop has moved on, or that card isn't guessed yet (guess_card_not_guessed) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2487,7 +2753,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Not in your drop, or the prompt is gone */
+            /** @description Not in your drop, or the prompt or card is gone */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2496,7 +2762,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Already answered, or the drop has moved on */
+            /** @description Already answered, the drop has moved on, or that card isn't guessed yet (guess_card_not_guessed) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2612,7 +2878,45 @@ export interface operations {
             };
         };
     };
-    match_back_v1_likes__like_id__match_post: {
+    sent_likes_v1_likes_sent_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SentLike"][];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    take_back_v1_likes_sent__like_id__delete: {
         parameters: {
             query?: never;
             header?: never;
@@ -2629,6 +2933,122 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such waiting like */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sent_photo_v1_likes_sent__like_id__photo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                like_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Blurred photo */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": unknown;
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such waiting like, or no photo to show */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    match_back_v1_likes__like_id__match_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                like_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchResult"];
+                };
             };
             /** @description Not signed in */
             401: {
@@ -3186,6 +3606,44 @@ export interface operations {
             };
         };
     };
+    my_blocks_v1_blocks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlockedOut"][];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     my_list_v1_hides_get: {
         parameters: {
             query?: never;
@@ -3667,6 +4125,74 @@ export interface operations {
             };
         };
     };
+    withdraw_v1_chats__match_id__swaps__card__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: string;
+                card: components["schemas"]["Card"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SwapBoard"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such live match, or no request of mine */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description They asked, not me (swap_not_yours) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     their_photo_v1_chats__match_id__photo_get: {
         parameters: {
             query?: never;
@@ -3836,6 +4362,73 @@ export interface operations {
                 };
             };
             /** @description Already guessed (code already_guessed) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    hint_v1_guesses__card_id__hint_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HintResult"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a verified student yet */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description No such card, or not someone you can see */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Already guessed (already_guessed), or tonight's hint is used on another card (hint_already_used) */
             409: {
                 headers: {
                     [name: string]: unknown;
