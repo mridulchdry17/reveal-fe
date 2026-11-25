@@ -27,7 +27,7 @@ describe('Contact card in the You tab', () => {
         return HttpResponse.json({ ...completeProfile, contact: { kind: 'instagram', value: 'aanya.reads' } })
       }),
     )
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/contact')
 
     const card = await screen.findByRole('region', { name: 'Your last card' })
     await userEvent.type(within(card).getByLabelText('Instagram username'), '@Aanya.Reads')
@@ -48,7 +48,7 @@ describe('Contact card in the You tab', () => {
         ),
       ),
     )
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/contact')
 
     const card = await screen.findByRole('region', { name: 'Your last card' })
     await userEvent.click(within(card).getByRole('radio', { name: 'Phone' }))
@@ -63,7 +63,7 @@ describe('Contact card in the You tab', () => {
     quietHealth()
     signInAs(undefined, undefined, { ...completeProfile, contact: { kind: 'phone', value: '9876543210' } })
     server.use(http.delete(url, () => HttpResponse.json({ ...completeProfile, contact: null })))
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/contact')
 
     const card = await screen.findByRole('region', { name: 'Your last card' })
     expect(within(card).getByText('+91 98765 43210')).toBeInTheDocument()

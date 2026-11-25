@@ -62,7 +62,7 @@ describe('Voice note in the You tab', () => {
       }),
       http.get(url, () => new HttpResponse(new Blob(['opus']), { headers: { 'Content-Type': 'audio/webm' } })),
     )
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/voice')
 
     const card = await screen.findByRole('region', { name: 'Your voice note' })
     await userEvent.click(within(card).getByRole('button', { name: 'Record' }))
@@ -84,7 +84,7 @@ describe('Voice note in the You tab', () => {
       http.get(url, () => new HttpResponse(new Blob(['opus']), { headers: { 'Content-Type': 'audio/webm' } })),
       http.delete(url, () => HttpResponse.json({ ...completeProfile, voice_seconds: null })),
     )
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/voice')
 
     const card = await screen.findByRole('region', { name: 'Your voice note' })
     expect(await within(card).findByLabelText('Your voice note')).toBeInTheDocument()
@@ -97,7 +97,7 @@ describe('Voice note in the You tab', () => {
     quietHealth()
     withMicrophone(false)
     signInAs()
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/voice')
 
     const card = await screen.findByRole('region', { name: 'Your voice note' })
     await userEvent.click(within(card).getByRole('button', { name: 'Record' }))
@@ -108,7 +108,7 @@ describe('Voice note in the You tab', () => {
   it('says so when the browser cannot record', async () => {
     quietHealth()
     signInAs()
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/voice')
 
     const card = await screen.findByRole('region', { name: 'Your voice note' })
 

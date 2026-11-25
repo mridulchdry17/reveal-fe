@@ -41,7 +41,7 @@ describe('Photo card in the You tab', () => {
         return HttpResponse.json({ ...completeProfile, has_photo: true })
       }),
     )
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/photo')
 
     const card = await screen.findByRole('region', { name: 'Your photo' })
     expect(within(card).getByRole('button', { name: 'Add a photo' })).toBeInTheDocument()
@@ -60,7 +60,7 @@ describe('Photo card in the You tab', () => {
         HttpResponse.json({ code: 'photo_too_large', detail: 'That photo is too large' }, { status: 413 }),
       ),
     )
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/photo')
 
     await screen.findByRole('region', { name: 'Your photo' })
     await userEvent.upload(fileInput(), photoFile)
@@ -73,7 +73,7 @@ describe('Photo card in the You tab', () => {
     signInAs(undefined, undefined, { ...completeProfile, has_photo: true })
     servePhoto()
     server.use(http.delete(url, () => HttpResponse.json({ ...completeProfile, has_photo: false })))
-    renderRoutes(routes, '/app/you')
+    renderRoutes(routes, '/app/you/cards/photo')
 
     const card = await screen.findByRole('region', { name: 'Your photo' })
     expect(await within(card).findByRole('img', { name: 'Your photo' })).toBeInTheDocument()
